@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Workhub.Application.Interfaces.Persistance;
 
-namespace Workhub.Infrastructure.Persistance
-{
+namespace Workhub.Infrastructure.Persistance;
     internal class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
     {
         public void Add(TEntity entity)
         {
+            
             throw new NotImplementedException();
         }
 
@@ -44,4 +44,4 @@ namespace Workhub.Infrastructure.Persistance
             throw new NotImplementedException();
         }
     }
-}
+

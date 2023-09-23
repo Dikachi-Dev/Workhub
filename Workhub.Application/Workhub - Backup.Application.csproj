@@ -11,14 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Authentication\Commands\" />
-    <Folder Include="Authentication\Common\" />
-    <Folder Include="Authentication\Queries\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MediatR" Version="12.1.1" />
-    <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
+    <Folder Include="Authentication\NewFolder\" />
   </ItemGroup>
 
 </Project>

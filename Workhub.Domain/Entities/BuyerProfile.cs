@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Workhub.Domain.Entities;
 public class BuyerProfile : BaseEntity
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? Email { get; set; }

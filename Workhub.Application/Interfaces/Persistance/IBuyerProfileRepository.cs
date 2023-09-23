@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Workhub.Domain.Entities;
 
-namespace Workhub.Application.Interfaces.Persistance
-{
+namespace Workhub.Application.Interfaces.Persistance;
     public interface IBuyerProfileRepository : IGenericRepository<BuyerProfile>
     {
         BuyerProfile? GetBuyerProfileByEmail(string email);
@@ -14,4 +13,4 @@ namespace Workhub.Application.Interfaces.Persistance
         BuyerProfile? GetBuyerProfileByIdAllWithCollections(string id);
         IQueryable<BuyerProfile?> GetQueryableBuyerProfiles();
     }
-}
+

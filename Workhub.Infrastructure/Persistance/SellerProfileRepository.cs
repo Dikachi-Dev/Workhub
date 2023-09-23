@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
 
-namespace Workhub.Infrastructure.Persistance
-{
+namespace Workhub.Infrastructure.Persistance;
     public class SellerProfileRepository : ISellerProfileRepository
     {
         public void Add(SellerProfile entity)
         {
+            
             throw new NotImplementedException();
         }
 
@@ -65,4 +65,4 @@ namespace Workhub.Infrastructure.Persistance
             throw new NotImplementedException();
         }
     }
-}
+
