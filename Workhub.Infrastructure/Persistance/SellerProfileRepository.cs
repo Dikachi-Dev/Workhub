@@ -5,64 +5,33 @@ using System.Text;
 using System.Threading.Tasks;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
+using Workhub.Infrastructure.Data.Context;
 
 namespace Workhub.Infrastructure.Persistance;
-    public class SellerProfileRepository : ISellerProfileRepository
+
+public class SellerProfileRepository : GenericRepository<SellerProfile>, ISellerProfileRepository
+{
+    public SellerProfileRepository(AppDataContext context) : base(context)
     {
-        public void Add(SellerProfile entity)
-        {
-            
-            throw new NotImplementedException();
-        }
-
-        public void Delete(string Id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IQueryable<SellerProfile> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public SellerProfile GetById(string Id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IQueryable<SellerProfile?> GetQueryableSellerProfiles()
-        {
-            throw new NotImplementedException();
-        }
-
-        public SellerProfile? GetSellerProfileByEmail(string email)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SellerProfile? GetSellerProfileById(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SellerProfile? GetSellerProfileByIdAllWithCollections(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int SaveChanges()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Update(SellerProfile entity)
-        {
-            throw new NotImplementedException();
-        }
     }
 
+    public IQueryable<SellerProfile?> GetQueryableSellerProfiles()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SellerProfile? GetSellerProfileByEmail(string email)
+    {
+        return GetAll().FirstOrDefault(x => x.Email == email);
+    }
+
+    public SellerProfile? GetSellerProfileById(string id)
+    {
+        return GetById(id);
+    }
+
+    public SellerProfile? GetSellerProfileByIdAllWithCollections(string id)
+    {
+        throw new NotImplementedException();
+    }
+}
