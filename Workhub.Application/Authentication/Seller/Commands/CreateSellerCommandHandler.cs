@@ -39,7 +39,6 @@ public class CreateSellerCommandHandler : IRequestHandler<CreateSellerCommand, E
             LastName = command.LastName,
             Email = command.Email,
             PhoneNumber = command.PhoneNumber,
-            Password = command.Password,
             Country = command.Country,
             State = command.State,
             Address = command.Address,
