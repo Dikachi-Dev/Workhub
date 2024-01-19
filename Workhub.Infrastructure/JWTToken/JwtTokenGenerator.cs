@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,24 +12,27 @@ using Workhub.Application.Interfaces.JWT;
 namespace Workhub.Infrastructure.JWTToken;
 
 public sealed class JwtTokenGenerator :IJWTGenerator
-
 {
+    private readonly IConfiguration configuration;
+
+    public JwtTokenGenerator(IConfiguration configuration)
+    {
+        this.configuration = configuration;
+    }
+
     string IJWTGenerator.GenerateJWTToken(string email, string userid)
     {
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"]);
+        var key = new SymmetricSecurityKey( Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]));
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                            //new Claim(ClaimTypes.Id)
-                            new Claim(ClaimTypes.Email, email),
-                            new Claim(ClaimTypes.NameIdentifier, userid) // Add roles as needed
-                
-                        }),
-            Expires = DateTime.UtcNow.AddHours(3),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            Subject = new ClaimsIdentity(new[]{
+                  new Claim(JwtRegisteredClaimNames.Email, email),
+                  new Claim(JwtRegisteredClaimNames.UniqueName, userid)
+            }),
+            Expires = DateTime.UtcNow.AddHours(12),
+            SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
