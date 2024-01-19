@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Workhub.Application.Authentication.Seller.Common;
+using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
 
@@ -18,12 +19,14 @@ namespace Workhub.Application.Authentication.Seller.Commands;
 public class CreateSellerCommandHandler : IRequestHandler<CreateSellerCommand, ErrorOr<SellerAuthResult>>
 {
     private readonly IMediator mediator;
+    private readonly IJWTGenerator jWTGenerator;
     private readonly ISellerProfileRepository repository;
 
-    public CreateSellerCommandHandler(ISellerProfileRepository repository, IMediator mediator)
+    public CreateSellerCommandHandler(ISellerProfileRepository repository, IMediator mediator, IJWTGenerator jWTGenerator)
     {
         this.repository = repository;
         this.mediator = mediator;
+        this.jWTGenerator = jWTGenerator;
     }
 
 
@@ -35,6 +38,7 @@ public class CreateSellerCommandHandler : IRequestHandler<CreateSellerCommand, E
         }
         var seller = new SellerProfile
         {
+            
             FirstName = command.FirstName,
             LastName = command.LastName,
             Email = command.Email,
@@ -49,7 +53,8 @@ public class CreateSellerCommandHandler : IRequestHandler<CreateSellerCommand, E
         };
         repository.Add(seller);
         repository.SaveChanges();
-        string token = "";
+       
+        string token = jWTGenerator.GenerateJWTToken(command.Email,seller.Id);
         return new SellerAuthResult(seller, token);
     }
 

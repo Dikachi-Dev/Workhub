@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FirebaseAuthentication.net;
+//using FirebaseAuthentication.net;
 
 namespace Workhub.Infrastructure.FB;
 
@@ -13,31 +13,31 @@ public class FirebaseAuthentication
 {
 
 
-    public Task Login()
-    {
-        FirebaseConfiguration configuration = new FirebaseConfiguration
-        {
-            AuthSecret = "YOUR_AUTH_SECRET",
-            BasePath = "https://YOUR_PROJECT_ID.firebaseio.com/"
-        };
+    //public Task Login()
+    //{
+    //    FirebaseConfiguration configuration = new FirebaseConfiguration
+    //    {
+    //        AuthSecret = "YOUR_AUTH_SECRET",
+    //        BasePath = "https://YOUR_PROJECT_ID.firebaseio.com/"
+    //    };
 
-        FirebaseAuth auth = new FirebaseAuth(configuration);
+    //    FirebaseAuth auth = new FirebaseAuth(configuration);
 
-        try
-        {
-            // Sign in with email and password
-            var user = await auth.SignInWithEmailAndPassword("user@example.com", "password");
+    //    try
+    //    {
+    //        // Sign in with email and password
+    //        var user = await auth.SignInWithEmailAndPassword("user@example.com", "password");
 
-            // User is authenticated
-            Console.WriteLine($"User signed in: {user.Email}");
-        }
-        catch (FirebaseAuthException ex)
-        {
-            // Handle authentication error
-            Console.WriteLine($"Authentication failed: {ex.Reason}");
-        }
+    //        // User is authenticated
+    //        Console.WriteLine($"User signed in: {user.Email}");
+    //    }
+    //    catch (FirebaseAuthException ex)
+    //    {
+    //        // Handle authentication error
+    //        Console.WriteLine($"Authentication failed: {ex.Reason}");
+    //    }
 
-    }
+    //}
     // Initialize Firebase with your Firebase project credentials
 
     //public async Task Login(string email, string password)
