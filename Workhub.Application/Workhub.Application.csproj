@@ -7,13 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Workhub.Domain\Workhub.Domain.csproj" />
+    <Compile Remove="Authentication\Commands\**" />
+    <Compile Remove="Authentication\Common\**" />
+    <Compile Remove="Authentication\Queries\**" />
+    <EmbeddedResource Remove="Authentication\Commands\**" />
+    <EmbeddedResource Remove="Authentication\Common\**" />
+    <EmbeddedResource Remove="Authentication\Queries\**" />
+    <None Remove="Authentication\Commands\**" />
+    <None Remove="Authentication\Common\**" />
+    <None Remove="Authentication\Queries\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Authentication\Commands\" />
-    <Folder Include="Authentication\Common\" />
-    <Folder Include="Authentication\Queries\" />
+    <ProjectReference Include="..\Workhub.Domain\Workhub.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

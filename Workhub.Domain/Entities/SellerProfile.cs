@@ -17,6 +17,4 @@ public class SellerProfile : BaseEntity
     public string? Occupation { get; set; }
     public string? Gender { get; set; }
     public string? Experience { get; set; }
-    public string? Password { get; set; }
-    
 }
