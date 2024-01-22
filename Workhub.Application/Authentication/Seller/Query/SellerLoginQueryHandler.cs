@@ -1,10 +1,5 @@
 ﻿using ErrorOr;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Workhub.Application.Authentication.Seller.Common;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Persistance;
@@ -27,7 +22,7 @@ public class SellerLoginQueryHandler : IRequestHandler<SellerLoginQuery, ErrorOr
 
     public async Task<ErrorOr<SellerAuthResult>> Handle(SellerLoginQuery request, CancellationToken cancellationToken)
     {
-        if(repository.GetSellerProfileByEmail(request.Email) is not SellerProfile profile) 
+        if (repository.GetSellerProfileByEmail(request.Email) is not SellerProfile profile)
         {
             return Domain.Errors.Authentication.InvalidCredentials;
         }
@@ -37,6 +32,6 @@ public class SellerLoginQueryHandler : IRequestHandler<SellerLoginQuery, ErrorOr
         }
         var token = jWTGenerator.GenerateJWTToken(profile.Email, profile.Id);
 
-        return  new SellerAuthResult(profile, token);
+        return new SellerAuthResult(profile, token);
     }
 }

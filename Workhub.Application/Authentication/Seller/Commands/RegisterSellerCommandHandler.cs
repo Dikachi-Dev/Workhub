@@ -39,7 +39,8 @@ public class RegisterSellerCommandHandler : IRequestHandler<RegisterSellerComman
             Address = command.Address,
             Occupation = command.Occupation,
             Gender = command.Gender,
-            Experience = command.Experience
+            Experience = command.Experience,
+            Password = command.Password,
 
         };
         repository.Add(seller);

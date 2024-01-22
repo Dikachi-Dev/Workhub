@@ -2,7 +2,5 @@
 
 namespace Workhub.Application.Authentication.Buyer.Common;
 
-public record BuyerAuthResult(
-    BuyerProfile buyerProfile,
-    string token);
+internal record BuyerGetResult(BuyerProfile Profile);
 

@@ -9,6 +9,7 @@ public record RegisterSellerCommand(
 string FirstName,
 string LastName,
 string Email,
+string Password,
 string PhoneNumber,
 string Country,
 string State,
