@@ -8,6 +8,8 @@ public interface IBuyerProfileRepository : IGenericRepository<BuyerProfile>
 
     BuyerProfile? GetBuyerProfileById(string id);
 
+    IQueryable<BuyerProfile?> GetBuyerFilter(string filter);
+
     BuyerProfile? GetBuyerProfileByIdAllWithCollections(string id);
 
     IQueryable<BuyerProfile?> GetQueryableBuyerProfiles();

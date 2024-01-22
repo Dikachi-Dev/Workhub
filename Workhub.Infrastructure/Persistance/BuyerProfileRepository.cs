@@ -10,6 +10,17 @@ public class BuyerProfileRepository : GenericRepository<BuyerProfile>, IBuyerPro
     {
     }
 
+    public IQueryable<BuyerProfile?> GetBuyerFilter(string filter)
+    {
+        return GetAll()
+            .Where(profile => profile != null && profile.FirstName
+            .Contains(filter) || profile.Email
+            .Contains(filter) || profile.LastName
+            .Contains(filter) || profile.State
+            .Contains(filter) || profile.Country
+            .Contains(filter));
+    }
+
     public BuyerProfile? GetBuyerProfileByEmail(string email)
     {
         return GetAll().FirstOrDefault(x => x.Email == email);
