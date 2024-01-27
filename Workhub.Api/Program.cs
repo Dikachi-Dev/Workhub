@@ -3,13 +3,15 @@ using Workhub.Api.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddAuthConfigurations();
-builder.Services.AddControllers();
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddWorkhubApiServices();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -20,8 +22,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseRouting();
+//app.UseAuthorization();
+app.UseEndpoints(endpoint =>
+{
+    EndpointMapper endpointMapper = new EndpointMapper(endpoint);
+    endpointMapper.MapAllEndpoints();
+});
 
-app.MapControllers();
 
 app.Run();

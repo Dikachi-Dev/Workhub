@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Workhub.Domain.Entities;
+﻿namespace Workhub.Domain.Entities;
 public class SellerProfile : BaseEntity
 {
     public string? FirstName { get; set; }
@@ -17,4 +11,5 @@ public class SellerProfile : BaseEntity
     public string? Occupation { get; set; }
     public string? Gender { get; set; }
     public string? Experience { get; set; }
+    public string? Password { get; set; }
 }

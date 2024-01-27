@@ -1,32 +1,31 @@
 ﻿using ErrorOr;
 using MediatR;
-using Workhub.Application.Authentication.Seller.Common;
+using Workhub.Application.Authentication.Buyer.Common;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
 
-namespace Workhub.Application.Authentication.Seller.Query;
+namespace Workhub.Application.Authentication.Buyer.Query;
 
-public class SellerLoginQueryHandler : IRequestHandler<SellerLoginQuery, ErrorOr<SellerAuthResult>>
+public class BuyerLoginQueryHandler : IRequestHandler<BuyerLoginQuery, ErrorOr<BuyerAuthResult>>
 {
-    private readonly IMediator mediator;
-    private readonly ISellerProfileRepository repository;
+
     private readonly IJWTGenerator jWTGenerator;
+    private readonly IBuyerProfileRepository buyerProfileRepository;
     private readonly ISeriLogger logger;
 
-    public SellerLoginQueryHandler(IJWTGenerator jWTGenerator, ISellerProfileRepository repository, IMediator mediator, ISeriLogger logger)
+    public BuyerLoginQueryHandler(IJWTGenerator jWTGenerator, IBuyerProfileRepository buyerProfileRepository, ISeriLogger logger)
     {
+
         this.jWTGenerator = jWTGenerator;
-        this.repository = repository;
-        this.mediator = mediator;
+        this.buyerProfileRepository = buyerProfileRepository;
         this.logger = logger;
     }
 
-
-    public async Task<ErrorOr<SellerAuthResult>> Handle(SellerLoginQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<BuyerAuthResult>> Handle(BuyerLoginQuery request, CancellationToken cancellationToken)
     {
-        if (repository.GetSellerProfileByEmail(request.Email) is not SellerProfile profile)
+        if (buyerProfileRepository.GetBuyerProfileByEmail(request.Email) is not BuyerProfile profile)
         {
             logger.LogInError(request.Email, DateTime.UtcNow, "InValid Email");
             return Domain.Errors.Authentication.InvalidCredentials;
@@ -38,7 +37,6 @@ public class SellerLoginQueryHandler : IRequestHandler<SellerLoginQuery, ErrorOr
         }
         var token = jWTGenerator.GenerateJWTToken(profile.Email, profile.Id);
         logger.LogInformation(profile.Email, DateTime.UtcNow);
-
-        return new SellerAuthResult(profile, token);
+        return new BuyerAuthResult(profile, token);
     }
 }

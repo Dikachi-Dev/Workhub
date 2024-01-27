@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Workhub.Application.Interfaces.Persistance;
+﻿using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
 
@@ -13,6 +8,17 @@ public class SellerProfileRepository : GenericRepository<SellerProfile>, ISeller
 {
     public SellerProfileRepository(AppDataContext context) : base(context)
     {
+    }
+
+    public IQueryable<SellerProfile?> GetSellerFilter(string filter)
+    {
+        return GetAll()
+           .Where(profile => profile != null && profile.FirstName
+           .Contains(filter) || profile.Email
+           .Contains(filter) || profile.LastName
+           .Contains(filter) || profile.State
+           .Contains(filter) || profile.Country
+           .Contains(filter));
     }
 
     public IQueryable<SellerProfile?> GetQueryableSellerProfiles()

@@ -2,5 +2,4 @@
 
 namespace Workhub.Application.Authentication.Seller.Common;
 
-public record SellerAuthResult(SellerProfile SellerProfile, string Token);
-
+internal record SellerGetFilterResult(IEnumerable<SellerProfile> Profiles);
