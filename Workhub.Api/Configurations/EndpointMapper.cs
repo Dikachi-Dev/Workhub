@@ -13,8 +13,22 @@ namespace Workhub.Api.Configurations
 
         public void MapAllEndpoints()
         {
-            SellerLoginEndpoint.MapSellerLoginEndpoint(endpoint);
-            BuyerLoginEndpoint.MapBuyerLoginEndpoint(endpoint);
+            MapBuyerEndpoints();
+            MapSellerEndpoints();
+        }
+
+        private void MapSellerEndpoints()
+        {
+            var seller = endpoint.MapGroup("/api/seller");
+            seller.MapSellerLoginEndpoint();
+        }
+        private void MapBuyerEndpoints()
+        {
+            var buyer = endpoint.MapGroup("/api/buyer");
+            buyer.MapBuyerLoginEndpoint();
+            buyer.MapBuyerRegisterEndpoint();
         }
     }
 }
+
+

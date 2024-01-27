@@ -10,7 +10,7 @@ public static class SellerLoginEndpoint
 {
     public static void MapSellerLoginEndpoint(this IEndpointRouteBuilder endpoint)
     {
-        endpoint.MapPost("/sellerlogin", async (IMediator mediator, IMapper mapper, SellerLoginRequest request) =>
+        endpoint.MapPost("/login", async (IMediator mediator, IMapper mapper, SellerLoginRequest request) =>
         {
             var query = mapper.Map<SellerLoginQuery>(request);
             ErrorOr<SellerAuthResult> loginResult = await mediator.Send(query);

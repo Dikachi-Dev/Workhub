@@ -11,7 +11,7 @@ namespace Workhub.Api.EndPoints
     {
         public static void MapBuyerLoginEndpoint(this IEndpointRouteBuilder endpoint)
         {
-            endpoint.MapPost("/buyerlogin", async (IMediator mediator, IMapper mapper, BuyerLoginRequest request) =>
+            endpoint.MapPost("/login", async (IMediator mediator, IMapper mapper, BuyerLoginRequest request) =>
             {
                 var query = mapper.Map<BuyerLoginQuery>(request);
                 ErrorOr<BuyerAuthResult> loginResult = await mediator.Send(query);
