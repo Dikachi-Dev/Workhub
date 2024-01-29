@@ -1,18 +1,15 @@
-﻿using Serilog;
-using Workhub.Application.Interfaces.Logger;
+﻿using Workhub.Application.Interfaces.Logger;
 
 namespace Workhub.Infrastructure.GlobalLogger
 {
 
-    internal class Logger : ISeriLogger
+    internal class SeriLogger : ISeriLogger
     {
-        private readonly ILogger logger;
+        private readonly Serilog.ILogger logger;
 
-        public Logger(ILogger logger)
+        public SeriLogger(Serilog.ILogger logger)
         {
-            logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void LogExceptions(string message, DateTime dateTime)
@@ -27,9 +24,7 @@ namespace Workhub.Infrastructure.GlobalLogger
 
         public void LogInformation(string username, DateTime dateTime)
         {
-            logger.Information($"Login by {username}  on {dateTime} SuccessFul");
+            logger.Information($"Login by {username} on {dateTime} Successful");
         }
-
-
     }
 }

@@ -10,6 +10,10 @@ public record SellerRegisterRequest(
     string State,
     string Address,
     string Occupation,
+    double Rating,
+    int JobCount,
+    string ProfileImage,
+    string NIN,
     string Gender,
     string Experience);
 

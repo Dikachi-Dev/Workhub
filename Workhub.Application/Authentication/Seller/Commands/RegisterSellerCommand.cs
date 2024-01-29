@@ -16,4 +16,8 @@ string State,
 string Address,
 string Occupation,
 string Gender,
+double Rating,
+    int JobCount,
+    string ProfileImage,
+    string NIN,
 string Experience) : IRequest<ErrorOr<SellerAuthResult>>;

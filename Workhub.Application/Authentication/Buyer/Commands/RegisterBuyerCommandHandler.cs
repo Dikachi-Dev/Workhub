@@ -9,13 +9,13 @@ namespace Workhub.Application.Authentication.Buyer.Commands;
 
 public class RegisterBuyerCommandHandler : IRequestHandler<RegisterBuyerCommand, ErrorOr<BuyerAuthResult>>
 {
-    //private readonly IMediator mediator;
+    private readonly IMediator mediator;
     private readonly IJWTGenerator jwtGenerator;
     private readonly IBuyerProfileRepository repository;
 
-    public RegisterBuyerCommandHandler(IJWTGenerator jwtGenerator, IBuyerProfileRepository repository)
+    public RegisterBuyerCommandHandler(IMediator mediator, IJWTGenerator jwtGenerator, IBuyerProfileRepository repository)
     {
-        // this.mediator = mediator;
+        this.mediator = mediator;
         this.jwtGenerator = jwtGenerator;
         this.repository = repository;
     }
