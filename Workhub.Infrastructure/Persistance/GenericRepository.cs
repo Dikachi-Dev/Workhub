@@ -1,5 +1,5 @@
-﻿using System.Data.Entity;
-using System.Data.Entity.Migrations;
+﻿
+using Microsoft.EntityFrameworkCore;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Infrastructure.Data.Context;
 
@@ -13,6 +13,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
     public GenericRepository(AppDataContext context)
     {
         _context = context;
+        DbSet = _context.Set<TEntity>(); // Initialize DbSet
     }
 
     public void Add(TEntity entity)
@@ -48,6 +49,6 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     public void Update(TEntity entity)
     {
-        DbSet.AddOrUpdate(entity);
+        DbSet.Update(entity);
     }
 }

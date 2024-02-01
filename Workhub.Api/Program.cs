@@ -1,4 +1,7 @@
 using Workhub.Api.Configurations;
+using Workhub.Application;
+using Workhub.Infrastructure;
+//using static System.Net.Mime.MediaTypeNames;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddWorkhubApiServices();
+builder.Services.AddApplication()
+    .AddInfrastructure();
 
 var app = builder.Build();
 
@@ -29,6 +34,7 @@ app.UseEndpoints(endpoint =>
     EndpointMapper endpointMapper = new EndpointMapper(endpoint);
     endpointMapper.MapAllEndpoints();
 });
+
 
 
 app.Run();

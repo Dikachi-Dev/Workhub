@@ -1,15 +1,19 @@
 ﻿namespace Workhub.Domain.Entities;
 public class SellerProfile : BaseEntity
 {
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? Email { get; set; }
-    public string? PhoneNumber { get; set; }
-    public string? Address { get; set; }
-    public string? State { get; set; }
-    public string? Country { get; set; }
-    public string? Occupation { get; set; }
-    public string? Gender { get; set; }
-    public string? Experience { get; set; }
-    public string? Password { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
+    public string State { get; set; } = string.Empty;
+    public string NIN { get; set; } = string.Empty;
+    public string ProfileImage { get; set; } = string.Empty;
+    public string Country { get; set; } = string.Empty;
+    public string Occupation { get; set; } = string.Empty;
+    public string Gender { get; set; } = string.Empty;
+    public string Experience { get; set; } = string.Empty;
+    public double Rating { get; set; }
+    public int JobCount { get; set; }
+    public string Password { get; set; } = string.Empty;
 }

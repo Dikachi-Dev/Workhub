@@ -8,6 +8,7 @@ public class BuyerProfileRepository : GenericRepository<BuyerProfile>, IBuyerPro
 {
     public BuyerProfileRepository(AppDataContext context) : base(context)
     {
+
     }
 
     public IQueryable<BuyerProfile?> GetBuyerFilter(string filter)
