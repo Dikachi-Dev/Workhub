@@ -23,7 +23,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     public void Delete(string Id)
     {
-        DbSet.Remove(DbSet.Find(Id));
+        DbSet.Remove(GetById(Id));
     }
 
     public void Dispose()
@@ -42,10 +42,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return DbSet.Find(Id);
     }
 
-    public int SaveChanges()
-    {
-        return _context.SaveChanges();
-    }
+    public int SaveChanges() => _context.SaveChanges();
 
     public void Update(TEntity entity)
     {

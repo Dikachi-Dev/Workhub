@@ -6,5 +6,6 @@
         public string SellerName { get; set; } = string.Empty;
         public string SellerId { get; set; } = string.Empty;
         public string BuyerId { get; set; } = string.Empty;
+        public string Occupation { get; set; } = string.Empty;
     }
 }

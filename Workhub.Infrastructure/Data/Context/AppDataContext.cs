@@ -5,8 +5,7 @@ namespace Workhub.Infrastructure.Data.Context;
 
 public class AppDataContext : DbContext
 {
-    public DbSet<BuyerProfile> BuyerProfiles { get; set; }
-    public DbSet<SellerProfile> SellerProfiles { get; set; }
+    public DbSet<Profile> Profiles { get; set; }
 
     public AppDataContext()
     {

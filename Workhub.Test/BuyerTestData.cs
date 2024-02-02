@@ -4,11 +4,11 @@ namespace Workhub.Test;
 
 public class BuyerTestData
 {
-    public List<BuyerProfile> GetSampleBuyerProfiles()
+    public List<Profile> GetSampleBuyerProfiles()
     {
-        return new List<BuyerProfile>
+        return new List<Profile>
         {
-            new BuyerProfile
+            new Profile
             {
                 FirstName = "John",
                 LastName = "Doe",
@@ -19,7 +19,7 @@ public class BuyerTestData
                 Country = "US",
                 Password = "securePassword"
             },
-            new BuyerProfile
+            new Profile
             {
                 FirstName = "Alice",
                 LastName = "Smith",
@@ -30,7 +30,7 @@ public class BuyerTestData
                 Country = "US",
                 Password = "anotherPassword"
             },
-                  new BuyerProfile
+                  new Profile
             {
                 FirstName = "Sam",
                 LastName = "Wills",
