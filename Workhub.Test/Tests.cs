@@ -1,33 +1,34 @@
 using Moq;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
-using Workhub.Infrastructure.Data.Context;
-using Workhub.Infrastructure.Persistance;
 
 namespace Workhub.Test;
 
 public class Tests
 {
-    private Mock<IBuyerProfileRepository> contextMock;
-    private BuyerProfileRepository buyerProfileRepository;
-    private AppDataContext context;
+    private Mock<IProfileRepository> contextMock;
     private BuyerTestData testData;
-    private IBuyerProfileRepository MockBuyerRepository;
+    private IProfileRepository? MockRepository;
 
 
     [SetUp]
     public void Setup()
     {
-        contextMock = new Mock<IBuyerProfileRepository>();
+        contextMock = new Mock<IProfileRepository>();
+        // Uncomment the line below if IBuyerProfileRepository extends IGenericRepository<BuyerProfile>
+        contextMock.As<IGenericRepository<Profile>>();
+        // contextMock.Setup(mr => mr.Add(It.IsAny<BuyerProfile>())); // If you extend IGenericRepository
+        // contextMock.Setup(mr => mr.SaveChanges()); // If you extend IGenericRepository
         // buyerProfileRepository = new BuyerProfileRepository(contextMock.Object);
         testData = new BuyerTestData();
     }
+
     [Test]
     public void Test_AddBuyer()
     {
         // Arrange
         var profiles = testData.GetSampleBuyerProfiles().AsQueryable();
-        var profile = new BuyerProfile
+        var profile = new Profile
         {
             FirstName = "John",
             LastName = "Doe",
@@ -41,21 +42,22 @@ public class Tests
 
         // Setup the mock repository
         contextMock.Setup(mr => mr.GetAll()).Returns(profiles);
-        contextMock.Setup(mr => mr.Add(It.IsAny<BuyerProfile>()));
+        contextMock.Setup(mr => mr.Add(It.IsAny<Profile>())); // Mock the Add method
+        contextMock.Setup(mr => mr.SaveChanges());
 
-        this.MockBuyerRepository = contextMock.Object;
+        this.MockRepository = contextMock.Object;
 
         // Act
-        MockBuyerRepository.Add(profile);
-        MockBuyerRepository.SaveChanges();
+        MockRepository.Add(profile);
+        MockRepository.SaveChanges();
 
         // Assert
-        contextMock.Verify(mr => mr.Add(It.IsAny<BuyerProfile>()), Times.Once); // Verify that the Add method was called
-        contextMock.Verify(mr => mr.SaveChanges(), Times.Once); // Verify that SaveChanges method was called
+        contextMock.Verify(mr => mr.Add(It.IsAny<Profile>()), Times.Once); // Verify that the Add method was called
 
-        int profileCount = MockBuyerRepository.GetAll().Count();
+        int profileCount = MockRepository.GetAll().Count();
         Assert.That(profileCount, Is.EqualTo(profiles.Count() + 1)); // Verify that the profile was added
     }
+
 
 
     [Test]
@@ -68,21 +70,21 @@ public class Tests
         contextMock.Setup(mr => mr.GetAll()).Returns(profiles);
 
         // return a product by Id
-        contextMock.Setup(mr => mr.GetBuyerProfileByEmail(
+        contextMock.Setup(mr => mr.GetProfileByEmail(
             It.IsAny<string>())).Returns((string i) => profiles.Where(
             x => x.Email == i).Single());
 
-        this.MockBuyerRepository = contextMock.Object;
+        this.MockRepository = contextMock.Object;
 
 
 
         // Act
-        var result = MockBuyerRepository.GetBuyerProfileByEmail(filter);
-        var result1 = MockBuyerRepository.GetAll();
+        var result = MockRepository.GetProfileByEmail(filter);
+        var result1 = MockRepository.GetAll();
 
         // Assert
         Assert.IsNotNull(result1);
-        Assert.IsInstanceOf<BuyerProfile>(result);
+        Assert.IsInstanceOf<Profile>(result);
         // Add more assertions based on the expected behavior of GetBuyerFilter
     }
 

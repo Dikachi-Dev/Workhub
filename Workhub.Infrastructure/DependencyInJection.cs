@@ -13,8 +13,7 @@ public static class DependencyInJection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddScoped<IBuyerProfileRepository, BuyerProfileRepository>();
-        services.AddScoped<ISellerProfileRepository, SellerProfileRepository>();
+        services.AddScoped<IProfileRepository, ProfileRepository>();
         services.AddScoped<IJWTGenerator, JwtTokenGenerator>();
 
         // Register Serilog.ILogger
