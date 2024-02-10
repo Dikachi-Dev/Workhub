@@ -4,7 +4,6 @@ namespace Workhub.Application.Interfaces.Persistance;
 public interface IProfileRepository : IGenericRepository<Profile>
 {
     Profile? GetProfileByEmail(string email);
-    Profile? GetProfileById(string id);
     IQueryable<Profile?> GetByFilter(string filter);
     Profile? GetSellerProfileByIdAllWithCollections(string id);
     IQueryable<Profile?> GetQueryableSellerProfiles();

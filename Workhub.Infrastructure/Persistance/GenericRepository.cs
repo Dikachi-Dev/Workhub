@@ -12,24 +12,18 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     public GenericRepository(AppDataContext context)
     {
-        _context = context;
-        DbSet = _context.Set<TEntity>(); // Initialize DbSet
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        DbSet = _context.Set<TEntity>();
     }
 
-    public void Add(TEntity entity)
+    public async Task Add(TEntity entity)
     {
-        DbSet.Add(entity);
+        await DbSet.AddAsync(entity);
     }
 
-    public void Delete(string Id)
+    public async Task<TEntity> GetById(string Id)
     {
-        DbSet.Remove(GetById(Id));
-    }
-
-    public void Dispose()
-    {
-        _context.Dispose();
-        GC.SuppressFinalize(this);
+        return await DbSet.FindAsync(Id);
     }
 
     public IQueryable<TEntity> GetAll()
@@ -37,15 +31,27 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return DbSet;
     }
 
-    public TEntity GetById(string Id)
-    {
-        return DbSet.Find(Id);
-    }
-
-    public int SaveChanges() => _context.SaveChanges();
-
     public void Update(TEntity entity)
     {
         DbSet.Update(entity);
     }
+
+    public async Task Delete(string Id)
+    {
+        TEntity entity = await GetById(Id);
+        DbSet.Remove(entity);
+    }
+
+    public async Task<int> SaveChanges()
+    {
+        return await _context.SaveChangesAsync();
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }
+
+

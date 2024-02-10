@@ -29,12 +29,12 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthResult>
         if (repository.GetProfileByEmail(request.Email) is not Profile profile)
         {
             logger.LogInError(request.Email, DateTime.UtcNow, "InValid Email");
-            return Domain.Errors.Authentication.InvalidCredentials;
+            return Domain.Errors.Errors.Authentication.InvalidCredentials;
         }
         if (profile.Password != request.Password)
         {
             logger.LogInError(request.Email, DateTime.UtcNow, "InValid Password");
-            return Domain.Errors.Authentication.InvalidCredentials;
+            return Domain.Errors.Errors.Authentication.InvalidCredentials;
         }
         var token = jWTGenerator.GenerateJWTToken(profile.Email, profile.Id);
         logger.LogInformation(profile.Email, DateTime.UtcNow);

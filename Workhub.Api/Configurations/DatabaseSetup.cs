@@ -8,14 +8,16 @@ public static class DatabaseSetup
     public static void AddDatabaseSetup(this IServiceCollection services)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder()
-                             .AddJsonFile("appsettings.json").Build();
-        var db = configuration.GetSection("ConnectionStrings:AppDataContext").Value;
+                             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                             .Build();
 
+        var db = configuration.GetConnectionString("AppDataContext");
 
-        if (services is null) throw new ArgumentNullException(nameof(services));
+        if (services is null)
+            throw new ArgumentNullException(nameof(services));
 
         services.AddDbContext<AppDataContext>(
-                  options => options.UseSqlServer(db)
-            );
+            options => options.UseSqlServer(db)
+        );
     }
 }
