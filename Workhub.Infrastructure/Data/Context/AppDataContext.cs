@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Infrastructure.Data.Context;
@@ -15,6 +13,17 @@ public class AppDataContext : DbContext
 
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Profile>().OwnsOne(p => p.Subscribe, s =>
+        {
+            s.Property<DateTime>(nameof(Subscribe.SubscribeOn)).HasColumnName(nameof(Subscribe.SubscribeOn));
+            s.Property<DateTime>(nameof(Subscribe.ExpireOn)).HasColumnName(nameof(Subscribe.ExpireOn));
+            s.Property<bool>(nameof(Subscribe.IsSubscribed)).HasColumnName(nameof(Subscribe.IsSubscribed));
+        });
+
+    }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // This method will not be used since the options are provided through the constructor
