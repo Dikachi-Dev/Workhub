@@ -42,8 +42,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
             Experience = command.Experience,
             Password = command.Password,
             ProfileImage = command.ProfileImage,
-            NIN = command.NIN,
-            LGA = command.LGA,
+            NIN = command.Nin,
+            LGA = command.Lga,
             LongLat = command.LongLat,
             UserType = command.UserType
         };

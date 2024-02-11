@@ -1,4 +1,5 @@
 ﻿using Workhub.Api.EndPoints;
+using Workhub.Infrastructure.Notification;
 
 namespace Workhub.Api.Configurations
 {
@@ -13,6 +14,7 @@ namespace Workhub.Api.Configurations
 
         public void MapAllEndpoints()
         {
+            endpoint.MapHub<NotificationHub>("/noticehub");
 
             MapUserAuthEndpoints();
         }

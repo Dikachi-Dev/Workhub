@@ -27,7 +27,7 @@ public sealed class JwtTokenGenerator : IJWTGenerator
                   new Claim(JwtRegisteredClaimNames.Email, email),
                   new Claim(JwtRegisteredClaimNames.UniqueName, userid)
             }),
-            Expires = DateTime.UtcNow.AddHours(12),
+            Expires = DateTime.UtcNow.AddDays(30),
             SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
         };
 
