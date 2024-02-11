@@ -17,9 +17,9 @@ namespace Workhub.Application.Authentication.Seller.Query
 
         public async Task<ErrorOr<GetResult>> Handle(GetByIdQuery request, CancellationToken cancellationToken)
         {
-            if (repository.GetProfileByEmail(request.Userid) is not Profile profile)
+            if (await repository.GetById(request.Userid) is not Profile profile)
             {
-                return Domain.Errors.Profile.NotFound;
+                return Domain.Errors.Errors.Profile.NotFound;
             }
             return new GetResult(profile);
         }

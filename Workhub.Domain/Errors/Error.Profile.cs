@@ -1,6 +1,6 @@
 ﻿using ErrorOr;
 
-namespace Workhub.Domain;
+namespace Workhub.Domain.Errors;
 public static partial class Errors
 {
     public static partial class Profile

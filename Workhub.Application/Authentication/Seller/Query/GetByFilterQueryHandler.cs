@@ -19,7 +19,7 @@ internal class GetByFilterQueryHandler : IRequestHandler<GetByFilterQuery, Error
     {
         if (repository.GetByFilter(request.Filter) is not IEnumerable<Profile> profiles)
         {
-            return Domain.Errors.Profile.NotFound;
+            return Domain.Errors.Errors.Profile.NotFound;
         }
 
         return new GetFilterResult(profiles);

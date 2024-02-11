@@ -3,6 +3,7 @@ using Serilog;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Infrastructure.Data.Context;
 using Workhub.Infrastructure.GlobalLogger;
 using Workhub.Infrastructure.JWTToken;
 using Workhub.Infrastructure.Persistance;
@@ -15,7 +16,7 @@ public static class DependencyInJection
     {
         services.AddScoped<IProfileRepository, ProfileRepository>();
         services.AddScoped<IJWTGenerator, JwtTokenGenerator>();
-
+        services.AddScoped<IJobRepository, JobRepository>();
         // Register Serilog.ILogger
         services.AddSingleton<Serilog.ILogger>(provider =>
         {
@@ -27,7 +28,7 @@ public static class DependencyInJection
 
         // Register ISeriLogger
         services.AddScoped<ISeriLogger, SeriLogger>();
-        //services.AddDbContext < AppDataContext >
+        services.AddDbContext<AppDataContext>();
         return services;
     }
 }

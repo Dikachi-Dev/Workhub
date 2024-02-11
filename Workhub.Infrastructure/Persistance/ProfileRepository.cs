@@ -31,10 +31,6 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         return GetAll().FirstOrDefault(x => x.Email == email);
     }
 
-    public Profile? GetProfileById(string id)
-    {
-        return GetById(id);
-    }
 
     public Profile? GetSellerProfileByIdAllWithCollections(string id)
     {

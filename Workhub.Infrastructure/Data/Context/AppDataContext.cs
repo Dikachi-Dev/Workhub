@@ -6,18 +6,27 @@ namespace Workhub.Infrastructure.Data.Context;
 public class AppDataContext : DbContext
 {
     public DbSet<Profile> Profiles { get; set; }
+    public DbSet<Job> Jobs { get; set; }
 
-    public AppDataContext()
+    public AppDataContext(DbContextOptions<AppDataContext> options) : base(options)
     {
+
     }
 
-    public AppDataContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-    }
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Profile>().OwnsOne(p => p.Subscribe, s =>
+        {
+            s.Property<DateTime>(nameof(Subscribe.SubscribeOn)).HasColumnName(nameof(Subscribe.SubscribeOn));
+            s.Property<DateTime>(nameof(Subscribe.ExpireOn)).HasColumnName(nameof(Subscribe.ExpireOn));
+            s.Property<bool>(nameof(Subscribe.IsSubscribed)).HasColumnName(nameof(Subscribe.IsSubscribed));
+        });
 
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //{
-    //    base.OnConfiguring(optionsBuilder);
-    //    optionsBuilder.UseSqlServer("ConnectionString");
-    //}
+    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // This method will not be used since the options are provided through the constructor
+        optionsBuilder.UseSqlServer("Data Source=SQL5110.site4now.net;Initial Catalog=db_a7a91c_workhub;User Id=db_a7a91c_workhub_admin;Password=Kachukwu11");
+    }
 }

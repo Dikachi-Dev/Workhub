@@ -25,7 +25,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
     {
         if (repository.GetProfileByEmail(command.Email) != null)
         {
-            return Domain.Errors.Profile.DuplicateEmail;
+            return Domain.Errors.Errors.Profile.DuplicateEmail;
         }
         var profile = new Profile
         {
@@ -43,10 +43,12 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
             Password = command.Password,
             ProfileImage = command.ProfileImage,
             NIN = command.NIN,
+            LGA = command.LGA,
+            LongLat = command.LongLat,
             UserType = command.UserType
         };
-        repository.Add(profile);
-        repository.SaveChanges();
+        await repository.Add(profile);
+        await repository.SaveChanges();
 
         string token = jWTGenerator.GenerateJWTToken(command.Email, profile.Id);
         return new AuthResult(profile, token);
