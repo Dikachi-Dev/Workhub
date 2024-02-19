@@ -7,11 +7,12 @@ public class AppDataContext : DbContext
 {
     public DbSet<Profile> Profiles { get; set; }
     public DbSet<Job> Jobs { get; set; }
+    public DbSet<ChatPost> ChatPosts { get; set; }
 
-    public AppDataContext(DbContextOptions<AppDataContext> options) : base(options)
-    {
+    //public AppDataContext(DbContextOptions<AppDataContext> options) : base(options)
+    //{
 
-    }
+    //}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +23,15 @@ public class AppDataContext : DbContext
             s.Property<DateTime>(nameof(Subscribe.ExpireOn)).HasColumnName(nameof(Subscribe.ExpireOn));
             s.Property<bool>(nameof(Subscribe.IsSubscribed)).HasColumnName(nameof(Subscribe.IsSubscribed));
         });
+        modelBuilder.Entity<ChatPost>().OwnsMany(c => c.Replys, r =>
+        {
+            r.HasKey("Id");
+            r.Property<string>("Id").IsRequired();
+            r.Property<string>("Message").IsRequired();
+            r.Property<string>("FromId").IsRequired();
+            r.Property<DateTime>("CreatedOn").IsRequired();
+        });
+
 
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
