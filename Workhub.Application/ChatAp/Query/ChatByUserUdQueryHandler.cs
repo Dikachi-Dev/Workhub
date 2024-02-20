@@ -19,7 +19,7 @@ public class ChatByUserUdQueryHandler : IRequestHandler<ChatByUserIdQuery, Error
 
     public async Task<ErrorOr<AllChatResult>> Handle(ChatByUserIdQuery request, CancellationToken cancellationToken)
     {
-        if (repository.GetByUser(request.userId) is not IEnumerable<ChatPost> chatposts)
+        if (repository.GetByUser(request.userId, cancellationToken) is not IEnumerable<ChatPost> chatposts)
         {
             return Domain.Errors.Errors.ChatPost.NotFound;
         }

@@ -27,8 +27,4 @@
     <ProjectReference Include="..\Workhub.Domain\Workhub.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ChatAp\Command\" />
-  </ItemGroup>
-
 </Project>

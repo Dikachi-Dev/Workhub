@@ -4,6 +4,7 @@ namespace Workhub.Application.Interfaces.Persistance;
 
 public interface IChatPostRepository : IGenericRepository<ChatPost>
 {
-    IEnumerable<ChatPost> GetByUser(string userId);
+    IEnumerable<ChatPost> GetByUser(string userId, CancellationToken token);
+    Task<ChatPost> GetbySenderAndReciverId(string senderId, string receiverId, CancellationToken token);
 
 }
