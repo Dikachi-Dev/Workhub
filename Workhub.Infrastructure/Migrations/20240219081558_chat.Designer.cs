@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Workhub.Infrastructure.Data.Context;
 
@@ -11,9 +12,11 @@ using Workhub.Infrastructure.Data.Context;
 namespace Workhub.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    partial class AppDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240219081558_chat")]
+    partial class chat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,7 +179,7 @@ namespace Workhub.Infrastructure.Migrations
                             b1.Property<string>("Id")
                                 .HasColumnType("nvarchar(450)");
 
-                            b1.Property<string>("ChatPostIdId")
+                            b1.Property<string>("ChatPostId")
                                 .IsRequired()
                                 .HasColumnType("nvarchar(450)");
 
@@ -193,14 +196,12 @@ namespace Workhub.Infrastructure.Migrations
 
                             b1.HasKey("Id");
 
-                            b1.HasIndex("ChatPostIdId");
+                            b1.HasIndex("ChatPostId");
 
                             b1.ToTable("Reply");
 
-                            b1.WithOwner("ChatPostId")
-                                .HasForeignKey("ChatPostIdId");
-
-                            b1.Navigation("ChatPostId");
+                            b1.WithOwner()
+                                .HasForeignKey("ChatPostId");
                         });
 
                     b.Navigation("Replys");

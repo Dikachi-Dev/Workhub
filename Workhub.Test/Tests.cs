@@ -9,6 +9,7 @@ public class Tests
     private Mock<IProfileRepository> contextMock;
     private BuyerTestData testData;
     private IProfileRepository? MockRepository;
+    private CancellationToken token;
 
 
     [SetUp]
@@ -41,20 +42,20 @@ public class Tests
         };
 
         // Setup the mock repository
-        contextMock.Setup(mr => mr.GetAll()).Returns(profiles);
-        contextMock.Setup(mr => mr.Add(It.IsAny<Profile>())); // Mock the Add method
-        contextMock.Setup(mr => mr.SaveChanges());
+        contextMock.Setup(mr => mr.GetAll(token)).Returns(profiles);
+        contextMock.Setup(mr => mr.Add(It.IsAny<Profile>(), token)); // Mock the Add method
+        contextMock.Setup(mr => mr.SaveChanges(token));
 
         this.MockRepository = contextMock.Object;
 
         // Act
-        MockRepository.Add(profile);
-        MockRepository.SaveChanges();
+        MockRepository.Add(profile, token);
+        MockRepository.SaveChanges(token);
 
         // Assert
-        contextMock.Verify(mr => mr.Add(It.IsAny<Profile>()), Times.Once); // Verify that the Add method was called
+        contextMock.Verify(mr => mr.Add(It.IsAny<Profile>(), token), Times.Once); // Verify that the Add method was called
 
-        int profileCount = MockRepository.GetAll().Count();
+        int profileCount = MockRepository.GetAll(token).Count();
         Assert.That(profileCount, Is.EqualTo(profiles.Count() + 1)); // Verify that the profile was added
     }
 
@@ -67,11 +68,11 @@ public class Tests
         var filter = "john.doe@example.com";
 
         var profiles = testData.GetSampleBuyerProfiles().AsQueryable();
-        contextMock.Setup(mr => mr.GetAll()).Returns(profiles);
+        contextMock.Setup(mr => mr.GetAll(token)).Returns(profiles);
 
         // return a product by Id
         contextMock.Setup(mr => mr.GetProfileByEmail(
-            It.IsAny<string>())).Returns((string i) => profiles.Where(
+            It.IsAny<string>(), token)).Returns((string i) => profiles.Where(
             x => x.Email == i).Single());
 
         this.MockRepository = contextMock.Object;
@@ -79,8 +80,8 @@ public class Tests
 
 
         // Act
-        var result = MockRepository.GetProfileByEmail(filter);
-        var result1 = MockRepository.GetAll();
+        var result = MockRepository.GetProfileByEmail(filter, token);
+        var result1 = MockRepository.GetAll(token);
 
         // Assert
         Assert.IsNotNull(result1);

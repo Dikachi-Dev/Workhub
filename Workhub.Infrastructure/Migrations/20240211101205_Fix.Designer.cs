@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Workhub.Infrastructure.Data.Context;
 
@@ -11,9 +12,11 @@ using Workhub.Infrastructure.Data.Context;
 namespace Workhub.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    partial class AppDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240211101205_Fix")]
+    partial class Fix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,27 +24,6 @@ namespace Workhub.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Workhub.Domain.Entities.ChatPost", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ChatPosts");
-                });
 
             modelBuilder.Entity("Workhub.Domain.Entities.Job", b =>
                 {
@@ -167,43 +149,6 @@ namespace Workhub.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Profiles");
-                });
-
-            modelBuilder.Entity("Workhub.Domain.Entities.ChatPost", b =>
-                {
-                    b.OwnsMany("Workhub.Domain.Entities.Reply", "Replys", b1 =>
-                        {
-                            b1.Property<string>("Id")
-                                .HasColumnType("nvarchar(450)");
-
-                            b1.Property<string>("ChatPostIdId")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(450)");
-
-                            b1.Property<DateTime>("CreatedOn")
-                                .HasColumnType("datetime2");
-
-                            b1.Property<string>("FromId")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("Message")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("ChatPostIdId");
-
-                            b1.ToTable("Reply");
-
-                            b1.WithOwner("ChatPostId")
-                                .HasForeignKey("ChatPostIdId");
-
-                            b1.Navigation("ChatPostId");
-                        });
-
-                    b.Navigation("Replys");
                 });
 
             modelBuilder.Entity("Workhub.Domain.Entities.Profile", b =>

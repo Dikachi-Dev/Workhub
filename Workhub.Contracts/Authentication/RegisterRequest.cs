@@ -12,8 +12,8 @@ public record RegisterRequest(
     string Occupation,
     string UserType,
     string ProfileImage,
-    string NIN,
-    string LGA,
+    string Nin,
+    string Lga,
     string LongLat,
     string Gender,
     string Experience);
