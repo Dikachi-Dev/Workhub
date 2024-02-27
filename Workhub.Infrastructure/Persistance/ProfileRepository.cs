@@ -6,13 +6,13 @@ namespace Workhub.Infrastructure.Persistance;
 
 public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 {
-    public ProfileRepository(AppDataContext context, CancellationToken token) : base(context, token)
+    public ProfileRepository(AppDataContext context) : base(context)
     {
     }
 
-    public IQueryable<Profile?> GetByFilter(string filter, CancellationToken token)
+    public IQueryable<Profile?> GetByFilter(string filter)
     {
-        return GetAll(token)
+        return GetAll()
            .Where(profile => profile != null && profile.FirstName
            .Contains(filter) || profile.Email
            .Contains(filter) || profile.LastName
@@ -21,18 +21,18 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
            .Contains(filter));
     }
 
-    public IQueryable<Profile?> GetQueryableSellerProfiles(CancellationToken token)
+    public IQueryable<Profile?> GetQueryableSellerProfiles()
     {
         throw new NotImplementedException();
     }
 
-    public Profile? GetProfileByEmail(string email, CancellationToken token)
+    public Profile? GetProfileByEmail(string email)
     {
-        return GetAll(token).FirstOrDefault(x => x.Email == email);
+        return GetAll().FirstOrDefault(x => x.Email == email);
     }
 
 
-    public Profile? GetSellerProfileByIdAllWithCollections(string id, CancellationToken token)
+    public Profile? GetSellerProfileByIdAllWithCollections(string id)
     {
         throw new NotImplementedException();
     }

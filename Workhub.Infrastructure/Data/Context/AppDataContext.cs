@@ -9,10 +9,10 @@ public class AppDataContext : DbContext
     public DbSet<Job> Jobs { get; set; }
     public DbSet<ChatPost> ChatPosts { get; set; }
 
-    //public AppDataContext(DbContextOptions<AppDataContext> options) : base(options)
-    //{
+    public AppDataContext(DbContextOptions<AppDataContext> options) : base(options)
+    {
 
-    //}
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,9 +34,9 @@ public class AppDataContext : DbContext
 
 
     }
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        // This method will not be used since the options are provided through the constructor
-        optionsBuilder.UseSqlServer("Data Source=SQL5110.site4now.net;Initial Catalog=db_a7a91c_workhub;User Id=db_a7a91c_workhub_admin;Password=Kachukwu11");
-    }
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    // This method will not be used since the options are provided through the constructor
+    //    optionsBuilder.UseSqlServer("Data Source=SQL5110.site4now.net;Initial Catalog=db_a7a91c_workhub;User Id=db_a7a91c_workhub_admin;Password=Kachukwu11");
+    //}
 }

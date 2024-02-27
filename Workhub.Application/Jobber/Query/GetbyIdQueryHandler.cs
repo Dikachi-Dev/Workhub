@@ -19,7 +19,7 @@ internal class GetbyIdQueryHandler : IRequestHandler<GetbyIdQuery, ErrorOr<GetRe
 
     public async Task<ErrorOr<GetResult>> Handle(GetbyIdQuery request, CancellationToken cancellationToken)
     {
-        if (await repository.GetById(request.Id, cancellationToken) is not Job job)
+        if (await repository.GetById(request.Id) is not Job job)
         {
             return Domain.Errors.Errors.Job.NotFound;
         }

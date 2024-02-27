@@ -10,9 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddWorkhubApiServices();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
+builder.Services.AddWorkhubApiServices();
+
 builder.Services.AddSignalR();
 builder.Services.AddAuthentication();
 
@@ -38,5 +39,10 @@ app.UseAuthorization();
 // Map endpoints
 var endpointMapper = new EndpointMapper(app);
 endpointMapper.MapAllEndpoints();
+//app.UseEndpoints(endpoint =>
+//{
+//    EndpointMapper endpointMapper = new EndpointMapper(endpoint);
+//    endpointMapper.MapAllEndpoints();
+//});
 
 app.Run();

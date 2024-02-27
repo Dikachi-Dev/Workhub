@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Workhub.Domain\Workhub.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Profiless\Commands\" />
+  </ItemGroup>
+
 </Project>

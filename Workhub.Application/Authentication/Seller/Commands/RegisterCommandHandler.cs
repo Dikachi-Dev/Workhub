@@ -23,7 +23,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
 
     public async Task<ErrorOr<AuthResult>> Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
-        if (repository.GetProfileByEmail(command.Email, cancellationToken) != null)
+        if (repository.GetProfileByEmail(command.Email) != null)
         {
             return Domain.Errors.Errors.Profile.DuplicateEmail;
         }
@@ -47,8 +47,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
             LongLat = command.LongLat,
             UserType = command.UserType
         };
-        await repository.Add(profile, cancellationToken);
-        await repository.SaveChanges(cancellationToken);
+        await repository.Add(profile);
+        await repository.SaveChanges();
 
         string token = jWTGenerator.GenerateJWTToken(command.Email, profile.Id);
         return new AuthResult(profile, token);

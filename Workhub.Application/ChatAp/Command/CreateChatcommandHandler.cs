@@ -25,9 +25,9 @@ public class CreateChatcommandHandler : IRequestHandler<CreateChatCommand, Error
             ReceiverId = request.ReceiverId,
             Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
         };
-        await repository.Add(chat, cancellationToken);
-        await repository.SaveChanges(cancellationToken);
-        return new ChatResult(await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId, cancellationToken));
+        await repository.Add(chat);
+        await repository.SaveChanges();
+        return new ChatResult(await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId));
 
     }
 }

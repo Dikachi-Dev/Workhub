@@ -6,7 +6,7 @@ namespace Workhub.Infrastructure.Persistance;
 
 internal class JobRepository : GenericRepository<Job>, IJobRepository
 {
-    public JobRepository(AppDataContext context, CancellationToken token) : base(context, token)
+    public JobRepository(AppDataContext context) : base(context)
     {
     }
 }

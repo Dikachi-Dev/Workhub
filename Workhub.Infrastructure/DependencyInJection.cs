@@ -17,6 +17,7 @@ public static class DependencyInJection
         services.AddScoped<IProfileRepository, ProfileRepository>();
         services.AddScoped<IJWTGenerator, JwtTokenGenerator>();
         services.AddScoped<IJobRepository, JobRepository>();
+        services.AddScoped<IChatPostRepository, ChatPostRepository>();
         // Register Serilog.ILogger
         services.AddSingleton<Serilog.ILogger>(provider =>
         {
