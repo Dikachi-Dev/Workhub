@@ -47,11 +47,11 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
             LongLat = command.LongLat,
             UserType = command.UserType
         };
-        await repository.Add(profile);
-        await repository.SaveChanges();
+        var user = await repository.Register(profile);
 
-        string token = jWTGenerator.GenerateJWTToken(command.Email, profile.Id);
-        return new AuthResult(profile, token);
+
+        string token = jWTGenerator.GenerateJWTToken(user);
+        return new AuthResult(token);
     }
 
 }

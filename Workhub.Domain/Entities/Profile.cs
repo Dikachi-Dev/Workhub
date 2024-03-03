@@ -1,7 +1,6 @@
 ﻿namespace Workhub.Domain.Entities;
 public class Profile : BaseEntity
 {
-
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -17,7 +16,7 @@ public class Profile : BaseEntity
     public string Experience { get; set; } = string.Empty;
     public double Rating { get; set; } = 0.00;
     public int JobCount { get; set; } = 0;
-    public Subscribe Subscribe { get; set; }
+    public Subscribe Subscribe { get; set; } = new Subscribe();
     public string LongLat { get; set; } = string.Empty;
     public string UserType { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;

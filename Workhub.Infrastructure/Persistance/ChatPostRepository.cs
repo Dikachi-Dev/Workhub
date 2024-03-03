@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿
+using Microsoft.EntityFrameworkCore;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
@@ -13,7 +14,9 @@ public class ChatPostRepository : GenericRepository<ChatPost>, IChatPostReposito
 
     public async Task<ChatPost> GetbySenderAndReciverId(string senderId, string receiverId)
     {
-        return await DbSet.FirstOrDefaultAsync(r => r.SenderId == senderId && r.ReceiverId == receiverId);
+        return await DbSet
+            .Include(r => r.Replys)
+            .SingleOrDefaultAsync(r => r.SenderId == senderId && r.ReceiverId == receiverId);
     }
 
     public IEnumerable<ChatPost> GetByUser(string userId)

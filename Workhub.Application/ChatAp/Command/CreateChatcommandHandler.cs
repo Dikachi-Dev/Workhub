@@ -19,15 +19,46 @@ public class CreateChatcommandHandler : IRequestHandler<CreateChatCommand, Error
 
     public async Task<ErrorOr<ChatResult>> Handle(CreateChatCommand request, CancellationToken cancellationToken)
     {
-        var chat = new ChatPost
+
+        var existingChat = await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId);
+        if (existingChat is null)
         {
-            SenderId = request.SenderId,
-            ReceiverId = request.ReceiverId,
-            Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
-        };
-        await repository.Add(chat);
+            var chat = new ChatPost
+            {
+                SenderId = request.SenderId,
+                ReceiverId = request.ReceiverId,
+                Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
+            };
+            await repository.Add(chat);
+        }
+        else
+        {
+            var updatechat = existingChat.Replys.ToList();
+            updatechat.Add(new Reply { Message = request.Message, FromId = request.SenderId });
+            repository.Update(existingChat);
+        }
         await repository.SaveChanges();
+
         return new ChatResult(await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId));
+
+        //if (await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId) is null)
+        //{
+        //    var chat = new ChatPost
+        //    {
+        //        SenderId = request.SenderId,
+        //        ReceiverId = request.ReceiverId,
+        //        Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
+        //    };
+        //}
+        //var chat = new ChatPost
+        //{
+        //    SenderId = request.SenderId,
+        //    ReceiverId = request.ReceiverId,
+        //    Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
+        //};
+        //await repository.Add(chat);
+        //await repository.SaveChanges();
+        //return new ChatResult(await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId));
 
     }
 }

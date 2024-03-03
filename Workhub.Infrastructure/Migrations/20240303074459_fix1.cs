@@ -5,7 +5,7 @@
 namespace Workhub.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Fix : Migration
+    public partial class fix1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
