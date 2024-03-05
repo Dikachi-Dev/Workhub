@@ -1,4 +1,5 @@
 ﻿using Workhub.Api.EndPoints;
+using Workhub.Api.EndPoints.ChatEndpoints;
 using Workhub.Infrastructure.Notification;
 
 namespace Workhub.Api.Configurations
@@ -17,13 +18,20 @@ namespace Workhub.Api.Configurations
             endpoint.MapHub<NotificationHub>("/noticehub");
 
             MapUserAuthEndpoints();
+            MapChatsEndpoint();
         }
 
         private void MapUserAuthEndpoints()
         {
             var buyer = endpoint.MapGroup("/api/auth");
-            buyer.MapLoginEndpoint();
-            buyer.MapRegisterEndpoint();
+            buyer.MapAuthEndpoint();
+        }
+
+        private void MapChatsEndpoint()
+        {
+            var chat = endpoint.MapGroup("/api/chat");
+            chat.MapChatEndpoint();
+
         }
     }
 }

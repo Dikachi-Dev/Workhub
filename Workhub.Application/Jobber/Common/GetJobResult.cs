@@ -2,5 +2,5 @@
 
 namespace Workhub.Application.Jobber.Common;
 
-internal record GetResult(Job Job);
+public record GetJobResult(Job Job);
 

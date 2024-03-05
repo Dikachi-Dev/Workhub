@@ -1,6 +1,4 @@
-﻿using Workhub.Domain.Entities;
+﻿namespace Workhub.Contracts.Authentication;
 
-namespace Workhub.Contracts.Authentication;
-
-public record LoginResponse(Profile Profile, string Token);
+public record LoginResponse(string token);
 

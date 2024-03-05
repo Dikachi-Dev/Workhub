@@ -26,19 +26,15 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthResult>
 
     public async Task<ErrorOr<AuthResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        if (repository.GetProfileByEmail(request.Email) is not Profile profile)
+        if (await repository.Login(request.Email, request.Password) is not GlobalUser profile)
         {
             logger.LogInError(request.Email, DateTime.UtcNow, "InValid Email");
             return Domain.Errors.Errors.Authentication.InvalidCredentials;
         }
-        if (profile.Password != request.Password)
-        {
-            logger.LogInError(request.Email, DateTime.UtcNow, "InValid Password");
-            return Domain.Errors.Errors.Authentication.InvalidCredentials;
-        }
-        var token = jWTGenerator.GenerateJWTToken(profile.Email, profile.Id);
+
+        var token = jWTGenerator.GenerateJWTToken(profile);
         logger.LogInformation(profile.Email, DateTime.UtcNow);
 
-        return new AuthResult(profile, token);
+        return new AuthResult(token);
     }
 }

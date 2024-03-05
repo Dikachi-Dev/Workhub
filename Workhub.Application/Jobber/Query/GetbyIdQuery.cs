@@ -4,4 +4,4 @@ using Workhub.Application.Jobber.Common;
 
 namespace Workhub.Application.Jobber.Query;
 
-internal record GetbyIdQuery(string Id) : IRequest<ErrorOr<GetResult>>;
+internal record GetbyIdQuery(string Id) : IRequest<ErrorOr<GetJobResult>>;

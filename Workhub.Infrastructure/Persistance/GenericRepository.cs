@@ -10,41 +10,41 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
     protected readonly AppDataContext _context;
     protected readonly DbSet<TEntity> DbSet;
 
-    public GenericRepository(AppDataContext context, CancellationToken token)
+    public GenericRepository(AppDataContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         DbSet = _context.Set<TEntity>();
     }
 
-    public async Task Add(TEntity entity, CancellationToken token)
+    public async Task Add(TEntity entity)
     {
         await DbSet.AddAsync(entity);
     }
 
-    public async Task<TEntity> GetById(string Id, CancellationToken token)
+    public async Task<TEntity> GetById(string Id)
     {
-        return await DbSet.FindAsync(Id, token);
+        return await DbSet.FindAsync(Id);
     }
 
-    public IQueryable<TEntity> GetAll(CancellationToken token)
+    public IQueryable<TEntity> GetAll()
     {
         return DbSet;
     }
 
-    public void Update(TEntity entity, CancellationToken token)
+    public void Update(TEntity entity)
     {
         DbSet.Update(entity);
     }
 
-    public async Task Delete(string Id, CancellationToken token)
+    public async Task Delete(string Id)
     {
-        TEntity entity = await GetById(Id, token);
+        TEntity entity = await GetById(Id);
         DbSet.Remove(entity);
     }
 
-    public async Task<int> SaveChanges(CancellationToken token)
+    public async Task<int> SaveChanges()
     {
-        return await _context.SaveChangesAsync(token);
+        return await _context.SaveChangesAsync();
     }
 
     public void Dispose()

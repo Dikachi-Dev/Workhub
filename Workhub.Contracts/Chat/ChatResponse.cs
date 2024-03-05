@@ -2,4 +2,4 @@
 
 namespace Workhub.Contracts.Chat;
 
-internal record ChatResponse(ChatPost ChatPost);
+public record ChatResponse(ChatPost ChatPost);

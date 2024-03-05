@@ -1,6 +1,8 @@
-﻿namespace Workhub.Application.Interfaces.JWT;
+﻿using Workhub.Domain.Entities;
+
+namespace Workhub.Application.Interfaces.JWT;
 
 public interface IJWTGenerator
 {
-    string GenerateJWTToken(string email, string userid);
+    string GenerateJWTToken(GlobalUser profile);
 }

@@ -19,7 +19,7 @@ public class ChatBidirectionalQueryHandler : IRequestHandler<ChatBidirectionalQu
 
     public async Task<ErrorOr<ChatResult>> Handle(ChatBidirectionalQuery request, CancellationToken cancellationToken)
     {
-        if (await repository.GetbySenderAndReciverId(request.senderId, request.receiverId, cancellationToken) is not ChatPost post)
+        if (await repository.GetbySenderAndReciverId(request.senderId, request.receiverId) is not ChatPost post)
         {
             return Domain.Errors.Errors.ChatPost.NotFound;
         }

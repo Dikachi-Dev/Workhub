@@ -12,5 +12,5 @@ string Country,
 string State,
 string Address,
 string Occupation,
-string Experience) : IRequest<ErrorOr<AuthResult>>;
+string Experience) : IRequest<ErrorOr<GetResult>>;
 

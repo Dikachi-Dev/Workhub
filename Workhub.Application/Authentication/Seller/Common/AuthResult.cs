@@ -1,6 +1,4 @@
-﻿using Workhub.Domain.Entities;
+﻿namespace Workhub.Application.Authentication.Seller.Common;
 
-namespace Workhub.Application.Authentication.Seller.Common;
-
-public record AuthResult(Profile Profile, string Token);
+public record AuthResult(string token);
 
