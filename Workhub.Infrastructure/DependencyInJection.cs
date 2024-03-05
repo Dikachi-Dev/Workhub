@@ -9,6 +9,7 @@ using Workhub.Infrastructure.Data.Context;
 using Workhub.Infrastructure.GlobalLogger;
 using Workhub.Infrastructure.JWTToken;
 using Workhub.Infrastructure.Persistance;
+using Workhub.Infrastructure.Services;
 
 namespace Workhub.Infrastructure;
 
@@ -23,6 +24,7 @@ public static class DependencyInJection
         services.AddScoped<IJWTGenerator, JwtTokenGenerator>();
         services.AddScoped<IJobRepository, JobRepository>();
         services.AddScoped<IChatPostRepository, ChatPostRepository>();
+        services.AddScoped<ICloseProx, CloseProx>();
         //services.AddIdentity<GlobalUser, IdentityRole>(option =>
         //option.User.RequireUniqueEmail = true
         //)

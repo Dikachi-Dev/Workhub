@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
         var query = mapper.Map<LoginQuery>(request);
         ErrorOr<AuthResult> loginResult = await mediator.Send(query);
         return loginResult.Match(authresult =>
-        Results.Ok(mapper.Map<LoginResponse>(authresult)), errors =>
+        Results.Ok(new LoginResponse(authresult.token)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
 
     }
