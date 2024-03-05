@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
@@ -89,10 +90,22 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
         // Use roleName variable here instead of hardcoding "User"
         await userManager.AddToRoleAsync(user, roleName);
-        bool isCompleted = true; // If the execution reaches this line, it means the operation is completed
+        // If the execution reaches this line, it means the operation is completed
         await Add(profile);
         await SaveChanges();
         return await userManager.FindByEmailAsync(profile.Email);
 
     }
+
+    public IQueryable<Profile?> GetByProximity()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<Profile>> GetByOccupation(string occupation)
+    {
+        var profiles = await DbSet.Where(p => p.Occupation == occupation).ToListAsync();
+        return profiles;
+    }
+
 }

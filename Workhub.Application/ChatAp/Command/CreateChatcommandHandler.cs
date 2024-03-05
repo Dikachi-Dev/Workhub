@@ -40,25 +40,5 @@ public class CreateChatcommandHandler : IRequestHandler<CreateChatCommand, Error
         await repository.SaveChanges();
 
         return new ChatResult(await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId));
-
-        //if (await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId) is null)
-        //{
-        //    var chat = new ChatPost
-        //    {
-        //        SenderId = request.SenderId,
-        //        ReceiverId = request.ReceiverId,
-        //        Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
-        //    };
-        //}
-        //var chat = new ChatPost
-        //{
-        //    SenderId = request.SenderId,
-        //    ReceiverId = request.ReceiverId,
-        //    Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
-        //};
-        //await repository.Add(chat);
-        //await repository.SaveChanges();
-        //return new ChatResult(await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId));
-
     }
 }

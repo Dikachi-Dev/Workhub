@@ -4,33 +4,37 @@ using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Jobber.Common;
 using Workhub.Domain.Entities;
 
-namespace Workhub.Application.Jobber.Command
+namespace Workhub.Application.Jobber.Command;
+
+public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJobResult>>
 {
-    internal class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetResult>>
+    private readonly IJobRepository jobRepository;
+    private readonly IProfileRepository profileRepository;
+    private readonly IMediator mediator;
+
+    public CreateCommandHandler(IJobRepository jobRepository, IMediator mediator, IProfileRepository profileRepository)
     {
-        private readonly IJobRepository jobRepository;
-        private readonly IMediator mediator;
+        this.jobRepository = jobRepository;
+        this.mediator = mediator;
+        this.profileRepository = profileRepository;
+    }
 
-        public CreateCommandHandler(IJobRepository jobRepository, IMediator mediator)
+    public async Task<ErrorOr<GetJobResult>> Handle(CreateCommand request, CancellationToken cancellationToken)
+    {
+        var profile = await profileRepository.GetById(request.BuyerId);
+        var job = new Job
         {
-            this.jobRepository = jobRepository;
-            this.mediator = mediator;
-        }
+            BuyerId = request.BuyerId,
+            SellerId = request.SellerId,
+            BuyerName = request.BuyerName,
+            SellerName = request.SellerName,
+            Occupation = request.Occupation,
+            Status = "Pending",
+            Profile = profile
+        };
+        await jobRepository.Add(job);
+        await jobRepository.SaveChanges();
 
-        public async Task<ErrorOr<GetResult>> Handle(CreateCommand request, CancellationToken cancellationToken)
-        {
-            var job = new Job
-            {
-                BuyerId = request.BuyerId,
-                SellerId = request.SellerId,
-                BuyerName = request.BuyerName,
-                SellerName = request.SellerName,
-                Occupation = request.Occupation,
-            };
-            await jobRepository.Add(job);
-            await jobRepository.SaveChanges();
-
-            return new GetResult(job);
-        }
+        return new GetJobResult(job);
     }
 }

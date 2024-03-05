@@ -10,5 +10,6 @@
         public double BuyerRating { get; set; } = 0.00;
         public double SellerRating { get; set; } = 0.00;
         public string Status { get; set; } = string.Empty;
+        public Profile Profile { get; set; } = new Profile();
     }
 }
