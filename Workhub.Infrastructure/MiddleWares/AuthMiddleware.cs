@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 public class AuthMiddleware
 {
@@ -16,40 +12,27 @@ public class AuthMiddleware
         _configuration = configuration;
     }
 
+
     public async Task Invoke(HttpContext context)
     {
-        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        var apikey = context.Request.Headers["ApiKey"].FirstOrDefault()?.Split(" ").Last();
 
-        if (token != null)
+        if (apikey != null)
         {
-            AttachUserToContext(context, token);
+            if (!apikey.Equals(_configuration["ApiKey"]))
+            {
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("Invalid API key.");
+                return;
+            }
+
+            await _next(context);
+
         }
 
-        await _next(context);
-    }
-
-    private void AttachUserToContext(HttpContext context, string token)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"]);
-
-        tokenHandler.ValidateToken(token, new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = _configuration["Jwt:Issuer"],
-            ValidAudience = _configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ClockSkew = TimeSpan.Zero
-        }, out SecurityToken validatedToken);
-
-        var jwtToken = (JwtSecurityToken)validatedToken;
-        var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-
-        // Attach user to context on successful JWT validation
-        context.Items["UserId"] = userId;
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("No API key was provided.");
+        return;
     }
 }
 

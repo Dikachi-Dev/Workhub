@@ -1,7 +1,9 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Workhub.Api.EndPoints;
 using Workhub.Application.Jobber.Command;
 using Workhub.Application.Jobber.Common;
@@ -9,10 +11,10 @@ using Workhub.Application.Jobber.Query;
 using Workhub.Contracts.Job;
 
 namespace Workhub.Api.Controllers;
-
+[Authorize(Roles = "BothVendor,Seller,User")]
 [Route("api/job")]
 [ApiController]
-public class JobController
+public class JobController : ControllerBase
 {
     private readonly IMediator mediator;
     private readonly IMapper mapper;
@@ -26,7 +28,8 @@ public class JobController
     [HttpPost("manual")]
     public async Task<IResult> ManualCreate(CreateRequest request)
     {
-        var command = mapper.Map<CreateCommand>(request);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var command = new CreateCommand(request.BuyerName, request.SellerName, request.SellerId, userId, request.Occupation);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
         Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
@@ -36,7 +39,8 @@ public class JobController
     [HttpPost("auto")]
     public async Task<IResult> AutoCreate(AutoCreateRequest request)
     {
-        var command = mapper.Map<AutoCreateCommand>(request);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var command = new AutoCreateCommand(userId, request.Occupation);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
         Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>

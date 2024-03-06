@@ -4,7 +4,6 @@ using Workhub.Application.Authentication.Seller.Common;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
-using Workhub.Domain.Entities;
 
 namespace Workhub.Application.Authentication.Seller.Query;
 
@@ -26,14 +25,15 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthResult>
 
     public async Task<ErrorOr<AuthResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        if (await repository.Login(request.Email, request.Password) is not GlobalUser profile)
+        var claims = await repository.Login(request.Email, request.Password);
+        if (claims.Count == 0)
         {
             logger.LogInError(request.Email, DateTime.UtcNow, "InValid Email");
             return Domain.Errors.Errors.Authentication.InvalidCredentials;
         }
 
-        var token = jWTGenerator.GenerateJWTToken(profile);
-        logger.LogInformation(profile.Email, DateTime.UtcNow);
+        var token = jWTGenerator.GenerateJWTToken(claims);
+        logger.LogInformation(request.Email, DateTime.UtcNow);
 
         return new AuthResult(token);
     }

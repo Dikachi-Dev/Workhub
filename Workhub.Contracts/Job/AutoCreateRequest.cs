@@ -1,4 +1,4 @@
 ﻿namespace Workhub.Contracts.Job;
 
-public record AutoCreateRequest(string UserId, string Occupation);
+public record AutoCreateRequest(string Occupation);
 

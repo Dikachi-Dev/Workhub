@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Workhub.Api.EndPoints;
 using Workhub.Application.Authentication.Seller.Commands;
@@ -9,7 +10,7 @@ using Workhub.Application.Authentication.Seller.Query;
 using Workhub.Contracts.Authentication;
 
 namespace Workhub.Api.Controllers;
-
+[AllowAnonymous]
 [Route("api/auth")]
 [ApiController]
 public class AuthController : ControllerBase

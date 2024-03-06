@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using Workhub.Api.Configurations;
 using Workhub.Application;
@@ -19,6 +20,50 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "WorkHub", Version = "v1" });
+
+    //Add API key security definition
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Name = "ApiKey",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "Enter your API key",
+    });
+
+    // Add JWT token security definition
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Scheme = "Bearer",
+        Description = "Enter 'Bearer' followed by space and JWT.",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        In = ParameterLocation.Header,
+    });
+
+    // Add the security requirements for Swagger to use both API key and Bearer token
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" },
+            },
+            new string[] {}
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
+            },
+            new string[] {}
+        }
+    });
+});
+
 //builder.Services.AddAuthentication();
 builder.Services.AddAuthentication(options =>
 {
@@ -50,10 +95,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
-
+app.UseMiddleware<AuthMiddleware>();
 // Add authentication and authorization middleware before endpoints
 app.UseAuthentication();
-app.UseMiddleware<AuthMiddleware>();
+
 app.UseAuthorization();
 app.MapControllers();
 

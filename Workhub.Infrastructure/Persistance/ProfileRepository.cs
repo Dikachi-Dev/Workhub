@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
@@ -52,21 +53,34 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         throw new NotImplementedException();
     }
 
-    public async Task<GlobalUser> Login(string username, string password)
+    public async Task<IList<Claim>> Login(string username, string password)
     {
         var user = await userManager.FindByEmailAsync(username);
         if (user != null && await userManager.CheckPasswordAsync(user, password))
         {
-            var userRole = await userManager.GetRolesAsync(user);
-            if (userRole.Contains("User"))
+            var roles = await userManager.GetRolesAsync(user);
+            if (roles.Contains("User") || roles.Contains("Admin") || roles.Contains("Seller") || roles.Contains("BothVendor"))
             {
-                return user;
-            }
-            return null;
+                // Create claims for the user including roles
+                var claims = new List<Claim>
+{
+    new Claim(ClaimTypes.NameIdentifier, user.Id),
+    new Claim(ClaimTypes.Email, user.Email)
+};
 
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+                // Return the list of claims
+                return claims;
+
+            }
+            return [];
         }
-        return null;
+        return [];
     }
+
 
     public async Task<GlobalUser> Register(Profile profile)
     {
@@ -79,7 +93,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         };
         var result = await userManager.CreateAsync(user, profile.Password);
 
-        var roleName = "User";
+        var roleName = profile.UserType;
         var roleExists = await roleManager.RoleExistsAsync(roleName);
         if (!roleExists)
         {
@@ -90,7 +104,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
         // Use roleName variable here instead of hardcoding "User"
         await userManager.AddToRoleAsync(user, roleName);
-        // If the execution reaches this line, it means the operation is completed
+
         await Add(profile);
         await SaveChanges();
         return await userManager.FindByEmailAsync(profile.Email);
