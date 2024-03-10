@@ -82,6 +82,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -96,20 +97,14 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseMiddleware<AuthMiddleware>();
-// Add authentication and authorization middleware before endpoints
 app.UseAuthentication();
 
 app.UseAuthorization();
 app.MapControllers();
+app.UseCors(opt =>
+{
+    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(builder.Configuration["ValidUrl"]);
+});
 
-
-// Map endpoints
-//var endpointMapper = new EndpointMapper(app);
-//endpointMapper.MapAllEndpoints();
-//app.UseEndpoints(endpoint =>
-//{
-//    EndpointMapper endpointMapper = new EndpointMapper(endpoint);
-//    endpointMapper.MapAllEndpoints();
-//});
 
 app.Run();

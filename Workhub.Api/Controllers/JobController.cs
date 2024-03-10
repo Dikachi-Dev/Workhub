@@ -11,7 +11,7 @@ using Workhub.Application.Jobber.Query;
 using Workhub.Contracts.Job;
 
 namespace Workhub.Api.Controllers;
-[Authorize(Roles = "BothVendor,Seller,User")]
+[Authorize(Roles = "Both,Seller,User")]
 [Route("api/job")]
 [ApiController]
 public class JobController : ControllerBase

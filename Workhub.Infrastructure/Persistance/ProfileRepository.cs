@@ -59,7 +59,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         if (user != null && await userManager.CheckPasswordAsync(user, password))
         {
             var roles = await userManager.GetRolesAsync(user);
-            if (roles.Contains("User") || roles.Contains("Admin") || roles.Contains("Seller") || roles.Contains("BothVendor"))
+            if (roles.Contains("User") || roles.Contains("Admin") || roles.Contains("Seller") || roles.Contains("Both"))
             {
                 // Create claims for the user including roles
                 var claims = new List<Claim>
