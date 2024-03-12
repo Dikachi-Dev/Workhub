@@ -104,6 +104,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
         // Use roleName variable here instead of hardcoding "User"
         await userManager.AddToRoleAsync(user, roleName);
+        await userManager.GenerateEmailConfirmationTokenAsync(user);
 
         await Add(profile);
         await SaveChanges();
@@ -122,4 +123,5 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         return profiles;
     }
 
+   
 }

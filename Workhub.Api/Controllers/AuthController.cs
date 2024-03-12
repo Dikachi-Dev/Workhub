@@ -43,4 +43,12 @@ public class AuthController : ControllerBase
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
 
     }
+
+    [HttpPost("confirm")]
+    public async Task<IResult> Confirm (string email, string token)
+    {
+        var command = new ConfirmCommand(email,token);
+        ErrorOr<ConfirmResponse> response = await mediator.Send(command);
+        return response.Match(p=> Results.Ok("Verified"), errors=> Results.Problem(EndpointBase.GetProblemDetails(errors)));
+    }
 }

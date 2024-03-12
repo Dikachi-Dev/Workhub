@@ -9,7 +9,10 @@ public static partial class Errors
             code: "Authentication.InvalidCredentials",
             description: "Invalid user name or password");
 
-
+        public static Error NotVerified = Error.Conflict(
+            code:"Authentication.NotVerified",
+            description: "Not Verified"
+        );
 
 
     }

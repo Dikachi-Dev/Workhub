@@ -21,6 +21,7 @@ builder.Services.AddInfrastructure();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "WorkHub", Version = "v1" });
@@ -87,13 +88,21 @@ builder.Services.AddCors();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
 
 app.UseHttpsRedirection();
+app.UseSwagger(); // Enable Swagger middleware
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1"); // Configure Swagger UI
+});
+
+// Configure the application to listen on port 8080 with HTTPS
+//app.UseUrls("https://*:8080");
 
 app.UseRouting();
 app.UseMiddleware<AuthMiddleware>();

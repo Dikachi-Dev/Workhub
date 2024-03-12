@@ -25,6 +25,7 @@ public static class DependencyInJection
         services.AddScoped<IJobRepository, JobRepository>();
         services.AddScoped<IChatPostRepository, ChatPostRepository>();
         services.AddScoped<ICloseProx, CloseProx>();
+        services.AddScoped<ICheckVerify, CheckVerify>();
         //services.AddIdentity<GlobalUser, IdentityRole>(option =>
         //option.User.RequireUniqueEmail = true
         //)

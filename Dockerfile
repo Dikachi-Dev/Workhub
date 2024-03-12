@@ -1,7 +1,7 @@
 # Use the ASP.NET runtime as base image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 443
+EXPOSE 80
 
 
 # Use the .NET SDK as build image
