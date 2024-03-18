@@ -4,6 +4,7 @@ using Workhub.Application.Authentication.Seller.Common;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Application.Interfaces.Services;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Application.Authentication.Seller.Commands;
@@ -14,6 +15,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
     private readonly IJWTGenerator jWTGenerator;
     private readonly IProfileRepository repository;
     private readonly ISeriLogger logger;
+  
 
     public RegisterCommandHandler(IProfileRepository repository, IMediator mediator, IJWTGenerator jWTGenerator, ISeriLogger logger)
     {
@@ -21,6 +23,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
         this.mediator = mediator;
         this.jWTGenerator = jWTGenerator;
         this.logger = logger;
+        
     }
 
 

@@ -4,6 +4,7 @@ using Serilog;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Application.Interfaces.Services;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
 using Workhub.Infrastructure.GlobalLogger;
@@ -26,6 +27,7 @@ public static class DependencyInJection
         services.AddScoped<IChatPostRepository, ChatPostRepository>();
         services.AddScoped<ICloseProx, CloseProx>();
         services.AddScoped<ICheckVerify, CheckVerify>();
+        services.AddScoped<IEmailSender, EmailSender>();
         //services.AddIdentity<GlobalUser, IdentityRole>(option =>
         //option.User.RequireUniqueEmail = true
         //)
