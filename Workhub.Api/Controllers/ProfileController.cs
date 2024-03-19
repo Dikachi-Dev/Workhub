@@ -7,7 +7,6 @@ using System.Security.Claims;
 using Workhub.Api.EndPoints;
 using Workhub.Application.Profiless.Common;
 using Workhub.Application.Profiless.Query;
-using Workhub.Contracts.Profileing;
 
 namespace Workhub.Api.Controllers;
 
@@ -40,8 +39,8 @@ public class ProfileController : ControllerBase
     {
         var query = new GetAllQuery();
         ErrorOr<GetAllResult> response = await mediator.Send(query);
-        return response.Match(response=> 
-        Results.Ok(response), errors=>
+        return response.Match(response =>
+        Results.Ok(response), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 }
