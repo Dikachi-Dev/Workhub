@@ -50,6 +50,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
             ProfileImage = command.ProfileImage,
             NIN = command.Nin,
             LongLat = command.LongLat,
+            Token = command.Token,
             UserType = command.UserType
         };
         var user = await repository.Register(profile);
@@ -65,3 +66,4 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
     }
 
 }
+

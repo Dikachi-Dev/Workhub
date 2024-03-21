@@ -4,4 +4,4 @@ using Workhub.Application.Profiless.Common;
 
 namespace Workhub.Application.Profiless.Query;
 
-public record GetAllQuery() : IRequest<ErrorOr<GetAllResult>>;
+public record GetAllQuery(string? Filter) : IRequest<ErrorOr<GetAllResult>>;

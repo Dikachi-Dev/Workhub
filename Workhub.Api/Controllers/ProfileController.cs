@@ -35,9 +35,9 @@ public class ProfileController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<IResult> AllProfile()
+    public async Task<IResult> AllProfile(string? Filter)
     {
-        var query = new GetAllQuery();
+        var query = new GetAllQuery(Filter);
         ErrorOr<GetAllResult> response = await mediator.Send(query);
         return response.Match(response =>
         Results.Ok(response), errors =>

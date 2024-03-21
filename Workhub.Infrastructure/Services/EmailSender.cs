@@ -24,7 +24,7 @@ public class EmailSender : IEmailSender
         try
         {
             var email = new MimeMessage();
-            email.Sender = MailboxAddress.Parse(configuration.GetSection("Email").Value);
+            email.Sender = MailboxAddress.Parse(configuration.GetSection("Smtp:Email").Value);
             email.To.Add(MailboxAddress.Parse(to));
             email.Subject = subject;
             var builder = new BodyBuilder();
@@ -32,8 +32,8 @@ public class EmailSender : IEmailSender
             email.Body = builder.ToMessageBody();
 
             using var smtp = new MailKit.Net.Smtp.SmtpClient();
-            smtp.Connect(configuration.GetSection("Host").Value, 587, SecureSocketOptions.StartTls);
-            smtp.Authenticate(configuration.GetSection("Username").Value,configuration.GetSection("Password").Value);
+            smtp.Connect(configuration.GetSection("Smtp:Host").Value, 587, SecureSocketOptions.None);
+            smtp.Authenticate(configuration.GetSection("Smtp:Username").Value,configuration.GetSection("Smtp:Password").Value);
             await smtp.SendAsync(email);
             return true;
         }

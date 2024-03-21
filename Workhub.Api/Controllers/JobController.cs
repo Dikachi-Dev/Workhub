@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Workhub.Api.EndPoints;
+using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Jobber.Command;
 using Workhub.Application.Jobber.Common;
 using Workhub.Application.Jobber.Query;
@@ -18,11 +19,13 @@ public class JobController : ControllerBase
 {
     private readonly IMediator mediator;
     private readonly IMapper mapper;
+    private readonly IJobRepository repository;
 
-    public JobController(IMediator mediator, IMapper mapper)
+    public JobController(IMediator mediator, IMapper mapper, IJobRepository repository)
     {
         this.mediator = mediator;
         this.mapper = mapper;
+        this.repository = repository;
     }
 
     [HttpPost("manual")]
@@ -55,5 +58,17 @@ public class JobController : ControllerBase
         return jobResult.Match(jobResult =>
         Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
+    }
+
+    [HttpGet("getbyUser")]
+    public async Task<IResult> GetMyJobs()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+         var result = await repository.GetUserJobs(userId);
+         return Results.Ok(result);
     }
 }

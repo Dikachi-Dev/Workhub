@@ -19,7 +19,18 @@ public class GetAllQueryHandler : IRequestHandler<GetAllQuery, ErrorOr<GetAllRes
 
     public async Task<ErrorOr<GetAllResult>> Handle(GetAllQuery request, CancellationToken cancellationToken)
     {
-        IEnumerable<Profile> profiles = repository.GetAll();
-        return new GetAllResult(profiles);
+        if (request.Filter == null)
+        {
+            IEnumerable<Profile> profiles = repository.GetAll();
+            return new GetAllResult(profiles);
+        }
+        else
+        {
+            if (repository.GetByFilter(request.Filter) is not IEnumerable<Profile> profiles)
+            {
+                return Domain.Errors.Errors.Profile.NotFound;
+            }
+            return new GetAllResult(profiles);
+        }
     }
 }

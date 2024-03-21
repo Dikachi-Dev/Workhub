@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Workhub.Application.Interfaces.JWT;
@@ -58,6 +60,18 @@ public static class DependencyInJection
         // Register ISeriLogger
         services.AddScoped<ISeriLogger, SeriLogger>();
         services.AddDbContext<AppDataContext>();
+        GoogleCredential credential = GoogleCredential.FromFile("firebase.json");
+        try
+        {
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = credential
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
         return services;
     }
 }

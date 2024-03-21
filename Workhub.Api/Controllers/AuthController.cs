@@ -29,7 +29,7 @@ public class AuthController : ControllerBase
         var command = mapper.Map<RegisterCommand>(request);
         ErrorOr<AuthResult> registerResult = await mediator.Send(command);
         return registerResult.Match(authResult =>
-        Results.Ok(mapper.Map<LoginResponse>(authResult)), errors =>
+        Results.Ok(new LoginResponse(authResult.token)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 

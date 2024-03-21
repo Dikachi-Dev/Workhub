@@ -112,6 +112,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseCors(opt =>
 {
+    //opt.AllowAnyOrigin();
     opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(builder.Configuration["ValidUrl"]);
 });
 

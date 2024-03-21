@@ -20,4 +20,5 @@ string LongLat,
 string UserType,
 string ProfileImage,
 string Nin,
+string Token,
 string Experience) : IRequest<ErrorOr<AuthResult>>;
