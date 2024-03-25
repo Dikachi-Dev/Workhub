@@ -32,6 +32,10 @@ public class JobController : ControllerBase
     public async Task<IResult> ManualCreate(CreateRequest request)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
         var command = new CreateCommand(request.BuyerName, request.SellerName, request.SellerId, userId, request.Occupation);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
@@ -43,6 +47,10 @@ public class JobController : ControllerBase
     public async Task<IResult> AutoCreate(AutoCreateRequest request)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
         var command = new AutoCreateCommand(userId, request.Occupation);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>

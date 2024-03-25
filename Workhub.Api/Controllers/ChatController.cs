@@ -31,7 +31,10 @@ namespace Workhub.Api.Controllers
         {
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
+            if (userId == null || userId is "")
+            {
+                return Results.BadRequest("User Not Found");
+            }
             var query = new ChatBidirectionalQuery(userId.Trim(), receiverId.Trim());
             ErrorOr<ChatResult> chatResult = await mediator.Send(query);
             return chatResult.Match(chat =>
@@ -43,6 +46,10 @@ namespace Workhub.Api.Controllers
         public async Task<IResult> Send(ChatRequest request)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || userId is "")
+            {
+                return Results.BadRequest("User Not Found");
+            }
             var command = new CreateChatCommand(userId, request.ReceiverId, request.Message);
             ErrorOr<ChatResult> chat = await mediator.Send(command);
             return chat.Match(chatresult =>
@@ -53,6 +60,10 @@ namespace Workhub.Api.Controllers
         public async Task<IResult> AllChat()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || userId is "")
+            {
+                return Results.BadRequest("User Not Found");
+            }
             var query = new ChatByUserIdQuery(userId.Trim());
             ErrorOr<AllChatResult> allResult = await mediator.Send(query);
             return allResult.Match(allresult =>

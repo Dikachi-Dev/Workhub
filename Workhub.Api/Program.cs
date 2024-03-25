@@ -5,7 +5,7 @@ using System.Text;
 using Workhub.Api.Configurations;
 using Workhub.Application;
 using Workhub.Infrastructure;
-//using static System.Net.Mime.MediaTypeNames;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,7 +65,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-//builder.Services.AddAuthentication();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -80,19 +79,12 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
     };
 });
 builder.Services.AddCors();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
 
 app.UseHttpsRedirection();
 app.UseSwagger(); // Enable Swagger middleware
@@ -113,8 +105,7 @@ app.MapControllers();
 app.UseCors(opt =>
 {
     //opt.AllowAnyOrigin();
-    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(builder.Configuration["ValidUrl"]);
+    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(builder.Configuration["ValidUrl"]!);
 });
-
 
 app.Run();

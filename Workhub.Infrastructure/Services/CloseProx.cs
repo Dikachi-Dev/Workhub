@@ -17,7 +17,7 @@ public class CloseProx : ICloseProx
         {
             string details = await response.Content.ReadAsStringAsync();
             JObject json = JObject.Parse(details);
-            var distanceElements = json["rows"][0]["elements"].Children();
+            var distanceElements = json["rows"]![0]!["elements"]!.Children();
 
             // Create a list to store distances and corresponding indices
             List<(int distance, int index)> distances = new List<(int distance, int index)>();
@@ -26,7 +26,7 @@ public class CloseProx : ICloseProx
 
             foreach (var distanceElement in distanceElements)
             {
-                var distanceValue = int.Parse(distanceElement["distance"]["value"].ToString());
+                var distanceValue = int.Parse(distanceElement["distance"]!["value"]!.ToString());
                 distances.Add((distanceValue, index));
                 index++;
             }

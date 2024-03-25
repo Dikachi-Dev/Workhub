@@ -27,6 +27,10 @@ public class ProfileController : ControllerBase
     public async Task<IResult> MyProfile()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
         var query = new MyProfileQuery(userId);
         ErrorOr<MyProfileResult> profileresult = await mediator.Send(query);
         return profileresult.Match(profileresult =>

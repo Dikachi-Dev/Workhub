@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Jobber.Common;
 using Workhub.Domain.Entities;
 
@@ -13,13 +14,15 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
     private readonly IProfileRepository profileRepository;
     private readonly IMediator mediator;
     private readonly ICloseProx closeProx;
+    private readonly INotificationSender sender;
 
-    public AutoCreateCommandHandler(IJobRepository jobRepository, IProfileRepository profileRepository, IMediator mediator, ICloseProx closeProx)
+    public AutoCreateCommandHandler(IJobRepository jobRepository, IProfileRepository profileRepository, IMediator mediator, ICloseProx closeProx, INotificationSender sender)
     {
         this.jobRepository = jobRepository;
         this.profileRepository = profileRepository;
         this.mediator = mediator;
         this.closeProx = closeProx;
+        this.sender = sender;
     }
 
     public async Task<ErrorOr<GetJobResult>> Handle(AutoCreateCommand request, CancellationToken cancellationToken)
@@ -50,7 +53,7 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
             };
             await jobRepository.Add(job);
             await jobRepository.SaveChanges();
-
+            await sender.SendFcmMessage(choosen.Token,"New Job Alert",job.Id,"newjob");
             return new GetJobResult(job);
         }
 
