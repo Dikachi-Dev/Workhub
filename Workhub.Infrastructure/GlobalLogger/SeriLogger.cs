@@ -22,6 +22,11 @@ namespace Workhub.Infrastructure.GlobalLogger
             logger.Error($"Login by {username} on {dateTime} Failed With Message {message}");
         }
 
+        public void LogInfo(string message, DateTime dateTime)
+        {
+           logger.Information($"Notice: {message} on {dateTime}");
+        }
+
         public void LogInformation(string username, DateTime dateTime)
         {
             logger.Information($"Login by {username} on {dateTime} Successful");

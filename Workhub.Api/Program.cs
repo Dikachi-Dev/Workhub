@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using Workhub.Api.Configurations;
 using Workhub.Application;
 using Workhub.Infrastructure;
-//using static System.Net.Mime.MediaTypeNames;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,51 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
-//builder.Services.AddAuthentication();
+
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "WorkHub", Version = "v1" });
+
+    //Add API key security definition
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Name = "ApiKey",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "Enter your API key",
+    });
+
+    // Add JWT token security definition
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Scheme = "Bearer",
+        Description = "Enter 'Bearer' followed by space and JWT.",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        In = ParameterLocation.Header,
+    });
+
+    // Add the security requirements for Swagger to use both API key and Bearer token
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" },
+            },
+            new string[] {}
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
+            },
+            new string[] {}
+        }
+    });
+});
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -34,37 +79,33 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
     };
 });
+builder.Services.AddCors();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseHttpsRedirection();
+app.UseSwagger(); // Enable Swagger middleware
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1"); // Configure Swagger UI
+});
+
+// Configure the application to listen on port 8080 with HTTPS
+//app.UseUrls("https://*:8080");
 
 app.UseRouting();
-
-// Add authentication and authorization middleware before endpoints
-app.UseAuthentication();
 app.UseMiddleware<AuthMiddleware>();
+app.UseAuthentication();
+
 app.UseAuthorization();
 app.MapControllers();
-
-
-// Map endpoints
-//var endpointMapper = new EndpointMapper(app);
-//endpointMapper.MapAllEndpoints();
-//app.UseEndpoints(endpoint =>
-//{
-//    EndpointMapper endpointMapper = new EndpointMapper(endpoint);
-//    endpointMapper.MapAllEndpoints();
-//});
+app.UseCors(opt =>
+{
+    //opt.AllowAnyOrigin();
+    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(builder.Configuration["ValidUrl"]!);
+});
 
 app.Run();

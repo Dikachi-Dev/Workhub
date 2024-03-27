@@ -13,13 +13,7 @@ namespace Workhub.Api.Configurations
             services.AddScoped<IMapper, Mapper>();
             services.AddDatabaseSetup();
             //services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Workhub.Application.AssemblyReference.Assembly));
-
-
-
-
             // Add other services as needed
-
-
             return services;
 
 

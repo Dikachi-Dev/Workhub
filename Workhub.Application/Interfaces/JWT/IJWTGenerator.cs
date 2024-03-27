@@ -1,8 +1,8 @@
-﻿using Workhub.Domain.Entities;
+﻿using System.Security.Claims;
 
 namespace Workhub.Application.Interfaces.JWT;
 
 public interface IJWTGenerator
 {
-    string GenerateJWTToken(GlobalUser profile);
+    string GenerateJWTToken(IList<Claim> claims);
 }

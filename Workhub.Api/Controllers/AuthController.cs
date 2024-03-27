@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Workhub.Api.EndPoints;
 using Workhub.Application.Authentication.Seller.Commands;
@@ -9,7 +10,7 @@ using Workhub.Application.Authentication.Seller.Query;
 using Workhub.Contracts.Authentication;
 
 namespace Workhub.Api.Controllers;
-
+[AllowAnonymous]
 [Route("api/auth")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -28,7 +29,7 @@ public class AuthController : ControllerBase
         var command = mapper.Map<RegisterCommand>(request);
         ErrorOr<AuthResult> registerResult = await mediator.Send(command);
         return registerResult.Match(authResult =>
-        Results.Ok(mapper.Map<LoginResponse>(authResult)), errors =>
+        Results.Ok(new LoginResponse(authResult.token)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 
@@ -38,8 +39,16 @@ public class AuthController : ControllerBase
         var query = mapper.Map<LoginQuery>(request);
         ErrorOr<AuthResult> loginResult = await mediator.Send(query);
         return loginResult.Match(authresult =>
-        Results.Ok(mapper.Map<LoginResponse>(authresult)), errors =>
+        Results.Ok(new LoginResponse(authresult.token)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
 
+    }
+
+    [HttpPost("confirm")]
+    public async Task<IResult> Confirm (string email, string token)
+    {
+        var command = new ConfirmCommand(email,token);
+        ErrorOr<ConfirmResponse> response = await mediator.Send(command);
+        return response.Match(p=> Results.Ok("Verified"), errors=> Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 }

@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Application.Interfaces.Services;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
 
@@ -12,11 +15,15 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
     private readonly UserManager<GlobalUser> userManager;
     private readonly IJWTGenerator jWTGenerator;
     private readonly RoleManager<IdentityRole> roleManager;
-    public ProfileRepository(AppDataContext context, UserManager<GlobalUser> userManager, IJWTGenerator jWTGenerator, RoleManager<IdentityRole> roleManager) : base(context)
+    private readonly IEmailSender emailSender;
+    private readonly IConfiguration _config;
+    public ProfileRepository(AppDataContext context, UserManager<GlobalUser> userManager, IJWTGenerator jWTGenerator, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IConfiguration config) : base(context)
     {
         this.userManager = userManager; // Assigning the injected userManager
         this.jWTGenerator = jWTGenerator; // Assigning the injected jWTGenerator
         this.roleManager = roleManager;
+        this.emailSender = emailSender;
+        _config = config;
     }
 
     //public ProfileRepository(AppDataContext context) : base(context)
@@ -52,20 +59,33 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         throw new NotImplementedException();
     }
 
-    public async Task<GlobalUser> Login(string username, string password)
+    public async Task<IList<Claim>> Login(string username, string password)
     {
         var user = await userManager.FindByEmailAsync(username);
         if (user != null && await userManager.CheckPasswordAsync(user, password))
         {
-            var userRole = await userManager.GetRolesAsync(user);
-            if (userRole.Contains("User"))
-            {
-                return user;
-            }
-            return null;
+            var roles = await userManager.GetRolesAsync(user);
 
+            if (roles.Contains("User") || roles.Contains("Admin") || roles.Contains("Seller") || roles.Contains("Both"))
+            {
+                // Create claims for the user including roles
+                var claims = new List<Claim>
+{
+    new Claim(ClaimTypes.NameIdentifier, user.Id),
+    new Claim(ClaimTypes.Email, user.Email)
+};
+
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+                // Return the list of claims
+                return claims;
+
+            }
+            return [];
         }
-        return null;
+        return [];
     }
 
     public async Task<GlobalUser> Register(Profile profile)
@@ -79,7 +99,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         };
         var result = await userManager.CreateAsync(user, profile.Password);
 
-        var roleName = "User";
+        var roleName = profile.UserType;
         var roleExists = await roleManager.RoleExistsAsync(roleName);
         if (!roleExists)
         {
@@ -90,7 +110,16 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
         // Use roleName variable here instead of hardcoding "User"
         await userManager.AddToRoleAsync(user, roleName);
-        // If the execution reaches this line, it means the operation is completed
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        var url = $"{_config["ValidUrl"]}/{_config["ConfirmMail"]}?email={user.Email}&token={token}";
+
+        var body = $"<p>Hello: {user.Email} </p>" +
+           $"<p>Username: {user.UserName}.</p>" +
+           "<p>In Order to confirm your email, please click on the following link.</p>" +
+           $"<p><a href=\"{url}\">Click here</a></p>" +
+           "<p>Thank you,</p>" +
+           $"<br>{_config["Email:ApplicationName"]}";
+        await emailSender.SendEmailAsyncMimeKit(user.Email, "Email Verification", body);
         await Add(profile);
         await SaveChanges();
         return await userManager.FindByEmailAsync(profile.Email);
@@ -107,5 +136,4 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         var profiles = await DbSet.Where(p => p.Occupation == occupation).ToListAsync();
         return profiles;
     }
-
 }

@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Application.Interfaces.Services;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
 using Workhub.Infrastructure.GlobalLogger;
 using Workhub.Infrastructure.JWTToken;
 using Workhub.Infrastructure.Persistance;
+using Workhub.Infrastructure.Services;
 
 namespace Workhub.Infrastructure;
 
@@ -23,6 +27,10 @@ public static class DependencyInJection
         services.AddScoped<IJWTGenerator, JwtTokenGenerator>();
         services.AddScoped<IJobRepository, JobRepository>();
         services.AddScoped<IChatPostRepository, ChatPostRepository>();
+        services.AddScoped<ICloseProx, CloseProx>();
+        services.AddScoped<ICheckVerify, CheckVerify>();
+        services.AddScoped<IEmailSender, EmailSender>();
+        services.AddScoped<INotificationSender, NotificationSender>();
         //services.AddIdentity<GlobalUser, IdentityRole>(option =>
         //option.User.RequireUniqueEmail = true
         //)
@@ -53,6 +61,18 @@ public static class DependencyInJection
         // Register ISeriLogger
         services.AddScoped<ISeriLogger, SeriLogger>();
         services.AddDbContext<AppDataContext>();
+        GoogleCredential credential = GoogleCredential.FromFile("firebase.json");
+        try
+        {
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = credential
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
         return services;
     }
 }

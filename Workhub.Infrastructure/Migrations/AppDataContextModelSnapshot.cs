@@ -268,6 +268,9 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProfileId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("SellerId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -284,6 +287,8 @@ namespace Workhub.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
 
                     b.ToTable("Jobs");
                 });
@@ -323,10 +328,6 @@ namespace Workhub.Infrastructure.Migrations
                     b.Property<int>("JobCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("LGA")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -362,6 +363,10 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -377,6 +382,7 @@ namespace Workhub.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ChatPostId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedOn")
@@ -448,6 +454,15 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Workhub.Domain.Entities.Job", b =>
+                {
+                    b.HasOne("Workhub.Domain.Entities.Profile", "Profile")
+                        .WithMany("Jobs")
+                        .HasForeignKey("ProfileId");
+
+                    b.Navigation("Profile");
+                });
+
             modelBuilder.Entity("Workhub.Domain.Entities.Profile", b =>
                 {
                     b.OwnsOne("Workhub.Domain.Entities.Subscribe", "Subscribe", b1 =>
@@ -483,7 +498,9 @@ namespace Workhub.Infrastructure.Migrations
                 {
                     b.HasOne("Workhub.Domain.Entities.ChatPost", "ChatPost")
                         .WithMany("Replys")
-                        .HasForeignKey("ChatPostId");
+                        .HasForeignKey("ChatPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ChatPost");
                 });
@@ -491,6 +508,11 @@ namespace Workhub.Infrastructure.Migrations
             modelBuilder.Entity("Workhub.Domain.Entities.ChatPost", b =>
                 {
                     b.Navigation("Replys");
+                });
+
+            modelBuilder.Entity("Workhub.Domain.Entities.Profile", b =>
+                {
+                    b.Navigation("Jobs");
                 });
 #pragma warning restore 612, 618
         }

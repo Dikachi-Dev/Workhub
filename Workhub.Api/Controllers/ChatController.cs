@@ -1,7 +1,9 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Workhub.Api.EndPoints;
 using Workhub.Application.ChatAp.Command;
 using Workhub.Application.ChatAp.Common;
@@ -10,7 +12,8 @@ using Workhub.Contracts.Chat;
 
 namespace Workhub.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize(Roles = "Both,Seller,User")]
+    [Route("api/chat")]
     [ApiController]
     public class ChatController : ControllerBase
     {
@@ -24,9 +27,15 @@ namespace Workhub.Api.Controllers
         }
 
         [HttpGet("end2end")]
-        public async Task<IResult> End2End([FromQuery] string senderId, [FromQuery] string receiverId)
+        public async Task<IResult> End2End([FromQuery] string receiverId)
         {
-            var query = new ChatBidirectionalQuery(senderId.Trim(), receiverId.Trim());
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || userId is "")
+            {
+                return Results.BadRequest("User Not Found");
+            }
+            var query = new ChatBidirectionalQuery(userId.Trim(), receiverId.Trim());
             ErrorOr<ChatResult> chatResult = await mediator.Send(query);
             return chatResult.Match(chat =>
             Results.Ok(mapper.Map<ChatBidirectionalResponse>(chat)), errors =>
@@ -36,15 +45,25 @@ namespace Workhub.Api.Controllers
         [HttpPost("send")]
         public async Task<IResult> Send(ChatRequest request)
         {
-            var command = mapper.Map<CreateChatCommand>(request);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || userId is "")
+            {
+                return Results.BadRequest("User Not Found");
+            }
+            var command = new CreateChatCommand(userId, request.ReceiverId, request.Message);
             ErrorOr<ChatResult> chat = await mediator.Send(command);
             return chat.Match(chatresult =>
             Results.Ok(mapper.Map<ChatResult>(chatresult)), errors =>
             Results.Problem(EndpointBase.GetProblemDetails(errors)));
         }
         [HttpGet("allchats")]
-        public async Task<IResult> AllChat([FromQuery] string userId)
+        public async Task<IResult> AllChat()
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || userId is "")
+            {
+                return Results.BadRequest("User Not Found");
+            }
             var query = new ChatByUserIdQuery(userId.Trim());
             ErrorOr<AllChatResult> allResult = await mediator.Send(query);
             return allResult.Match(allresult =>

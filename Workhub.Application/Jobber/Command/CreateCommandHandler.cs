@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using MediatR;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Jobber.Common;
 using Workhub.Domain.Entities;
 
@@ -10,13 +11,13 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
 {
     private readonly IJobRepository jobRepository;
     private readonly IProfileRepository profileRepository;
-    private readonly IMediator mediator;
+    private readonly INotificationSender sender;
 
-    public CreateCommandHandler(IJobRepository jobRepository, IMediator mediator, IProfileRepository profileRepository)
+    public CreateCommandHandler(IJobRepository jobRepository,IProfileRepository profileRepository, INotificationSender sender)
     {
         this.jobRepository = jobRepository;
-        this.mediator = mediator;
         this.profileRepository = profileRepository;
+        this.sender = sender;
     }
 
     public async Task<ErrorOr<GetJobResult>> Handle(CreateCommand request, CancellationToken cancellationToken)
@@ -34,6 +35,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
         };
         await jobRepository.Add(job);
         await jobRepository.SaveChanges();
+        await sender.SendFcmMessage(profile.Token, "New Job Alert", job.Id, "newjob");
 
         return new GetJobResult(job);
     }

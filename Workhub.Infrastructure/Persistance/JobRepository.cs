@@ -1,17 +1,51 @@
-﻿using Workhub.Application.Interfaces.Persistance;
+﻿using System.Data.Entity;
+using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
 
 namespace Workhub.Infrastructure.Persistance;
 
-internal class JobRepository : GenericRepository<Job>, IJobRepository
+public class JobRepository : GenericRepository<Job>, IJobRepository
 {
     public JobRepository(AppDataContext context) : base(context)
     {
+    }
+
+    public async Task<Job> Accept(string jobId)
+    {
+        var job = await GetById(jobId);
+        job.Status = "Accepted";
+        await SaveChanges();
+        return job;
+    }
+
+    public async void Cancel(string jobId)
+    {
+        var job = await GetById(jobId);
+        job.Status = "Cancelled";
+        await SaveChanges();
     }
 
     public Task<Job> CreateJob(string userId, string occupation)
     {
         throw new NotImplementedException();
     }
+
+    public async Task<Job> Decline(string jobId)
+    {
+        var job = await GetById(jobId);
+        job.Status = "Declined";
+        await SaveChanges();
+        return job;
+    }
+
+    public async Task<IList<Job>> GetUserJobs(string userId)
+    {
+        var query = DbSet.OrderByDescending(o => o.CreatedOn)
+                     .Where(p => p.BuyerId == userId || p.SellerId == userId);
+        return await Task.FromResult(query.ToList());
+
+
+    }
+
 }

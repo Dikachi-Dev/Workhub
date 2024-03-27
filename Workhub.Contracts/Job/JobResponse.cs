@@ -1,10 +1,12 @@
 ﻿namespace Workhub.Contracts.Job;
 
-internal record JobResponse(
+public record JobResponse(
     string jobId,
     string BuyerName,
     string SellerName,
-    string Rating,
+    string SellerId,
+    double SellerRating,
+    double BuyerRating,
     string Status,
     string BuyerId,
     string Occupation);

@@ -13,8 +13,8 @@ public record RegisterRequest(
     string UserType,
     string ProfileImage,
     string Nin,
-    string Lga,
     string LongLat,
+    string Token,
     string Gender,
     string Experience);
 
