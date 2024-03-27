@@ -11,13 +11,11 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
 {
     private readonly IJobRepository jobRepository;
     private readonly IProfileRepository profileRepository;
-    private readonly IMediator mediator;
     private readonly INotificationSender sender;
 
-    public CreateCommandHandler(IJobRepository jobRepository, IMediator mediator, IProfileRepository profileRepository, INotificationSender sender)
+    public CreateCommandHandler(IJobRepository jobRepository,IProfileRepository profileRepository, INotificationSender sender)
     {
         this.jobRepository = jobRepository;
-        this.mediator = mediator;
         this.profileRepository = profileRepository;
         this.sender = sender;
     }

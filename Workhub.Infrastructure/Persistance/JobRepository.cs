@@ -31,16 +31,21 @@ public class JobRepository : GenericRepository<Job>, IJobRepository
         throw new NotImplementedException();
     }
 
-    public async void Decline(string jobId)
+    public async Task<Job> Decline(string jobId)
     {
         var job = await GetById(jobId);
         job.Status = "Declined";
         await SaveChanges();
+        return job;
     }
 
-    public async Task<IEnumerable<Job>> GetUserJobs(string userId)
+    public async Task<IList<Job>> GetUserJobs(string userId)
     {
-        var jobs = await DbSet.Where(p => p.BuyerId == userId || p.SellerId == userId).ToListAsync();
-        return jobs;
+        var query = DbSet.OrderByDescending(o => o.CreatedOn)
+                     .Where(p => p.BuyerId == userId || p.SellerId == userId);
+        return await Task.FromResult(query.ToList());
+
+
     }
+
 }

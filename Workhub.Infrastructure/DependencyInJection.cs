@@ -30,6 +30,7 @@ public static class DependencyInJection
         services.AddScoped<ICloseProx, CloseProx>();
         services.AddScoped<ICheckVerify, CheckVerify>();
         services.AddScoped<IEmailSender, EmailSender>();
+        services.AddScoped<INotificationSender, NotificationSender>();
         //services.AddIdentity<GlobalUser, IdentityRole>(option =>
         //option.User.RequireUniqueEmail = true
         //)

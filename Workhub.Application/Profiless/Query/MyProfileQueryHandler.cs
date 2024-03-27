@@ -23,6 +23,22 @@ public class MyProfileQueryHandler : IRequestHandler<MyProfileQuery, ErrorOr<MyP
         {
             return Domain.Errors.Errors.Profile.NotFound;
         }
-        return new MyProfileResult(profile);
+        return new MyProfileResult(FirstName: profile.FirstName,
+            LastName: profile.LastName,
+            Email: profile.Email,
+            PhoneNumber: profile.PhoneNumber,
+            ProfileImage: profile.ProfileImage,
+            Country: profile.Country,
+            Address: profile.Address,
+            State: profile.State,
+            Occupation: profile.Occupation,
+            Gender: profile.Gender,
+            Experience: profile.Experience,
+            Rating: profile.Rating,
+            JobCount: profile.JobCount,
+            Token: profile.Token,
+            Id: profile.Id,
+            LongLat: profile.LongLat,
+            UserType: profile.UserType);
     }
 }

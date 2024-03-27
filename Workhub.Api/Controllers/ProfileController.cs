@@ -11,7 +11,7 @@ using Workhub.Application.Profiless.Query;
 namespace Workhub.Api.Controllers;
 
 [Authorize(Roles = "Both,Seller,User")]
-[Route("api/[controller]")]
+[Route("api/profile")]
 [ApiController]
 public class ProfileController : ControllerBase
 {

@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Profiless.Common;
 using Workhub.Domain.Entities;
 

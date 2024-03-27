@@ -2,4 +2,4 @@
 
 namespace Workhub.Application.Profiless.Common;
 
-public record GetAllResult(IEnumerable<Profile> Profiles);
+public record GetAllResult(IEnumerable<MyProfileResult> Profiles);

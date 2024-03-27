@@ -1,8 +1,10 @@
-﻿using Workhub.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Workhub.Application.Profiless.Common;
-
-public record MyProfileResult(string FirstName,
+namespace Workhub.Contracts.Profileing;
+    public record MyProfileResponse(string FirstName,
  string LastName,
  string Email,
  string PhoneNumber,
@@ -19,5 +21,3 @@ public record MyProfileResult(string FirstName,
  string Id,
  string LongLat,
  string UserType);
-
- 

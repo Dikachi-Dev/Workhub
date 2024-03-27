@@ -28,6 +28,66 @@ public class JobController : ControllerBase
         this.repository = repository;
     }
 
+    [HttpPost("cancel")]
+    public IResult Cancel(string JobId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        if (JobId == null || JobId is "")
+        {
+            return Results.BadRequest("Job does not exist");
+        }
+        var command = new CanCelJobCommand(JobId, userId);
+        if (mediator.Send(command).IsCompletedSuccessfully)
+        {
+            return Results.Ok();
+        }
+        return Results.Problem();
+
+    }
+    [HttpPost("decline")]
+    public IResult Decline(string JobId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        if (JobId == null || JobId is "")
+        {
+            return Results.BadRequest("Job does not exist");
+        }
+        var command = new DeclineJobCommand(JobId);
+        if (mediator.Send(command).IsCompletedSuccessfully)
+        {
+            return Results.Ok();
+        }
+        return Results.Problem();
+
+    }
+    [HttpPost("accept")]
+    public async Task<IResult> Accept(string JobId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        if (JobId == null || JobId is "")
+        {
+            return Results.BadRequest("Job does not exist");
+        }
+        var command = new AcceptJobCommand(JobId);
+        ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
+        return jobResult.Match(jobResult =>
+      Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName,jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
+      Results.Problem(EndpointBase.GetProblemDetails(errors)));
+
+    }
+
     [HttpPost("manual")]
     public async Task<IResult> ManualCreate(CreateRequest request)
     {
@@ -39,7 +99,7 @@ public class JobController : ControllerBase
         var command = new CreateCommand(request.BuyerName, request.SellerName, request.SellerId, userId, request.Occupation);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
-        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
+        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 
@@ -54,7 +114,7 @@ public class JobController : ControllerBase
         var command = new AutoCreateCommand(userId, request.Occupation);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
-        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
+        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 
@@ -64,7 +124,7 @@ public class JobController : ControllerBase
         var query = new GetbyIdQuery(Id);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(query);
         return jobResult.Match(jobResult =>
-        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
+        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 

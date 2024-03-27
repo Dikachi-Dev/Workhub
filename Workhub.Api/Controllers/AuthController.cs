@@ -41,6 +41,7 @@ public class AuthController : ControllerBase
         return loginResult.Match(authresult =>
         Results.Ok(new LoginResponse(authresult.token)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
+
     }
 
     [HttpPost("confirm")]

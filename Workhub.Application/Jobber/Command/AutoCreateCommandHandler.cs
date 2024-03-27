@@ -12,15 +12,13 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
 {
     private readonly IJobRepository jobRepository;
     private readonly IProfileRepository profileRepository;
-    private readonly IMediator mediator;
     private readonly ICloseProx closeProx;
     private readonly INotificationSender sender;
 
-    public AutoCreateCommandHandler(IJobRepository jobRepository, IProfileRepository profileRepository, IMediator mediator, ICloseProx closeProx, INotificationSender sender)
+    public AutoCreateCommandHandler(IJobRepository jobRepository, IProfileRepository profileRepository, ICloseProx closeProx, INotificationSender sender)
     {
         this.jobRepository = jobRepository;
         this.profileRepository = profileRepository;
-        this.mediator = mediator;
         this.closeProx = closeProx;
         this.sender = sender;
     }

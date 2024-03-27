@@ -2,4 +2,4 @@
 
 namespace Workhub.Contracts.Profileing;
 
-public record GetAllResponse(IEnumerable<Profile> Profiles);
+public record GetAllResponse(IEnumerable<MyProfileResponse> Profiles);
