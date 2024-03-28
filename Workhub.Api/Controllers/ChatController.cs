@@ -12,7 +12,7 @@ using Workhub.Contracts.Chat;
 
 namespace Workhub.Api.Controllers
 {
-    [Authorize(Roles = "Both,Seller,User")]
+    [Authorize(Roles = "Both,Vendor,User")]
     [Route("api/chat")]
     [ApiController]
     public class ChatController : ControllerBase

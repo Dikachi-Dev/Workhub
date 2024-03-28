@@ -2,5 +2,5 @@
 
 namespace Workhub.Application.Profiless.Common;
 
-public record ProxyResult(IList<Profile> Profiles);
+public record ProxyResult(IList<MyProfileResult> Profiles);
 

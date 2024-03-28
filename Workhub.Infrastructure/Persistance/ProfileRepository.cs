@@ -35,7 +35,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
     public IQueryable<Profile?> GetByFilter(string filter)
     {
         return GetAll()
-           .Where(profile => profile != null && profile.FirstName
+           .Where(profile => profile != null && profile.UserType != "User" && profile.FirstName
            .Contains(filter) || profile.Email
            .Contains(filter) || profile.LastName
            .Contains(filter) || profile.State
@@ -66,7 +66,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         {
             var roles = await userManager.GetRolesAsync(user);
 
-            if (roles.Contains("User") || roles.Contains("Admin") || roles.Contains("Seller") || roles.Contains("Both"))
+            if (roles.Contains("User") || roles.Contains("Admin") || roles.Contains("Vendor") || roles.Contains("Both"))
             {
                 // Create claims for the user including roles
                 var claims = new List<Claim>
@@ -119,7 +119,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
            $"<p><a href=\"{url}\">Click here</a></p>" +
            "<p>Thank you,</p>" +
            $"<br>{_config["Email:ApplicationName"]}";
-        await emailSender.SendEmailAsyncMimeKit(user.Email, "Email Verification", body);
+        emailSender.SendEmailAsyncMimeKit(user.Email, "Email Verification", body);
         await Add(profile);
         await SaveChanges();
         return await userManager.FindByEmailAsync(profile.Email);

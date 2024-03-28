@@ -10,7 +10,7 @@ using Workhub.Application.Profiless.Query;
 
 namespace Workhub.Api.Controllers;
 
-[Authorize(Roles = "Both,Seller,User")]
+[Authorize(Roles = "Both,Vendor,User")]
 [Route("api/profile")]
 [ApiController]
 public class ProfileController : ControllerBase
@@ -43,6 +43,20 @@ public class ProfileController : ControllerBase
     {
         var query = new GetAllQuery(Filter);
         ErrorOr<GetAllResult> response = await mediator.Send(query);
+        return response.Match(response =>
+        Results.Ok(response), errors =>
+        Results.Problem(EndpointBase.GetProblemDetails(errors)));
+    }
+    [HttpGet("byProximity")]
+    public async Task<IResult> ByProximity(string occupation)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        var query = new GetByProxQuery(userId,occupation);
+        ErrorOr<ProxyResult> response = await mediator.Send(query);
         return response.Match(response =>
         Results.Ok(response), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));

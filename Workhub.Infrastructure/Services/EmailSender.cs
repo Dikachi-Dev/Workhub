@@ -1,4 +1,6 @@
 
+using System.Net;
+using System.Net.Mail;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
@@ -18,29 +20,67 @@ public class EmailSender : IEmailSender
       
     }
 
-    public async Task<bool> SendEmailAsyncMimeKit(string to, string subject, string body)
+    public  bool SendEmailAsyncMimeKit(string to, string subject, string body)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-        try
-        {
-            var email = new MimeMessage();
-            email.Sender = MailboxAddress.Parse(configuration.GetSection("Smtp:Email").Value);
-            email.To.Add(MailboxAddress.Parse(to));
-            email.Subject = subject;
-            var builder = new BodyBuilder();
-            builder.HtmlBody = body;
-            email.Body = builder.ToMessageBody();
+        string from = configuration.GetSection("Smtp:Email").Value;
 
-            using var smtp = new MailKit.Net.Smtp.SmtpClient();
-            smtp.Connect(configuration.GetSection("Smtp:Host").Value, 587, SecureSocketOptions.None);
-            smtp.Authenticate(configuration.GetSection("Smtp:Username").Value,configuration.GetSection("Smtp:Password").Value);
-            await smtp.SendAsync(email);
-            return true;
-        }
-        catch (Exception ex)
+        if (from != "")
         {
-            logger.LogExceptions($"Error sending email: {ex.Message}", DateTime.Now);
-            return false;
+            foreach (string s in to.Split(','))
+            {
+                if (s != null && s.Trim() != "")
+                {
+                    MailMessage msg = new MailMessage();
+                    msg.From = new MailAddress(from);
+                    msg.Subject = subject;
+                    msg.Body = body;
+                    msg.To.Add(s.Trim());
+                    msg.IsBodyHtml = true;
+
+                    string SMTPServer =
+                        configuration.GetSection("Smtp:Host").Value == null ||
+                         configuration.GetSection("Smtp:Host").Value == ""
+                            ? "mail5010.site4now.net"
+                            : configuration.GetSection("Smtp:Host").Value;
+                    string SMTPPassword =
+                         configuration.GetSection("Smtp:Password").Value == null ||
+                        configuration.GetSection("Smtp:Password").Value == ""
+                            ? ""
+                            : configuration.GetSection("Smtp:Password").Value;
+                    string SMTPUserName =
+                        configuration.GetSection("Smtp:Username").Value == null ||
+                        configuration.GetSection("Smtp:Username").Value == ""
+                            ? ""
+                            : configuration.GetSection("Smtp:Username").Value;
+
+                    SmtpClient smtpClient = new SmtpClient();
+                    NetworkCredential basicCredential = new NetworkCredential(SMTPUserName, SMTPPassword);
+                    smtpClient.Host = SMTPServer;
+                    if (configuration.GetSection("Smtp:Port") != null &&
+                        configuration.GetSection("Smtp:Port").Value.ToString() != "")
+                        smtpClient.Port = int.Parse(configuration.GetSection("Smtp:Port").Value.ToString());
+                    else
+                        smtpClient.Port = 587;
+                    if (configuration.GetSection("Smtp:EnableSSL") != null &&
+                        configuration.GetSection("Smtp:EnableSSL").Value.ToString() != "")
+                        smtpClient.EnableSsl = bool.Parse(configuration.GetSection("Smtp:EnableSSL").Value.ToString());
+
+                    smtpClient.UseDefaultCredentials = false;
+                    smtpClient.Credentials = basicCredential;
+                    try
+                    {
+                        smtpClient.Send(msg);
+                        return true;
+                    }
+                    catch (Exception sendexp)
+                    {
+                        logger.LogExceptions($"Error sending email: {sendexp.Message}", DateTime.Now);
+                        return false;
+                    }
+                }
+            }
         }
+        return false;
     }
 }

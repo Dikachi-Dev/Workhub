@@ -12,7 +12,7 @@ using Workhub.Application.Jobber.Query;
 using Workhub.Contracts.Job;
 
 namespace Workhub.Api.Controllers;
-[Authorize(Roles = "Both,Seller,User")]
+[Authorize(Roles = "Both,Vendor,User")]
 [Route("api/job")]
 [ApiController]
 public class JobController : ControllerBase
@@ -83,7 +83,7 @@ public class JobController : ControllerBase
         var command = new AcceptJobCommand(JobId);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
-      Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName,jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
+      Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.BuyerRating, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation)), errors =>
       Results.Problem(EndpointBase.GetProblemDetails(errors)));
 
     }
@@ -136,7 +136,7 @@ public class JobController : ControllerBase
         {
             return Results.BadRequest("User Not Found");
         }
-         var result = await repository.GetUserJobs(userId);
-         return Results.Ok(result);
+        var result = await repository.GetUserJobs(userId);
+        return Results.Ok(result);
     }
 }
