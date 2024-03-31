@@ -23,6 +23,7 @@ public class ChatBidirectionalQueryHandler : IRequestHandler<ChatBidirectionalQu
         {
             return Domain.Errors.Errors.ChatPost.NotFound;
         }
-        return new ChatResult(post);
+        return new ChatResult(post.SenderId,post.Id,post.CreatedOn,post.ReceiverId, post.Replys.Select(reply => new Replyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList()
+);
     }
 }

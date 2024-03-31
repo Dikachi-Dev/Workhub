@@ -133,7 +133,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
     public async Task<IEnumerable<Profile>> GetByOccupation(string occupation)
     {
-        var profiles = await DbSet.Where(p => p.Occupation == occupation).ToListAsync();
+        var profiles = await DbSet.Where(p => p.Occupation == occupation && p.UserType != "User").ToListAsync();
         return profiles;
     }
 }

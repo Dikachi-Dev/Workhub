@@ -19,10 +19,11 @@ public class ChatPostQueryByIdHandler : IRequestHandler<ChatPostQueryById, Error
 
     public async Task<ErrorOr<ChatResult>> Handle(ChatPostQueryById request, CancellationToken cancellationToken)
     {
-        if (await repository.GetById(request.Id) is not ChatPost chat)
+        if (await repository.GetById(request.Id) is not ChatPost post)
         {
             return Domain.Errors.Errors.ChatPost.NotFound;
         }
-        return new ChatResult(chat);
+        return new ChatResult(post.SenderId, post.Id, post.CreatedOn, post.ReceiverId, post.Replys.Select(reply => new Replyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList()
+);
     }
 }

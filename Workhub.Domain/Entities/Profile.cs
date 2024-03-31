@@ -13,7 +13,7 @@ public class Profile : BaseEntity
     public string Occupation { get; set; } = string.Empty;
     public string Gender { get; set; } = string.Empty;
     public string Experience { get; set; } = string.Empty;
-    public double Rating { get; set; } = 0.00;
+    public int Rating { get; set; } = 0;
     public int JobCount { get; set; } = 0;
     public Subscribe Subscribe { get; set; } = new Subscribe();
     public ICollection<Job> Jobs { get; set; } = new List<Job>();

@@ -14,9 +14,16 @@ public class ChatPostRepository : GenericRepository<ChatPost>, IChatPostReposito
 
     public async Task<ChatPost> GetbySenderAndReciverId(string senderId, string receiverId)
     {
-        return await DbSet
-            .Include(r => r.Replys)
-            .SingleOrDefaultAsync(r => r.SenderId == senderId && r.ReceiverId == receiverId);
+        var chat = DbSet
+    .OrderBy(o => o.CreatedOn)
+    .Where(r => r.SenderId == senderId && r.ReceiverId == receiverId)
+    .Include(r => r.Replys.OrderByDescending(reply => reply.CreatedOn))
+    .FirstOrDefault();
+        // Retrieves the first matching entity or null if no matches exist
+        return chat;
+        // await DbSet
+        //     .Include(r => r.Replys)
+        //     .SingleOrDefaultAsync(r => r.SenderId == senderId && r.ReceiverId == receiverId)
     }
 
     public IEnumerable<ChatPost> GetByUser(string userId)

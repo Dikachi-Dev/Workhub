@@ -22,7 +22,7 @@ public class GetAllQueryHandler : IRequestHandler<GetAllQuery, ErrorOr<GetAllRes
         if (request.Filter == null)
         {
             IEnumerable<Profile> profiles = repository.GetAll();
-            var myProfileResults = profiles.Select(p => new MyProfileResult(
+            var myProfileResults = profiles.Where(p=> p.UserType is not "User").Select(p => new MyProfileResult(
                 FirstName: p.FirstName,
                 LastName: p.LastName,
                 Email: p.Email,
@@ -50,7 +50,7 @@ public class GetAllQueryHandler : IRequestHandler<GetAllQuery, ErrorOr<GetAllRes
             {
                 return Domain.Errors.Errors.Profile.NotFound;
             }
-            var myProfileResults = profiles.Select(p => new MyProfileResult(
+            var myProfileResults = profiles.Where(p=>p.UserType is not "User").Select(p => new MyProfileResult(
                 FirstName: p.FirstName,
                 LastName: p.LastName,
                 Email: p.Email,
