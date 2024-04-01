@@ -107,7 +107,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
             var role = new IdentityRole(roleName);
             await roleManager.CreateAsync(role);
         }
-
+    
         // Use roleName variable here instead of hardcoding "User"
         await userManager.AddToRoleAsync(user, roleName);
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -136,4 +136,6 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         var profiles = await DbSet.Where(p => p.Occupation == occupation && p.UserType != "User").ToListAsync();
         return profiles;
     }
+
+   
 }

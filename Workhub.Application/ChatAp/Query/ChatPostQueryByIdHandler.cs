@@ -23,7 +23,7 @@ public class ChatPostQueryByIdHandler : IRequestHandler<ChatPostQueryById, Error
         {
             return Domain.Errors.Errors.ChatPost.NotFound;
         }
-        return new ChatResult(post.SenderId, post.Id, post.CreatedOn, post.ReceiverId, post.Replys.Select(reply => new Replyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList()
+        return new ChatResult(post.SenderId, post.Id, post.CreatedOn, post.ReceiverId, post.ReceiverName, post.SenderName, post.Replys.Select(reply => new Replyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList()
 );
     }
 }

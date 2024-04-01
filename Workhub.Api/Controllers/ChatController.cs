@@ -40,7 +40,7 @@ namespace Workhub.Api.Controllers
             var query = new ChatBidirectionalQuery(userId.Trim(), receiverId.Trim());
             ErrorOr<ChatResult> chatResult = await mediator.Send(query);
             return chatResult.Match(chat =>
-            Results.Ok(new ChatResponse(chat.SenderId,chat.Id,chat.CreatedOn,chat.ReceiverId,chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
+            Results.Ok(new ChatResponse(chat.SenderId,chat.Id,chat.CreatedOn,chat.ReceiverId, chat.ReceiverName, chat.SenderName, chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
             Results.Problem(EndpointBase.GetProblemDetails(errors)));
         }
 
@@ -55,7 +55,7 @@ namespace Workhub.Api.Controllers
             var command = new CreateChatCommand(userId, request.ReceiverId, request.Message);
             ErrorOr<ChatResult> chat = await mediator.Send(command);
             return chat.Match(chat =>
-            Results.Ok(new ChatResponse(chat.SenderId, chat.Id, chat.CreatedOn, chat.ReceiverId, chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
+            Results.Ok(new ChatResponse(chat.SenderId, chat.Id, chat.CreatedOn, chat.ReceiverId, chat.ReceiverName, chat.SenderName, chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
             Results.Problem(EndpointBase.GetProblemDetails(errors)));
         }
         [HttpGet("allchats")]

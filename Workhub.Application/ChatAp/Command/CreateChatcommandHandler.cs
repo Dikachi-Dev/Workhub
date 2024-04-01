@@ -27,12 +27,15 @@ public class CreateChatcommandHandler : IRequestHandler<CreateChatCommand, Error
 
         var existingChat = await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId);
         var getter = await profile.GetById(request.ReceiverId);
+        var getter2 = await profile.GetById(request.SenderId);
         if (existingChat is null)
         {
             var newchat = new ChatPost
             {
                 SenderId = request.SenderId,
                 ReceiverId = request.ReceiverId,
+                SenderName = $"{getter2.FirstName} {getter2.LastName}",
+                ReceiverName = $"{getter.FirstName} {getter.LastName}",
                 Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
             };
             await repository.Add(newchat);
@@ -49,7 +52,7 @@ public class CreateChatcommandHandler : IRequestHandler<CreateChatCommand, Error
 
         // Get the updated chat from the repository and return it
         var updatedChat = await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId);
-        return new ChatResult(updatedChat.SenderId,updatedChat.Id,updatedChat.CreatedOn,updatedChat.ReceiverId,updatedChat.Replys.Select(s=> new Replyy(s.Id,s.CreatedOn,s.Message,s.FromId)).ToList());
+        return new ChatResult(updatedChat.SenderId,updatedChat.Id,updatedChat.CreatedOn,updatedChat.ReceiverId, updatedChat.ReceiverName, updatedChat.SenderName, updatedChat.Replys.Select(s=> new Replyy(s.Id,s.CreatedOn,s.Message,s.FromId)).ToList());
 
     }
 }

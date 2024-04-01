@@ -16,6 +16,7 @@ public class Profile : BaseEntity
     public int Rating { get; set; } = 0;
     public int JobCount { get; set; } = 0;
     public Subscribe Subscribe { get; set; } = new Subscribe();
+    public VendorProfile VendorProfile {get; set;} = new VendorProfile();
     public ICollection<Job> Jobs { get; set; } = new List<Job>();
     public string Token {get; set;} = string.Empty;
     public string LongLat { get; set; } = string.Empty;

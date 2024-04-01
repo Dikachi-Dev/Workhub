@@ -6,6 +6,8 @@ public record ChatResult(string SenderId,
  string Id,
 DateTime CreatedOn,
 string ReceiverId,
+string ReceiverName,
+string SenderName,
  ICollection<Replyy> Replys);
 
 

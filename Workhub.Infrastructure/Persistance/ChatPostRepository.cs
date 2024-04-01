@@ -28,6 +28,9 @@ public class ChatPostRepository : GenericRepository<ChatPost>, IChatPostReposito
 
     public IEnumerable<ChatPost> GetByUser(string userId)
     {
-        return DbSet.Where(c => c.SenderId == userId || c.ReceiverId == userId);
+        return DbSet
+        .Where(c => c.SenderId == userId || c.ReceiverId == userId)
+        .OrderBy(o => o.CreatedOn)
+        .Include(r => r.Replys.OrderByDescending(reply => reply.CreatedOn));
     }
 }

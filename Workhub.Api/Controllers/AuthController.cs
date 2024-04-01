@@ -43,6 +43,7 @@ public class AuthController : ControllerBase
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
 
     }
+    
 
     [HttpPost("confirm")]
     public async Task<IResult> Confirm (string email, string token)
