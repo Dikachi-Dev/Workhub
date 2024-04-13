@@ -6,7 +6,7 @@ public class Profile : BaseEntity
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string NIN { get; set; } = string.Empty;
-    public string ProfileImage { get; set; } = string.Empty;
+    public ImageDet ProfileImage { get; set; } = new ImageDet();
     public string Country { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
@@ -23,4 +23,9 @@ public class Profile : BaseEntity
     public string UserType { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
 
+}
+
+public class ImageDet{
+    public string Description { get; set; } = string.Empty;
+    public string publicId { get; set; } = string.Empty;
 }

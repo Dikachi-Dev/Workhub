@@ -167,7 +167,15 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ReceiverName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -352,10 +360,6 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileImage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
@@ -465,6 +469,31 @@ namespace Workhub.Infrastructure.Migrations
 
             modelBuilder.Entity("Workhub.Domain.Entities.Profile", b =>
                 {
+                    b.OwnsOne("Workhub.Domain.Entities.ImageDet", "ProfileImage", b1 =>
+                        {
+                            b1.Property<string>("ProfileId")
+                                .HasColumnType("nvarchar(450)");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Description");
+
+                            b1.Property<string>("publicId")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("publicId");
+
+                            b1.HasKey("ProfileId");
+
+                            b1.ToTable("Profiles");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfileId");
+                        });
+
                     b.OwnsOne("Workhub.Domain.Entities.Subscribe", "Subscribe", b1 =>
                         {
                             b1.Property<string>("ProfileId")
@@ -490,7 +519,93 @@ namespace Workhub.Infrastructure.Migrations
                                 .HasForeignKey("ProfileId");
                         });
 
+                    b.OwnsOne("Workhub.Domain.Entities.VendorProfile", "VendorProfile", b1 =>
+                        {
+                            b1.Property<string>("ProfileId")
+                                .HasColumnType("nvarchar(450)");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Description");
+
+                            b1.Property<string>("Instagram")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Instagram");
+
+                            b1.HasKey("ProfileId");
+
+                            b1.ToTable("Profiles");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfileId");
+
+                            b1.OwnsOne("Workhub.Domain.Entities.ImageDet", "Image1", b2 =>
+                                {
+                                    b2.Property<string>("VendorProfileProfileId")
+                                        .HasColumnType("nvarchar(450)");
+
+                                    b2.Property<string>("Description")
+                                        .IsRequired()
+                                        .ValueGeneratedOnUpdateSometimes()
+                                        .HasColumnType("nvarchar(max)")
+                                        .HasColumnName("Description");
+
+                                    b2.Property<string>("publicId")
+                                        .IsRequired()
+                                        .ValueGeneratedOnUpdateSometimes()
+                                        .HasColumnType("nvarchar(max)")
+                                        .HasColumnName("publicId");
+
+                                    b2.HasKey("VendorProfileProfileId");
+
+                                    b2.ToTable("Profiles");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("VendorProfileProfileId");
+                                });
+
+                            b1.OwnsOne("Workhub.Domain.Entities.ImageDet", "Image2", b2 =>
+                                {
+                                    b2.Property<string>("VendorProfileProfileId")
+                                        .HasColumnType("nvarchar(450)");
+
+                                    b2.Property<string>("Description")
+                                        .IsRequired()
+                                        .ValueGeneratedOnUpdateSometimes()
+                                        .HasColumnType("nvarchar(max)")
+                                        .HasColumnName("Description");
+
+                                    b2.Property<string>("publicId")
+                                        .IsRequired()
+                                        .ValueGeneratedOnUpdateSometimes()
+                                        .HasColumnType("nvarchar(max)")
+                                        .HasColumnName("publicId");
+
+                                    b2.HasKey("VendorProfileProfileId");
+
+                                    b2.ToTable("Profiles");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("VendorProfileProfileId");
+                                });
+
+                            b1.Navigation("Image1")
+                                .IsRequired();
+
+                            b1.Navigation("Image2")
+                                .IsRequired();
+                        });
+
+                    b.Navigation("ProfileImage")
+                        .IsRequired();
+
                     b.Navigation("Subscribe")
+                        .IsRequired();
+
+                    b.Navigation("VendorProfile")
                         .IsRequired();
                 });
 

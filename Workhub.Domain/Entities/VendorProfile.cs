@@ -7,8 +7,8 @@ namespace Workhub.Domain.Entities;
 public class VendorProfile
 {
     public string Description {get; set;} = string.Empty;
-    public string Image1 {get; set;} = string.Empty;
-    public string Image2 {get; set;} = string.Empty;
+    public ImageDet Image1 {get; set;} = new ImageDet();
+    public ImageDet Image2 {get; set;} = new ImageDet();
     public string Instagram {get; set;} = string.Empty;
     
 }

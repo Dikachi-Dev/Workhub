@@ -7,6 +7,7 @@ using System.Security.Claims;
 using Workhub.Api.EndPoints;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
+using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Profiless.Common;
 using Workhub.Application.Profiless.Query;
 using Workhub.Contracts.Profileing;
@@ -21,14 +22,16 @@ public class ProfileController : ControllerBase
     private readonly IMediator mediator;
     private readonly IMapper mapper;
     private readonly IProfileRepository repository;
+    private readonly IFileUpload upload;
     private readonly ISeriLogger logger;
 
-    public ProfileController(IMediator mediator, IMapper mapper, IProfileRepository repository, ISeriLogger logger)
+    public ProfileController(IMediator mediator, IMapper mapper, IProfileRepository repository, ISeriLogger logger, IFileUpload upload)
     {
         this.mediator = mediator;
         this.mapper = mapper;
         this.repository = repository;
         this.logger = logger;
+        this.upload = upload;
     }
     [HttpGet("myprofile")]
     public async Task<IResult> MyProfile()
@@ -79,9 +82,13 @@ public class ProfileController : ControllerBase
             return Results.BadRequest("User Not Found");
         }
         var profile = await repository.GetById(userId);
+        var image1 = await upload.UploadImageAsync(request.Image1);
+        var image2 = await upload.UploadImageAsync(request.Image2);
         profile.VendorProfile.Description = request.Description;
-        profile.VendorProfile.Image1 = request.Image1;
-        profile.VendorProfile.Image2 = request.Image2;
+        profile.VendorProfile.Image1.Description = image1.Url.ToString();
+        profile.VendorProfile.Image1.publicId = image1.PublicId;
+        profile.VendorProfile.Image2.Description = image2.Url.ToString();
+        profile.VendorProfile.Image2.publicId = image2.PublicId;
         profile.VendorProfile.Instagram = request.Instagram;
         try{
             repository.Update(profile);

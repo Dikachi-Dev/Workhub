@@ -1,4 +1,6 @@
-﻿namespace Workhub.Contracts.Authentication;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Workhub.Contracts.Authentication;
 
 public record RegisterRequest(
     string FirstName,
@@ -11,7 +13,7 @@ public record RegisterRequest(
     string Address,
     string Occupation,
     string UserType,
-    string ProfileImage,
+    IFormFile ProfileImage,
     string Nin,
     string LongLat,
     string Token,

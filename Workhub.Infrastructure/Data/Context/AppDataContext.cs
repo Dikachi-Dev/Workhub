@@ -25,13 +25,37 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
             s.Property<DateTime>(nameof(Subscribe.ExpireOn)).HasColumnName(nameof(Subscribe.ExpireOn));
             s.Property<bool>(nameof(Subscribe.IsSubscribed)).HasColumnName(nameof(Subscribe.IsSubscribed));
         });
-        modelBuilder.Entity<Profile>().OwnsOne(p=>p.VendorProfile, v=>
+        modelBuilder.Entity<Profile>().OwnsOne(p => p.ProfileImage, s =>
         {
+            s.Property<string>(nameof(ImageDet.Description)).HasColumnName(nameof(ImageDet.Description));
+            s.Property<string>(nameof(ImageDet.publicId)).HasColumnName(nameof(ImageDet.publicId));
+        });
+        // modelBuilder.Entity<Profile>().OwnsOne(p=>p.VendorProfile, v=>
+        // {
+        //     v.Property<string>(nameof(VendorProfile.Description)).HasColumnName(nameof(VendorProfile.Description));
+        //     v.Property<string>(nameof(VendorProfile.Image1.Description)).HasColumnName(nameof(VendorProfile.Image1.Description));
+        //     v.Property<string>(nameof(VendorProfile.Image1.publicId)).HasColumnName(nameof(VendorProfile.Image1.publicId));
+        //     v.Property<string>(nameof(VendorProfile.Image2.Description)).HasColumnName(nameof(VendorProfile.Image2.Description));
+        //     v.Property<string>(nameof(VendorProfile.Image2.publicId)).HasColumnName(nameof(VendorProfile.Image2.publicId));
+        //     v.Property<string>(nameof(VendorProfile.Instagram)).HasColumnName(nameof(VendorProfile.Instagram));
+        // });
+        modelBuilder.Entity<Profile>().OwnsOne(p => p.VendorProfile, v =>
+        {
+            v.OwnsOne(p => p.Image1, img =>
+            {
+                img.Property<string>(nameof(ImageDet.Description)).HasColumnName(nameof(ImageDet.Description));
+                img.Property<string>(nameof(ImageDet.publicId)).HasColumnName(nameof(ImageDet.publicId));
+            });
+            v.OwnsOne(p => p.Image2, img =>
+            {
+                img.Property<string>(nameof(ImageDet.Description)).HasColumnName(nameof(ImageDet.Description));
+                img.Property<string>(nameof(ImageDet.publicId)).HasColumnName(nameof(ImageDet.publicId));
+            });
+
             v.Property<string>(nameof(VendorProfile.Description)).HasColumnName(nameof(VendorProfile.Description));
-            v.Property<string>(nameof(VendorProfile.Image1)).HasColumnName(nameof(VendorProfile.Image1));
-            v.Property<string>(nameof(VendorProfile.Image2)).HasColumnName(nameof(VendorProfile.Image2));
             v.Property<string>(nameof(VendorProfile.Instagram)).HasColumnName(nameof(VendorProfile.Instagram));
         });
+
         //    modelBuilder.Entity<ChatPost>().HasMany(c => c.Replys)
         //.WithOne() // Assuming there's no explicit navigation property on Reply back to ChatPost
         //.HasForeignKey("ChatPostId") // Assuming there's a foreign key property in Reply referencing ChatPost
@@ -62,7 +86,7 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
     }
     // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     // {
-    //    // This method will not be used since the options are provided through the constructor
-    //    optionsBuilder.UseSqlServer("Data Source=SQL5110.site4now.net;Initial Catalog=db_a7a91c_workhub;User Id=db_a7a91c_workhub_admin;Password=Kachukwu11");
+    //     // This method will not be used since the options are provided through the constructor
+    //     optionsBuilder.UseSqlServer("Data Source=SQL5110.site4now.net;Initial Catalog=db_a7a91c_workhub;User Id=db_a7a91c_workhub_admin;Password=Kachukwu11");
     // }
 }

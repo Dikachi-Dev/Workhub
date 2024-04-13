@@ -40,7 +40,7 @@ namespace Workhub.Application.Profiless.Query
                 LastName: p.LastName,
                 Email: p.Email,
                 PhoneNumber: p.PhoneNumber,
-                ProfileImage: p.ProfileImage,
+                ProfileImage: p.ProfileImage.Description,
                 Country: p.Country,
                 Address: p.Address,
                 State: p.State,

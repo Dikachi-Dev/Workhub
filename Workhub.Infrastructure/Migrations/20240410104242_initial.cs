@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -57,31 +58,13 @@ namespace Workhub.Infrastructure.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     SenderId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ReceiverId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SenderName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReceiverName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ChatPosts", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Jobs",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    BuyerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SellerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SellerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BuyerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Occupation = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BuyerRating = table.Column<double>(type: "float", nullable: false),
-                    SellerRating = table.Column<double>(type: "float", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Jobs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -93,20 +76,22 @@ namespace Workhub.Infrastructure.Migrations
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NIN = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    publicId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     State = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NIN = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProfileImage = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LGA = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Occupation = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Experience = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rating = table.Column<double>(type: "float", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
                     JobCount = table.Column<int>(type: "int", nullable: false),
                     SubscribeOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ExpireOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsSubscribed = table.Column<bool>(type: "bit", nullable: false),
+                    Instagram = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LongLat = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -228,7 +213,7 @@ namespace Workhub.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ChatPostId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ChatPostId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FromId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -240,6 +225,33 @@ namespace Workhub.Infrastructure.Migrations
                         name: "FK_Reply_ChatPosts_ChatPostId",
                         column: x => x.ChatPostId,
                         principalTable: "ChatPosts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Jobs",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BuyerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SellerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SellerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BuyerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Occupation = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BuyerRating = table.Column<double>(type: "float", nullable: false),
+                    SellerRating = table.Column<double>(type: "float", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfileId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Jobs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Jobs_Profiles_ProfileId",
+                        column: x => x.ProfileId,
+                        principalTable: "Profiles",
                         principalColumn: "Id");
                 });
 
@@ -283,6 +295,11 @@ namespace Workhub.Infrastructure.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Jobs_ProfileId",
+                table: "Jobs",
+                column: "ProfileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reply_ChatPostId",
                 table: "Reply",
                 column: "ChatPostId");
@@ -310,9 +327,6 @@ namespace Workhub.Infrastructure.Migrations
                 name: "Jobs");
 
             migrationBuilder.DropTable(
-                name: "Profiles");
-
-            migrationBuilder.DropTable(
                 name: "Reply");
 
             migrationBuilder.DropTable(
@@ -320,6 +334,9 @@ namespace Workhub.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Profiles");
 
             migrationBuilder.DropTable(
                 name: "ChatPosts");

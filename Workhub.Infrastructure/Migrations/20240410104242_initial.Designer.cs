@@ -12,8 +12,8 @@ using Workhub.Infrastructure.Data.Context;
 namespace Workhub.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    [Migration("20240303074459_fix1")]
-    partial class fix1
+    [Migration("20240410104242_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -170,7 +170,15 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ReceiverName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -271,6 +279,9 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProfileId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("SellerId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -287,6 +298,8 @@ namespace Workhub.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
 
                     b.ToTable("Jobs");
                 });
@@ -326,10 +339,6 @@ namespace Workhub.Infrastructure.Migrations
                     b.Property<int>("JobCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("LGA")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -354,14 +363,14 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileImage")
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("State")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Rating")
-                        .HasColumnType("float");
-
-                    b.Property<string>("State")
+                    b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -380,6 +389,7 @@ namespace Workhub.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ChatPostId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedOn")
@@ -451,8 +461,42 @@ namespace Workhub.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Workhub.Domain.Entities.Job", b =>
+                {
+                    b.HasOne("Workhub.Domain.Entities.Profile", "Profile")
+                        .WithMany("Jobs")
+                        .HasForeignKey("ProfileId");
+
+                    b.Navigation("Profile");
+                });
+
             modelBuilder.Entity("Workhub.Domain.Entities.Profile", b =>
                 {
+                    b.OwnsOne("Workhub.Domain.Entities.ImageDet", "ProfileImage", b1 =>
+                        {
+                            b1.Property<string>("ProfileId")
+                                .HasColumnType("nvarchar(450)");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Description");
+
+                            b1.Property<string>("publicId")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("publicId");
+
+                            b1.HasKey("ProfileId");
+
+                            b1.ToTable("Profiles");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfileId");
+                        });
+
                     b.OwnsOne("Workhub.Domain.Entities.Subscribe", "Subscribe", b1 =>
                         {
                             b1.Property<string>("ProfileId")
@@ -478,7 +522,93 @@ namespace Workhub.Infrastructure.Migrations
                                 .HasForeignKey("ProfileId");
                         });
 
+                    b.OwnsOne("Workhub.Domain.Entities.VendorProfile", "VendorProfile", b1 =>
+                        {
+                            b1.Property<string>("ProfileId")
+                                .HasColumnType("nvarchar(450)");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Description");
+
+                            b1.Property<string>("Instagram")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Instagram");
+
+                            b1.HasKey("ProfileId");
+
+                            b1.ToTable("Profiles");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfileId");
+
+                            b1.OwnsOne("Workhub.Domain.Entities.ImageDet", "Image1", b2 =>
+                                {
+                                    b2.Property<string>("VendorProfileProfileId")
+                                        .HasColumnType("nvarchar(450)");
+
+                                    b2.Property<string>("Description")
+                                        .IsRequired()
+                                        .ValueGeneratedOnUpdateSometimes()
+                                        .HasColumnType("nvarchar(max)")
+                                        .HasColumnName("Description");
+
+                                    b2.Property<string>("publicId")
+                                        .IsRequired()
+                                        .ValueGeneratedOnUpdateSometimes()
+                                        .HasColumnType("nvarchar(max)")
+                                        .HasColumnName("publicId");
+
+                                    b2.HasKey("VendorProfileProfileId");
+
+                                    b2.ToTable("Profiles");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("VendorProfileProfileId");
+                                });
+
+                            b1.OwnsOne("Workhub.Domain.Entities.ImageDet", "Image2", b2 =>
+                                {
+                                    b2.Property<string>("VendorProfileProfileId")
+                                        .HasColumnType("nvarchar(450)");
+
+                                    b2.Property<string>("Description")
+                                        .IsRequired()
+                                        .ValueGeneratedOnUpdateSometimes()
+                                        .HasColumnType("nvarchar(max)")
+                                        .HasColumnName("Description");
+
+                                    b2.Property<string>("publicId")
+                                        .IsRequired()
+                                        .ValueGeneratedOnUpdateSometimes()
+                                        .HasColumnType("nvarchar(max)")
+                                        .HasColumnName("publicId");
+
+                                    b2.HasKey("VendorProfileProfileId");
+
+                                    b2.ToTable("Profiles");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("VendorProfileProfileId");
+                                });
+
+                            b1.Navigation("Image1")
+                                .IsRequired();
+
+                            b1.Navigation("Image2")
+                                .IsRequired();
+                        });
+
+                    b.Navigation("ProfileImage")
+                        .IsRequired();
+
                     b.Navigation("Subscribe")
+                        .IsRequired();
+
+                    b.Navigation("VendorProfile")
                         .IsRequired();
                 });
 
@@ -486,7 +616,9 @@ namespace Workhub.Infrastructure.Migrations
                 {
                     b.HasOne("Workhub.Domain.Entities.ChatPost", "ChatPost")
                         .WithMany("Replys")
-                        .HasForeignKey("ChatPostId");
+                        .HasForeignKey("ChatPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ChatPost");
                 });
@@ -494,6 +626,11 @@ namespace Workhub.Infrastructure.Migrations
             modelBuilder.Entity("Workhub.Domain.Entities.ChatPost", b =>
                 {
                     b.Navigation("Replys");
+                });
+
+            modelBuilder.Entity("Workhub.Domain.Entities.Profile", b =>
+                {
+                    b.Navigation("Jobs");
                 });
 #pragma warning restore 612, 618
         }

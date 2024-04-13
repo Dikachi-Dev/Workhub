@@ -15,15 +15,16 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
     private readonly IJWTGenerator jWTGenerator;
     private readonly IProfileRepository repository;
     private readonly ISeriLogger logger;
-  
+    private readonly IFileUpload upload;
 
-    public RegisterCommandHandler(IProfileRepository repository, IMediator mediator, IJWTGenerator jWTGenerator, ISeriLogger logger)
+
+    public RegisterCommandHandler(IProfileRepository repository, IMediator mediator, IJWTGenerator jWTGenerator, ISeriLogger logger, IFileUpload upload)
     {
         this.repository = repository;
         this.mediator = mediator;
         this.jWTGenerator = jWTGenerator;
         this.logger = logger;
-        
+        this.upload = upload;
     }
 
 
@@ -33,6 +34,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
         {
             return Domain.Errors.Errors.Profile.DuplicateEmail;
         }
+        var result = await upload.UploadImageAsync(command.ProfileImage);
+        var profileimage = new ImageDet{ Description = result.Url.ToString(), publicId = result.PublicId};
         var profile = new Profile
         {
 
@@ -47,7 +50,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
             Gender = command.Gender,
             Experience = command.Experience,
             Password = command.Password,
-            ProfileImage = command.ProfileImage,
+            ProfileImage = profileimage,
             NIN = command.Nin,
             LongLat = command.LongLat,
             Token = command.Token,

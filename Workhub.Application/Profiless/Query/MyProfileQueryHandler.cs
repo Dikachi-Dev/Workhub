@@ -27,7 +27,7 @@ public class MyProfileQueryHandler : IRequestHandler<MyProfileQuery, ErrorOr<MyP
             LastName: profile.LastName,
             Email: profile.Email,
             PhoneNumber: profile.PhoneNumber,
-            ProfileImage: profile.ProfileImage,
+            ProfileImage: profile.ProfileImage.Description,
             Country: profile.Country,
             Address: profile.Address,
             State: profile.State,
