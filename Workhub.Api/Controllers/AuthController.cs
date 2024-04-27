@@ -7,6 +7,7 @@ using Workhub.Api.EndPoints;
 using Workhub.Application.Authentication.Seller.Commands;
 using Workhub.Application.Authentication.Seller.Common;
 using Workhub.Application.Authentication.Seller.Query;
+using Workhub.Application.Interfaces.Persistance;
 using Workhub.Contracts.Authentication;
 
 namespace Workhub.Api.Controllers;
@@ -17,11 +18,13 @@ public class AuthController : ControllerBase
 {
     private readonly IMediator mediator;
     private readonly IMapper mapper;
+    private readonly ICheckVerify verify;
 
-    public AuthController(IMediator mediator, IMapper mapper)
+    public AuthController(IMediator mediator, IMapper mapper, ICheckVerify verify)
     {
         this.mediator = mediator;
         this.mapper = mapper;
+        this.verify = verify;
     }
     [HttpPost("register")]
     public async Task<IResult> Register(RegisterRequest request)
@@ -43,13 +46,23 @@ public class AuthController : ControllerBase
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
 
     }
-    
+
 
     [HttpPost("confirm")]
-    public async Task<IResult> Confirm (string email, string token)
+    public async Task<IResult> Confirm(string email, string token)
     {
-        var command = new ConfirmCommand(email,token);
+        var command = new ConfirmCommand(email, token);
         ErrorOr<ConfirmResponse> response = await mediator.Send(command);
-        return response.Match(p=> Results.Ok("Verified"), errors=> Results.Problem(EndpointBase.GetProblemDetails(errors)));
+        return response.Match(p => Results.Ok("Verified"), errors => Results.Problem(EndpointBase.GetProblemDetails(errors)));
+    }
+    [HttpPost("resend")]
+    public async Task<IResult> Resend(string email)
+    {
+        bool result = await verify.ResendOTP(email);
+        if (result == true)
+        {
+            return Results.Ok("New Otp Sent");
+        }
+        return Results.Ok("Not Sent");
     }
 }

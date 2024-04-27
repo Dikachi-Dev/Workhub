@@ -8,9 +8,12 @@ public interface IProfileRepository : IGenericRepository<Profile>
     IQueryable<Profile?> GetByFilter(string filter);
     Profile? GetSellerProfileByIdAllWithCollections(string id);
     IQueryable<Profile?> GetQueryableSellerProfiles();
+    Profile GetVendor(string id);
+
     IQueryable<Profile?> GetByProximity();
     Task<IEnumerable<Profile>> GetByOccupation(string occupation);
-    Task<IList<Claim>> Login(string username, string password);
+    Task<IEnumerable<Profile>> GetAllVendros();
+    Task<IList<Claim>> Login(string username, string password, string token);
     Task<GlobalUser> Register(Profile profile);
 }
 

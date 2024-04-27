@@ -1,16 +1,97 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using Workhub.Application.Interfaces.Services;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Infrastructure.Services;
 public class CloseProx : ICloseProx
 {
+    public record FullAddress(string Country, string State, string Address);
+    public async Task<dynamic> GetFullAddress(string longlat)
+    {
+        IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        List<Profile> closeProximity = new List<Profile>(); // Initialize list
+        string apiKey = configuration.GetSection("GoogleApiKey").Value;
+        var httpcon = new HttpClient();
+        string baseurl = configuration.GetSection("GoogleGeoCode").Value;
+        // Construct the API request URL
+        string apiUrl = $"{baseurl}latlng={longlat}&key={apiKey}";
+
+        // Create an instance of HttpClient
+        using (var httpClient = new HttpClient())
+        {
+            try
+            {
+                // Send the HTTP request and get the response
+                var response = await httpClient.GetAsync(apiUrl);
+                // Ensure the request was successful
+                if (response.IsSuccessStatusCode)
+                {
+                    // Parse the JSON response
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var jsonObject = JObject.Parse(jsonResponse);
+
+                    // Extract the address components
+                    var results = jsonObject["results"];
+                    if (results != null && results.HasValues)
+                    {
+                        var firstResult = results[0];
+                        var addressComponents = firstResult["address_components"];
+
+                        // Extract the country, state, and formatted address
+                        string country = null, state = null, formattedAddress = null;
+                        foreach (var component in addressComponents)
+                        {
+                            var types = component["types"];
+                            if (types != null && types.HasValues)
+                            {
+                                foreach (var type in types)
+                                {
+                                    if (type.ToString() == "country")
+                                    {
+                                        country = component["long_name"].ToString();
+                                    }
+                                    else if (type.ToString() == "administrative_area_level_1")
+                                    {
+                                        state = component["long_name"].ToString();
+                                    }
+                                }
+                            }
+                        }
+
+                        formattedAddress = firstResult["formatted_address"].ToString();
+                        var resultdetails = new FullAddress(country, state, formattedAddress);
+                        return resultdetails;
+                    }
+                    else
+                    {
+
+                        Console.WriteLine("No results found.");
+                        return null;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to retrieve data. Status code: {response.StatusCode}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return null;
+            }
+        }
+    }
+
     public async Task<List<Profile>> GetProfilesSortedByProximity(string origin, string destinations, IEnumerable<Profile> profiles)
     {
+        IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         List<Profile> closeProximity = new List<Profile>(); // Initialize list
-        string apiKey = "AIzaSyAQyKyxbcnwmRFW1OyJHuhKhCuaXeU3bmg";
+        string apiKey = configuration.GetSection("GoogleApiKey").Value;
         var httpcon = new HttpClient();
-        string url = $"https://maps.googleapis.com/maps/api/distancematrix/json?origins={origin}&destinations={destinations}&key={apiKey}";
+        string baseurl = configuration.GetSection("GoogleUrl").Value;
+        string url = $"{baseurl}?origins={origin}&destinations={destinations}&key={apiKey}";
         HttpResponseMessage response = await httpcon.GetAsync(url);
 
         if (response.IsSuccessStatusCode)
@@ -47,4 +128,5 @@ public class CloseProx : ICloseProx
 
         return closeProximity;
     }
+
 }

@@ -31,7 +31,7 @@ public static class DependencyInJection
         services.AddScoped<ICheckVerify, CheckVerify>();
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<INotificationSender, NotificationSender>();
-        services.AddScoped<IFileUpload, FileUpload>();
+        //services.AddScoped<IFileUpload, FileUpload>();
         services.AddScoped<CloudinaryDotNet.Cloudinary>();
 
         //services.AddIdentity<GlobalUser, IdentityRole>(option =>

@@ -1,6 +1,5 @@
 ﻿using ErrorOr;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Workhub.Application.Authentication.Seller.Common;
 
 namespace Workhub.Application.Authentication.Seller.Commands;
@@ -19,7 +18,6 @@ string Occupation,
 string Gender,
 string LongLat,
 string UserType,
-IFormFile ProfileImage,
 string Nin,
 string Token,
 string Experience) : IRequest<ErrorOr<AuthResult>>;

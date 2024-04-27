@@ -14,6 +14,7 @@ public class MyProfileQueryHandler : IRequestHandler<MyProfileQuery, ErrorOr<MyP
     {
         this.profileRepository = profileRepository;
         this.mediator = mediator;
+
     }
 
     public async Task<ErrorOr<MyProfileResult>> Handle(MyProfileQuery request, CancellationToken cancellationToken)
@@ -27,7 +28,7 @@ public class MyProfileQueryHandler : IRequestHandler<MyProfileQuery, ErrorOr<MyP
             LastName: profile.LastName,
             Email: profile.Email,
             PhoneNumber: profile.PhoneNumber,
-            ProfileImage: profile.ProfileImage.Description,
+            ProfileImage: profile.ProfileImage,
             Country: profile.Country,
             Address: profile.Address,
             State: profile.State,

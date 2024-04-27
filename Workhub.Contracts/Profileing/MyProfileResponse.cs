@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Workhub.Contracts.Profileing;
-    public record MyProfileResponse(string FirstName,
+public record MyProfileResponse(string FirstName,
  string LastName,
  string Email,
  string PhoneNumber,
- string ProfileImage,
+ byte[] ProfileImage,
  string Country,
  string Address,
  string State,

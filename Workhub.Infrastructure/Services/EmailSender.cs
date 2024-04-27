@@ -1,9 +1,7 @@
 
+using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
-using MailKit.Security;
-using Microsoft.Extensions.Configuration;
-using MimeKit;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Services;
 
@@ -17,10 +15,10 @@ public class EmailSender : IEmailSender
     public EmailSender(ISeriLogger logger)
     {
         this.logger = logger;
-      
+
     }
 
-    public  bool SendEmailAsyncMimeKit(string to, string subject, string body)
+    public bool SendEmailAsyncMimeKit(string to, string subject, string body)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         string from = configuration.GetSection("Smtp:Email").Value;

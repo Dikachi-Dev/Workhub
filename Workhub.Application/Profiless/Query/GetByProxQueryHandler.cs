@@ -14,6 +14,7 @@ namespace Workhub.Application.Profiless.Query
         private readonly IProfileRepository profileRepository;
         private readonly IMediator mediator;
         private readonly ICloseProx closeProx;
+        //private readonly IFileUpload upload;
 
         public GetByProxQueryHandler(IJobRepository jobRepository, IProfileRepository profileRepository, IMediator mediator, ICloseProx closeProx)
         {
@@ -21,6 +22,7 @@ namespace Workhub.Application.Profiless.Query
             this.profileRepository = profileRepository;
             this.mediator = mediator;
             this.closeProx = closeProx;
+            //this.upload = upload;
         }
 
         public async Task<ErrorOr<ProxyResult>> Handle(GetByProxQuery request, CancellationToken cancellationToken)
@@ -40,7 +42,7 @@ namespace Workhub.Application.Profiless.Query
                 LastName: p.LastName,
                 Email: p.Email,
                 PhoneNumber: p.PhoneNumber,
-                ProfileImage: p.ProfileImage.Description,
+                ProfileImage: p.ProfileImage,
                 Country: p.Country,
                 Address: p.Address,
                 State: p.State,

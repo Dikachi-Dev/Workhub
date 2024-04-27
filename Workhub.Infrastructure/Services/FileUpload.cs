@@ -1,76 +1,66 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Workhub.Application.Interfaces.Logger;
-using Workhub.Application.Interfaces.Services;
+﻿using Microsoft.Extensions.Configuration;
 
-namespace Workhub.Infrastructure.Services
+namespace Workhub.Infrastructure.Services;
+public static class FileHelper
 {
-    public class FileUpload : IFileUpload
+    private static readonly IConfigurationRoot Configuration;
+
+    static FileHelper()
     {
-        private readonly Cloudinary cloudinary;
-        private readonly ISeriLogger logger;
+        Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+    }
 
-        public FileUpload(Cloudinary cloudinary, ISeriLogger logger)
+    public static string CreateDocFile(byte[] doc, string filename)
+    {
+        try
         {
-            IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
-            Account account = new Account(
-             configuration.GetSection("Cloudinary:Cloud").Value,
-              configuration.GetSection("Cloudinary:Apikey").Value,
-             configuration.GetSection("Cloudinary:ApiSecret").Value);
-
-            this.cloudinary = new Cloudinary(account);
-            this.cloudinary = cloudinary;
-            this.logger = logger;
-        }
-
-        public async Task<DeletionResult> DeleteImageAsync(string publicId)
-        {
-            var result = new DeletionResult();
-            try
+            if (doc != null)
             {
+                string basePath = Configuration["ImagePath"];
+                string filePath = Path.Combine(basePath, filename);
 
-                var img = new DeletionParams(publicId);
-                result = await cloudinary.DestroyAsync(img);
-                logger.LogInfo($"Delete complete {result.StatusCode}", DateTime.UtcNow);
-            }
-            catch (Exception ex)
-            {
-                logger.LogExceptions($"{ex}: {result.StatusCode}", DateTime.UtcNow);
-            }
-            return result;
+                DirectoryInfo dir = new DirectoryInfo(basePath);
+                if (!dir.Exists)
+                    dir.Create();
 
-        }
-
-        public async Task<ImageUploadResult> UploadImageAsync(IFormFile file)
-        {
-            var result = new ImageUploadResult();
-            if (file.Length > 0)
-            {
-                try
+                using (FileStream fStream = new FileStream(filePath, FileMode.OpenOrCreate))
                 {
-                    var stream = file.OpenReadStream();
-                    var upload = new ImageUploadParams
-                    {
-                        File = new FileDescription(file.FileName, stream),
-                        Transformation = new Transformation().Height(500).Width(500).Crop("fill")
-                    };
-                    result = await cloudinary.UploadAsync(upload);
-                    logger.LogInfo($"Photo upload result: {result.StatusCode}", DateTime.UtcNow);
+                    fStream.Write(doc, 0, doc.Length);
                 }
-                catch (Exception ex)
-                {
-                    logger.LogExceptions($"{ex}Error uploading photo: {file.FileName}", DateTime.UtcNow);
-                }
-
+                return filename;
             }
-            return result;
+            return "";
+        }
+        catch (Exception)
+        {
+            return "";
+        }
+    }
+
+    public static byte[] GetDoc(string filepath)
+    {
+        try
+        {
+            string basePath = Configuration["ImagePath"];
+            string filePath = Path.Combine(basePath, filepath);
+
+            FileInfo oFile = new FileInfo(filePath);
+            if (oFile.Exists)
+            {
+                using (FileStream oFileStream = oFile.OpenRead())
+                {
+                    long lBytes = oFileStream.Length;
+                    byte[] fileData = new byte[lBytes];
+                    oFileStream.Read(fileData, 0, Convert.ToInt32(lBytes));
+                    return fileData;
+                }
+            }
+            return null;
+        }
+        catch (Exception)
+        {
+            return null;
         }
     }
 }
+

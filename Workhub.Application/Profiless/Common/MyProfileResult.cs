@@ -1,6 +1,4 @@
-﻿using Workhub.Domain.Entities;
-
-namespace Workhub.Application.Profiless.Common;
+﻿namespace Workhub.Application.Profiless.Common;
 
 public record MyProfileResult(string FirstName,
  string LastName,
@@ -20,4 +18,4 @@ public record MyProfileResult(string FirstName,
  string LongLat,
  string UserType);
 
- 
+

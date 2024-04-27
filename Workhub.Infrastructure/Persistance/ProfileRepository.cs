@@ -59,7 +59,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         throw new NotImplementedException();
     }
 
-    public async Task<IList<Claim>> Login(string username, string password)
+    public async Task<IList<Claim>> Login(string username, string password, string token)
     {
         var user = await userManager.FindByEmailAsync(username);
         if (user != null && await userManager.CheckPasswordAsync(user, password))
@@ -68,11 +68,17 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
             if (roles.Contains("User") || roles.Contains("Admin") || roles.Contains("Vendor") || roles.Contains("Both"))
             {
+                var profile = GetProfileByEmail(username);
+                profile.Token = token;
+                Update(profile);
+                await SaveChanges();
+
                 // Create claims for the user including roles
                 var claims = new List<Claim>
 {
     new Claim(ClaimTypes.NameIdentifier, user.Id),
-    new Claim(ClaimTypes.Email, user.Email)
+    new Claim(ClaimTypes.Email, user.Email),
+    new Claim(ClaimTypes.GivenName,profile.FirstName)
 };
 
                 foreach (var role in roles)
@@ -95,7 +101,8 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
             Id = profile.Id,
             Email = profile.Email,
             Password = profile.Password,
-            UserName = profile.Email
+            UserName = profile.Email,
+            PhoneNumber = profile.PhoneNumber,
         };
         var result = await userManager.CreateAsync(user, profile.Password);
 
@@ -107,16 +114,16 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
             var role = new IdentityRole(roleName);
             await roleManager.CreateAsync(role);
         }
-    
+
         // Use roleName variable here instead of hardcoding "User"
         await userManager.AddToRoleAsync(user, roleName);
-        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var url = $"{_config["ValidUrl"]}/{_config["ConfirmMail"]}?email={user.Email}&token={token}";
+        var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, profile.PhoneNumber);
+        //var url = $"{_config["ValidUrl"]}/{_config["ConfirmMail"]}?email={user.Email}&token={token}";
 
-        var body = $"<p>Hello: {user.Email} </p>" +
+        var body = $"<p>Hello: {profile.FirstName} </p>" +
            $"<p>Username: {user.UserName}.</p>" +
-           "<p>In Order to confirm your email, please click on the following link.</p>" +
-           $"<p><a href=\"{url}\">Click here</a></p>" +
+           "<p>Confirm your email with the OTP below</p>" +
+           $"<p>{token}</p>" +
            "<p>Thank you,</p>" +
            $"<br>{_config["Email:ApplicationName"]}";
         emailSender.SendEmailAsyncMimeKit(user.Email, "Email Verification", body);
@@ -137,5 +144,15 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         return profiles;
     }
 
-   
+    public async Task<IEnumerable<Profile>> GetAllVendros()
+    {
+        var profiles = await DbSet.Where(p => p.UserType != "User").ToListAsync();
+        return profiles;
+    }
+
+    public Profile GetVendor(string id)
+    {
+        var profile = DbSet.Where(p => p.UserType != "User" && p.Id == id).Include(p => p.VendorProfile).FirstOrDefault();
+        return profile;
+    }
 }

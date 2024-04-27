@@ -3,9 +3,7 @@ using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Security.Claims;
-using System.Text.Json.Nodes;
 using Workhub.Api.EndPoints;
 using Workhub.Application.ChatAp.Command;
 using Workhub.Application.ChatAp.Common;
@@ -40,7 +38,7 @@ namespace Workhub.Api.Controllers
             var query = new ChatBidirectionalQuery(userId.Trim(), receiverId.Trim());
             ErrorOr<ChatResult> chatResult = await mediator.Send(query);
             return chatResult.Match(chat =>
-            Results.Ok(new ChatResponse(chat.SenderId,chat.Id,chat.CreatedOn,chat.ReceiverId, chat.ReceiverName, chat.SenderName, chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
+            Results.Ok(new ChatResponse(chat.SenderId, chat.Id, chat.CreatedOn, chat.ReceiverId, chat.ReceiverName, chat.SenderName, chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
             Results.Problem(EndpointBase.GetProblemDetails(errors)));
         }
 

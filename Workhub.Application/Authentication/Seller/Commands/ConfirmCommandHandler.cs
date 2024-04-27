@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ErrorOr;
 using MediatR;
 using Workhub.Application.Authentication.Seller.Common;
@@ -27,15 +23,15 @@ public class ConfirmCommandHandler : IRequestHandler<ConfirmCommand, ErrorOr<Con
 
     public async Task<ErrorOr<ConfirmResponse>> Handle(ConfirmCommand request, CancellationToken cancellationToken)
     {
-       if(await verify.checkVerifyStats(request.email) == true)
-       {
+        if (await verify.checkVerifyStats(request.email) == true)
+        {
+            return Domain.Errors.Errors.Authentication.NotVerified;
+        }
+        var result = await verify.ConfirmEmail(request.token, request.email);
+        if (result == true)
+        {
+            return new ConfirmResponse(true);
+        }
         return Domain.Errors.Errors.Authentication.NotVerified;
-       }
-       var result = await verify.ConfirmEmail(request.token, request.email);
-       if (result == true)
-       {
-        return new ConfirmResponse(true);
-       }
-       return Domain.Errors.Errors.Authentication.NotVerified;
     }
 }

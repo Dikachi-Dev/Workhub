@@ -139,4 +139,17 @@ public class JobController : ControllerBase
         var result = await repository.GetUserJobs(userId);
         return Results.Ok(result);
     }
+    [HttpGet("UserRate")]
+    public async Task<IResult> UserRate(string jobid, int rating)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        var result = await repository.GetById(jobid);
+        result.SellerRating = rating;
+        repository.Update(result);
+        return Results.Ok(result);
+    }
 }

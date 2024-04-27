@@ -18,8 +18,10 @@ builder.Services.AddDatabaseSetup();
 builder.Services.AddWorkhubApiServices();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
-builder.Services.AddControllers();
-builder.Services.AddSignalR();
+builder.Services.AddControllers()
+.AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new ByteArrayConverter()));
+//builder.Services.AddSignalR();
 
 
 builder.Services.AddSwaggerGen(options =>
