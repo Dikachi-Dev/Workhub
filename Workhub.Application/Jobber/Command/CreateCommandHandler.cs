@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
+using Newtonsoft.Json;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Jobber.Common;
@@ -13,7 +14,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
     private readonly IProfileRepository profileRepository;
     private readonly INotificationSender sender;
 
-    public CreateCommandHandler(IJobRepository jobRepository,IProfileRepository profileRepository, INotificationSender sender)
+    public CreateCommandHandler(IJobRepository jobRepository, IProfileRepository profileRepository, INotificationSender sender)
     {
         this.jobRepository = jobRepository;
         this.profileRepository = profileRepository;
@@ -31,11 +32,11 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
             SellerName = request.SellerName,
             Occupation = request.Occupation,
             Status = "Pending",
-            Profile = profile
         };
         await jobRepository.Add(job);
         await jobRepository.SaveChanges();
-        await sender.SendFcmMessage(profile.Token, "New Job Alert", job.Id, "newjob");
+        string body = JsonConvert.SerializeObject(new { jobId = job.Id, buyerName = job.BuyerName });
+        await sender.SendFcmMessage(profile.Token, "New Job Alert", body, "newjob", $"You have new Hire Request from {job.BuyerName}");
 
         return new GetJobResult(job);
     }

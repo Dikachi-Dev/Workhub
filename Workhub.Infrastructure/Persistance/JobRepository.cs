@@ -30,6 +30,13 @@ public class JobRepository : GenericRepository<Job>, IJobRepository
     {
         throw new NotImplementedException();
     }
+    public async void Remark(string jobId, int rating, string remark)
+    {
+        var job = await GetById(jobId);
+        job.SellerRating = rating;
+        job.Remark = remark;
+        await SaveChanges();
+    }
 
     public async Task<Job> Decline(string jobId)
     {
@@ -41,11 +48,15 @@ public class JobRepository : GenericRepository<Job>, IJobRepository
 
     public async Task<IList<Job>> GetUserJobs(string userId)
     {
-        var query = DbSet.OrderByDescending(o => o.CreatedOn)
-                     .Where(p => p.BuyerId == userId || p.SellerId == userId);
+        var query = DbSet
+                     .Where(p => p.BuyerId == userId || p.SellerId == userId).OrderByDescending(o => o.CreatedOn);
         return await Task.FromResult(query.ToList());
-
-
+    }
+    public async Task<IList<Job>> GetSellerJobs(string userId)
+    {
+        var query = DbSet
+                     .Where(p => p.SellerId == userId).OrderByDescending(o => o.CreatedOn);
+        return await Task.FromResult(query.ToList());
     }
 
 }

@@ -65,4 +65,5 @@ public class AuthController : ControllerBase
         }
         return Results.Ok("Not Sent");
     }
+
 }

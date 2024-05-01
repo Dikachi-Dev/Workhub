@@ -17,13 +17,15 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
     private readonly RoleManager<IdentityRole> roleManager;
     private readonly IEmailSender emailSender;
     private readonly IConfiguration _config;
-    public ProfileRepository(AppDataContext context, UserManager<GlobalUser> userManager, IJWTGenerator jWTGenerator, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IConfiguration config) : base(context)
+    private readonly AppDataContext appDataContext;
+    public ProfileRepository(AppDataContext context, UserManager<GlobalUser> userManager, IJWTGenerator jWTGenerator, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IConfiguration config, AppDataContext appDataContext) : base(context)
     {
         this.userManager = userManager; // Assigning the injected userManager
         this.jWTGenerator = jWTGenerator; // Assigning the injected jWTGenerator
         this.roleManager = roleManager;
         this.emailSender = emailSender;
         _config = config;
+        this.appDataContext = appDataContext;
     }
 
     //public ProfileRepository(AppDataContext context) : base(context)
@@ -35,7 +37,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
     public IQueryable<Profile?> GetByFilter(string filter)
     {
         return GetAll()
-           .Where(profile => profile != null && profile.UserType != "User" && profile.FirstName
+           .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.FirstName
            .Contains(filter) || profile.Email
            .Contains(filter) || profile.LastName
            .Contains(filter) || profile.State
@@ -120,10 +122,11 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, profile.PhoneNumber);
         //var url = $"{_config["ValidUrl"]}/{_config["ConfirmMail"]}?email={user.Email}&token={token}";
 
-        var body = $"<p>Hello: {profile.FirstName} </p>" +
-           $"<p>Username: {user.UserName}.</p>" +
-           "<p>Confirm your email with the OTP below</p>" +
-           $"<p>{token}</p>" +
+        var body = $"<h4>Hello: {profile.FirstName} </h4>" +
+
+           "<p>Your verificationcode is </p>" +
+           $"<h2>{token}</h2>" +
+            "<p>This code expires in 5 minutes</p>" +
            "<p>Thank you,</p>" +
            $"<br>{_config["Email:ApplicationName"]}";
         emailSender.SendEmailAsyncMimeKit(user.Email, "Email Verification", body);
@@ -140,13 +143,13 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
     public async Task<IEnumerable<Profile>> GetByOccupation(string occupation)
     {
-        var profiles = await DbSet.Where(p => p.Occupation == occupation && p.UserType != "User").ToListAsync();
+        var profiles = await DbSet.Where(p => p.Occupation == occupation && p.UserType != "User" && p.isDeleted != true).ToListAsync();
         return profiles;
     }
 
     public async Task<IEnumerable<Profile>> GetAllVendros()
     {
-        var profiles = await DbSet.Where(p => p.UserType != "User").ToListAsync();
+        var profiles = await DbSet.Where(p => p.UserType != "User" && p.isDeleted != true).ToListAsync();
         return profiles;
     }
 
@@ -155,4 +158,89 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         var profile = DbSet.Where(p => p.UserType != "User" && p.Id == id).Include(p => p.VendorProfile).FirstOrDefault();
         return profile;
     }
+
+    public bool DeleteUser(string id)
+    {
+        var user = userManager.Users.FirstOrDefault(p => p.Id == id);
+        userManager.DeleteAsync(user);
+        return true;
+    }
+    public bool ChangePass(string password, string id, string oldpass)
+    {
+        var user = userManager.Users.FirstOrDefault(p => p.Id == id);
+        userManager.ChangePasswordAsync(user, oldpass, password);
+        return true;
+    }
+
+    public async Task<bool> ResetPassCode(string email)
+    {
+        var user = userManager.Users.FirstOrDefault(p => p.Email == email);
+        if (user == null)
+        {
+            return false;
+        }
+        else
+        {
+            string code = await userManager.GenerateChangePhoneNumberTokenAsync(user, user.PhoneNumber);
+            var body = $"<h4>Hello: {user.Email} </h4>" +
+
+              "<p>Your OTP code is </p>" +
+              $"<h2>{code}</h2>" +
+              "<p>This code expires in 5 minutes</p>" +
+              "<p>Thank you,</p>" +
+              $"<br>{_config["Email:ApplicationName"]}";
+            emailSender.SendEmailAsyncMimeKit(user.Email, "Reset Password Code", body);
+            return true;
+        }
+
+    }
+
+    public async Task<bool> ResetPassword(string email, string token, string newpassword)
+    {
+        var user = userManager.Users.FirstOrDefault(p => p.Email == email);
+        if (user == null)
+        {
+            return false;
+        }
+        else
+        {
+            var result = await userManager.VerifyChangePhoneNumberTokenAsync(user, token, user.PhoneNumber);
+            if (result)
+            {
+                var newtoken = await userManager.GeneratePasswordResetTokenAsync(user);
+                await userManager.ResetPasswordAsync(user, newtoken, newpassword);
+                return true;
+            }
+            return false;
+        }
+
+    }
+    public async Task<bool> Subscribed(string userId)
+    {
+        var profile = await GetById(userId);
+        profile.Subscribe.IsSubscribed = true;
+        profile.Subscribe.SubscribeOn = DateTime.UtcNow.Date;
+        profile.Subscribe.ExpireOn = DateTime.UtcNow.Date.AddYears(1);
+        var newSub = new SubHistory
+        {
+            Country = profile.Country,
+            SubscriberId = profile.Id,
+        };
+        appDataContext.SubHistorys.Add(newSub);
+        Update(profile);
+        await SaveChanges();
+        return true;
+    }
+
+    public async Task<bool> IsSubscribed(string userId)
+    {
+        var profile = await GetById(userId);
+        var comsub = appDataContext.Subscriptions.FirstOrDefault();
+        if (comsub.IsEnabled == true && profile.Subscribe.ExpireOn > DateTime.UtcNow.Date)
+        {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -29,8 +29,9 @@ public class ChatPostRepository : GenericRepository<ChatPost>, IChatPostReposito
     public IEnumerable<ChatPost> GetByUser(string userId)
     {
         return DbSet
-        .Where(c => c.SenderId == userId || c.ReceiverId == userId)
-        .OrderBy(o => o.CreatedOn)
-        .Include(r => r.Replys.OrderByDescending(reply => reply.CreatedOn));
+    .Where(c => c.SenderId == userId || c.ReceiverId == userId)
+    .Include(c => c.Replys.OrderByDescending(reply => reply.CreatedOn))
+    .OrderByDescending(c => c.Replys.FirstOrDefault().CreatedOn); // Assuming you want to order by the latest reply
+
     }
 }

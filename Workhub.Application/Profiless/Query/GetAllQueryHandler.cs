@@ -24,7 +24,7 @@ public class GetAllQueryHandler : IRequestHandler<GetAllQuery, ErrorOr<GetAllRes
         if (request.Filter == null)
         {
             IEnumerable<Profile> profiles = repository.GetAll();
-            var myProfileResults = profiles.Where(p => p.UserType is not "User" && p.VendorProfile.Image1 != "").Select(p => new MyProfileResult(
+            var myProfileResults = profiles.Where(p => p.UserType is not "User" && p.VendorProfile.Image1 != "" && p.isDeleted != true).Select(p => new MyProfileResult(
                 FirstName: p.FirstName,
                 LastName: p.LastName,
                 Email: p.Email,
@@ -52,7 +52,7 @@ public class GetAllQueryHandler : IRequestHandler<GetAllQuery, ErrorOr<GetAllRes
             {
                 return Domain.Errors.Errors.Profile.NotFound;
             }
-            var myProfileResults = profiles.Where(p => p.UserType is not "User" && p.VendorProfile.Image1 != "").Select(p => new MyProfileResult(
+            var myProfileResults = profiles.Where(p => p.UserType is not "User" && p.VendorProfile.Image1 != "" && p.isDeleted != true).Select(p => new MyProfileResult(
                 FirstName: p.FirstName,
                 LastName: p.LastName,
                 Email: p.Email,

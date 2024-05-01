@@ -7,9 +7,10 @@
         public string SellerId { get; set; } = string.Empty;
         public string BuyerId { get; set; } = string.Empty;
         public string Occupation { get; set; } = string.Empty;
-        public double BuyerRating { get; set; } = 0.00;
-        public double SellerRating { get; set; } = 0.00;
+        public int SellerRating { get; set; } = 0;
         public string Status { get; set; } = string.Empty;
-        public Profile Profile { get; set; } = new Profile();
+        public string SellerAddress { get; set; } = string.Empty;
+        public string BuyerAddeess { get; set; } = string.Empty;
+        public string Remark { get; set; } = string.Empty;
     }
 }

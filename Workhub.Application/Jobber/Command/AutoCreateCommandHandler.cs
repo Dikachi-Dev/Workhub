@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Jobber.Common;
@@ -47,11 +48,13 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
                 SellerName = $"{choosen.FirstName} {choosen.LastName}",
                 Occupation = request.Occupation,
                 Status = "Pending",
-                Profile = profile
             };
             await jobRepository.Add(job);
             await jobRepository.SaveChanges();
-            await sender.SendFcmMessage(choosen.Token,"New Job Alert",job.Id,"newjob");
+
+            string body = JsonConvert.SerializeObject(new { jobId = job.Id, buyerName = job.BuyerName });
+            await sender.SendFcmMessage(profile.Token, "New Job Alert", body, "newjob", $"You have new Hire Request from {job.BuyerName}");
+
             return new GetJobResult(job);
         }
 

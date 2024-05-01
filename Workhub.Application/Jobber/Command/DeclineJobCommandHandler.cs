@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MediatR;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
@@ -25,6 +21,6 @@ public class DeclineJobCommandHandler : IRequestHandler<DeclineJobCommand>
     {
         var response = await repository.Decline(request.jobId);
         var profile = await profileRepository.GetById(response.SellerId);
-        await sender.SendFcmMessage(profile.Token, "Job Declined", response.Id, "Declined");
+        await sender.SendFcmMessage(profile.Token, "Job Declined", request.jobId, "declined", $"Job Declined by {response.SellerName}");
     }
 }

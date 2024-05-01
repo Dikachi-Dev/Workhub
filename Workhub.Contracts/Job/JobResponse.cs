@@ -5,8 +5,11 @@ public record JobResponse(
     string BuyerName,
     string SellerName,
     string SellerId,
-    double SellerRating,
-    double BuyerRating,
+    int SellerRating,
+    string Remark,
     string Status,
     string BuyerId,
-    string Occupation);
+    string Occupation,
+    string SellerAddress,
+    string BuyerAddress,
+    DateTime CreatedOn);

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Workhub.Infrastructure.Data.Context;
 
@@ -11,9 +12,11 @@ using Workhub.Infrastructure.Data.Context;
 namespace Workhub.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    partial class AppDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240430200028_newcolumn7")]
+    partial class newcolumn7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -418,27 +421,6 @@ namespace Workhub.Infrastructure.Migrations
                     b.ToTable("Reply");
                 });
 
-            modelBuilder.Entity("Workhub.Domain.Entities.SubHistory", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SubscriberId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SubHistorys");
-                });
-
             modelBuilder.Entity("Workhub.Domain.Entities.Subscription", b =>
                 {
                     b.Property<Guid>("SubscriptionId")
@@ -461,7 +443,7 @@ namespace Workhub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            SubscriptionId = new Guid("737334c4-9b1e-4681-97c8-3d3754e4e350"),
+                            SubscriptionId = new Guid("05ee914f-968e-431d-8a9f-068f40c862af"),
                             AmountInDollars = 1.0,
                             AmountInNaira = 1300.0,
                             IsEnabled = false

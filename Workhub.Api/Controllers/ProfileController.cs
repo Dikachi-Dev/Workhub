@@ -26,14 +26,15 @@ public class ProfileController : ControllerBase
     private readonly IProfileRepository repository;
     private readonly ICloseProx closeProx;
     private readonly ISeriLogger logger;
-
-    public ProfileController(IMediator mediator, IMapper mapper, IProfileRepository repository, ISeriLogger logger, ICloseProx closeProx)
+    private readonly IEmailSender emailSender;
+    public ProfileController(IMediator mediator, IMapper mapper, IProfileRepository repository, ISeriLogger logger, ICloseProx closeProx, IEmailSender emailSender)
     {
         this.mediator = mediator;
         this.mapper = mapper;
         this.repository = repository;
         this.logger = logger;
         this.closeProx = closeProx;
+        this.emailSender = emailSender;
 
         //this.upload = upload;
     }
@@ -281,5 +282,104 @@ public class ProfileController : ControllerBase
             return Results.BadRequest("Location Failed to Update");
         }
     }
+    [HttpPost("delete")]
+    public async Task<IResult> DeleteAccount()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        var profile = await repository.GetById(userId);
+        profile.isDeleted = true;
+        repository.DeleteUser(userId);
+        await repository.SaveChanges();
+        return Results.Ok();
+    }
 
+    [HttpPost("sendMessage")]
+    public async Task<IResult> Message(string priority, string subject, string message)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        string to = configuration.GetSection("Smtp:Email").Value;
+        var profile = await repository.GetById(userId);
+        string body = $"<p>{message}</p>";
+        emailSender.SendEmailAsyncMimeKit(to, $"Priority:{priority} From: {profile.Email}, Subject: {subject}", body);
+        return Results.Ok();
+    }
+    [HttpPost("changepassword")]
+    public async Task<IResult> changePass(string password, string oldpassword)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        bool result = repository.ChangePass(password, userId, oldpassword);
+        if (result)
+        {
+            return Results.Ok("Password Changed");
+        }
+        return Results.BadRequest("Failed to change password");
+    }
+    [AllowAnonymous]
+    [HttpPost("sendResetPasswordOtp")]
+    public async Task<IResult> sendResetPasswordOtp(string Email)
+    {
+        bool result = await repository.ResetPassCode(Email);
+        if (result)
+        {
+            return Results.Ok("Password Changed");
+        }
+        return Results.BadRequest("Error while trying to retrive the User");
+    }
+
+    [AllowAnonymous]
+    [HttpPost("confirmresetPassword")]
+    public async Task<IResult> ResetPasswordOtp(string Email, string Code, string Newpassword)
+    {
+        bool result = await repository.ResetPassword(Email, Code, Newpassword);
+        if (result)
+        {
+            return Results.Ok("Password Changed");
+        }
+        return Results.BadRequest("Error while trying to retrive the User");
+    }
+
+    [HttpGet("isSubscribed")]
+    public async Task<IResult> CheckSub()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        bool result = await repository.IsSubscribed(userId);
+        if (result)
+        {
+            return Results.Ok("Subscribed");
+        }
+        return Results.NotFound("Not Subscribed");
+    }
+    [HttpPost("Subscribe")]
+    public async Task<IResult> RegSub()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        bool result = await repository.Subscribed(userId);
+        if (result)
+        {
+            return Results.Ok("Ok");
+        }
+        return Results.BadRequest("Failed to Register");
+    }
 }
+

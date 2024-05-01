@@ -47,7 +47,8 @@ public class CheckVerify : ICheckVerify
         var body =
    $"<p>Email: {user.UserName}.</p>" +
    "<p>Confirm your email with the OTP below</p>" +
-   $"<p>{result}</p>" +
+   $"<h3>{result}</h3>" +
+    "<p>This code expires in 5 minutes</p>" +
    "<p>Thank you,</p>";
         var done = emailSender.SendEmailAsyncMimeKit(user.Email, "New Email Verification Code", body);
         if (done == true)

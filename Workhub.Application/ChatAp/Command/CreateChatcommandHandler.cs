@@ -40,19 +40,19 @@ public class CreateChatcommandHandler : IRequestHandler<CreateChatCommand, Error
             };
             await repository.Add(newchat);
             await repository.SaveChanges();
-            await notification.SendFcmMessage(getter.Token, "New Message",newchat.Id, "newmessage");
+            await notification.SendFcmMessage(getter.Token, "New Message", newchat.Id, "newmessage", $"Message from {newchat.SenderName}");
         }
         else
         {
             existingChat.Replys.Add(new Reply { Message = request.Message, FromId = request.SenderId });
             await repository.SaveChanges(); // Save changes to the existing chat
             var test = existingChat;
-            await notification.SendFcmMessage(getter.Token, "New Message", existingChat.Id, "newmessage");
+            await notification.SendFcmMessage(getter.Token, "New Message", existingChat.Id, "newmessage", $"Message from {existingChat.SenderName}");
         }
 
         // Get the updated chat from the repository and return it
         var updatedChat = await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId);
-        return new ChatResult(updatedChat.SenderId,updatedChat.Id,updatedChat.CreatedOn,updatedChat.ReceiverId, updatedChat.ReceiverName, updatedChat.SenderName, updatedChat.Replys.Select(s=> new Replyy(s.Id,s.CreatedOn,s.Message,s.FromId)).ToList());
+        return new ChatResult(updatedChat.SenderId, updatedChat.Id, updatedChat.CreatedOn, updatedChat.ReceiverId, updatedChat.ReceiverName, updatedChat.SenderName, updatedChat.Replys.Select(s => new Replyy(s.Id, s.CreatedOn, s.Message, s.FromId)).ToList());
 
     }
 }

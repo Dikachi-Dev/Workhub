@@ -10,6 +10,8 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
     public DbSet<Job> Jobs { get; set; }
     public DbSet<ChatPost> ChatPosts { get; set; }
     public DbSet<GlobalUser> GlobalUsers { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<SubHistory> SubHistorys { get; set; }
 
     public AppDataContext(DbContextOptions<AppDataContext> options) : base(options)
     {
@@ -41,6 +43,14 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
             v.Property<string>(nameof(VendorProfile.Description)).HasColumnName(nameof(VendorProfile.Description));
             v.Property<string>(nameof(VendorProfile.Instagram)).HasColumnName(nameof(VendorProfile.Instagram));
         });
+        modelBuilder.Entity<Subscription>().HasData(
+        new Subscription
+        {
+            IsEnabled = false,
+            AmountInDollars = 1.00,
+            AmountInNaira = 1300.0 // For example
+        }
+    );
 
         //    modelBuilder.Entity<ChatPost>().HasMany(c => c.Replys)
         //.WithOne() // Assuming there's no explicit navigation property on Reply back to ChatPost
