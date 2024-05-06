@@ -27,8 +27,8 @@ namespace Workhub.Application.Profiless.Query
 
         public async Task<ErrorOr<ProxyResult>> Handle(GetByProxQuery request, CancellationToken cancellationToken)
         {
-            var profiles = await profileRepository.GetByOccupation(request.Occupation);
             var profile = await profileRepository.GetById(request.UserId);
+            var profiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
 
             if (profiles.IsNullOrEmpty())
             {

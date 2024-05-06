@@ -85,7 +85,7 @@ public class JobController : ControllerBase
         var command = new AcceptJobCommand(JobId);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
-      Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.Remark, jobResult.Job.Status, jobResult.Job.BuyerAddeess, jobResult.Job.SellerAddress, jobResult.Job.BuyerId, jobResult.Job.Occupation, jobResult.Job.CreatedOn)), errors =>
+      Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.Remark, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation, jobResult.Job.SellerAddress, jobResult.Job.BuyerAddeess, jobResult.Job.IsRated, jobResult.Job.CreatedOn)), errors =>
       Results.Problem(EndpointBase.GetProblemDetails(errors)));
 
     }
@@ -101,7 +101,7 @@ public class JobController : ControllerBase
         var command = new CreateCommand(request.BuyerName, request.SellerName, request.SellerId, userId, request.Occupation);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
-        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.Remark, jobResult.Job.Status, jobResult.Job.BuyerAddeess, jobResult.Job.SellerAddress, jobResult.Job.BuyerId, jobResult.Job.Occupation, jobResult.Job.CreatedOn)), errors =>
+        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.Remark, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation, jobResult.Job.SellerAddress, jobResult.Job.BuyerAddeess, jobResult.Job.IsRated, jobResult.Job.CreatedOn)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 
@@ -116,7 +116,7 @@ public class JobController : ControllerBase
         var command = new AutoCreateCommand(userId, request.Occupation);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(command);
         return jobResult.Match(jobResult =>
-        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.Remark, jobResult.Job.Status, jobResult.Job.BuyerAddeess, jobResult.Job.SellerAddress, jobResult.Job.BuyerId, jobResult.Job.Occupation, jobResult.Job.CreatedOn)), errors =>
+        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.Remark, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation, jobResult.Job.SellerAddress, jobResult.Job.BuyerAddeess, jobResult.Job.IsRated, jobResult.Job.CreatedOn)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 
@@ -126,7 +126,7 @@ public class JobController : ControllerBase
         var query = new GetbyIdQuery(Id);
         ErrorOr<GetJobResult> jobResult = await mediator.Send(query);
         return jobResult.Match(jobResult =>
-        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.Remark, jobResult.Job.Status, jobResult.Job.BuyerAddeess, jobResult.Job.SellerAddress, jobResult.Job.BuyerId, jobResult.Job.Occupation, jobResult.Job.CreatedOn)), errors =>
+        Results.Ok(new JobResponse(jobResult.Job.Id, jobResult.Job.BuyerName, jobResult.Job.SellerName, jobResult.Job.SellerId, jobResult.Job.SellerRating, jobResult.Job.Remark, jobResult.Job.Status, jobResult.Job.BuyerId, jobResult.Job.Occupation, jobResult.Job.SellerAddress, jobResult.Job.BuyerAddeess, jobResult.Job.IsRated, jobResult.Job.CreatedOn)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 
@@ -174,7 +174,7 @@ public class JobController : ControllerBase
         var jobs = await repository.GetUserJobs(userId);
 
         // Projecting the result to a new object containing only the required properties
-        var result = jobs.Select(job => new
+        var result = jobs.Where(j => j.IsRated == true).Select(job => new
         {
             Name = job.BuyerName,
             Rating = job.SellerRating,

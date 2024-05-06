@@ -26,8 +26,9 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
 
     public async Task<ErrorOr<GetJobResult>> Handle(AutoCreateCommand request, CancellationToken cancellationToken)
     {
-        var profiles = await profileRepository.GetByOccupation(request.Occupation);
         var profile = await profileRepository.GetById(request.UserId);
+        var profiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
+
 
         if (profiles.IsNullOrEmpty())
         {

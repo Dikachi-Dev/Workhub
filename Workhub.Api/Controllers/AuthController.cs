@@ -19,21 +19,33 @@ public class AuthController : ControllerBase
     private readonly IMediator mediator;
     private readonly IMapper mapper;
     private readonly ICheckVerify verify;
+    private readonly IProfileRepository repository;
 
-    public AuthController(IMediator mediator, IMapper mapper, ICheckVerify verify)
+    public AuthController(IMediator mediator, IMapper mapper, ICheckVerify verify, IProfileRepository repository)
     {
         this.mediator = mediator;
         this.mapper = mapper;
         this.verify = verify;
+        this.repository = repository;
     }
     [HttpPost("register")]
     public async Task<IResult> Register(RegisterRequest request)
     {
-        var command = mapper.Map<RegisterCommand>(request);
-        ErrorOr<AuthResult> registerResult = await mediator.Send(command);
-        return registerResult.Match(authResult =>
-        Results.Ok(new LoginResponse(authResult.token)), errors =>
-        Results.Problem(EndpointBase.GetProblemDetails(errors)));
+        bool result = await repository.UserExista(request.Email, request.PhoneNumber);
+        if (result == true)
+        {
+            return Results.BadRequest("User Exists");
+        }
+        else
+        {
+            var command = mapper.Map<RegisterCommand>(request);
+            ErrorOr<AuthResult> registerResult = await mediator.Send(command);
+            return registerResult.Match(authResult =>
+            Results.Ok(new LoginResponse(authResult.token)), errors =>
+            Results.Problem(EndpointBase.GetProblemDetails(errors)));
+        }
+
+
     }
 
     [HttpPost("login")]

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Workhub.Infrastructure.Data.Context;
 
@@ -11,9 +12,11 @@ using Workhub.Infrastructure.Data.Context;
 namespace Workhub.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    partial class AppDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240502095321_newcolumn10")]
+    partial class newcolumn10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -178,9 +181,6 @@ namespace Workhub.Infrastructure.Migrations
                     b.Property<string>("SenderName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -467,7 +467,7 @@ namespace Workhub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            SubscriptionId = new Guid("33db2265-2192-4e70-a06c-eb677f2f75ad"),
+                            SubscriptionId = new Guid("9a1cd1cc-1f14-4f94-960d-c4bc992fc185"),
                             AmountInDollars = 1.0,
                             AmountInNaira = 1300.0,
                             IsEnabled = false

@@ -25,7 +25,7 @@ public class GetAllByProxyQueryHandler : IRequestHandler<GetAllByProxyQuery, Err
     public async Task<ErrorOr<ProxyResult>> Handle(GetAllByProxyQuery request, CancellationToken cancellationToken)
     {
         var profile = await repository.GetById(request.userid);
-        var profiles = await repository.GetAllVendros();
+        var profiles = await repository.GetAllVendros(profile.Country);
 
         if (profiles.IsNullOrEmpty())
         {

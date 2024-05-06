@@ -15,23 +15,19 @@ public class ChatPostRepository : GenericRepository<ChatPost>, IChatPostReposito
     public async Task<ChatPost> GetbySenderAndReciverId(string senderId, string receiverId)
     {
         var chat = DbSet
-    .OrderBy(o => o.CreatedOn)
-    .Where(r => r.SenderId == senderId && r.ReceiverId == receiverId)
-    .Include(r => r.Replys.OrderByDescending(reply => reply.CreatedOn))
-    .FirstOrDefault();
-        // Retrieves the first matching entity or null if no matches exist
+            .Include(r => r.Replys.OrderByDescending(reply => reply.CreatedOn))
+            .Where(r => (r.SenderId == senderId && r.ReceiverId == receiverId) || (r.SenderId == receiverId && r.ReceiverId == senderId))
+            .FirstOrDefault();
         return chat;
-        // await DbSet
-        //     .Include(r => r.Replys)
-        //     .SingleOrDefaultAsync(r => r.SenderId == senderId && r.ReceiverId == receiverId)
     }
 
-    public IEnumerable<ChatPost> GetByUser(string userId)
+    public async Task<IList<ChatPost>> GetByUser(string userId)
     {
-        return DbSet
-    .Where(c => c.SenderId == userId || c.ReceiverId == userId)
-    .Include(c => c.Replys.OrderByDescending(reply => reply.CreatedOn))
-    .OrderByDescending(c => c.Replys.FirstOrDefault().CreatedOn); // Assuming you want to order by the latest reply
-
+        var chats = DbSet
+        .Include(c => c.Replys)
+        .Where(c => c.SenderId == userId || c.ReceiverId == userId)
+        .OrderByDescending(c => c.UpdatedOn);
+        var chat = await Task.FromResult(chats.ToList());
+        return chat;
     }
 }

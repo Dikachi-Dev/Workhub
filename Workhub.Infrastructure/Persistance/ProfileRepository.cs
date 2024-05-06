@@ -8,6 +8,7 @@ using Workhub.Application.Interfaces.Services;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
 
+
 namespace Workhub.Infrastructure.Persistance;
 
 public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
@@ -27,22 +28,15 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         _config = config;
         this.appDataContext = appDataContext;
     }
-
-    //public ProfileRepository(AppDataContext context) : base(context)
-    //{
-    //    this.userManager = userManager;
-    //    this.jWTGenerator = jWTGenerator;
-    //}
-
-    public IQueryable<Profile?> GetByFilter(string filter)
+    public IQueryable<Profile?> GetByFilter(string filter, int pageNumber, int pageSize)
     {
-        return GetAll()
-           .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.FirstName
+        return appDataContext.Profiles
+           .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.VendorProfile.Image1 != "" && profile.FirstName
            .Contains(filter) || profile.Email
            .Contains(filter) || profile.LastName
            .Contains(filter) || profile.State
            .Contains(filter) || profile.Country
-           .Contains(filter));
+           .Contains(filter)).OrderByDescending(o => o.Rating).Skip((pageNumber - 1) * pageSize).Take(pageSize);
     }
 
     public IQueryable<Profile?> GetQueryableSellerProfiles()
@@ -52,9 +46,13 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
     public Profile? GetProfileByEmail(string email)
     {
-        return GetAll().FirstOrDefault(x => x.Email == email);
+        return appDataContext.Profiles.FirstOrDefault(x => x.Email == email);
     }
 
+    public IQueryable<Profile> GetAllVendors(int pageNumber, int pageSize)
+    {
+        return DbSet.Where(p => p.UserType != "User" && p.VendorProfile.Image1 != "" && p.isDeleted != true).OrderByDescending(o => o.Rating).Skip((pageNumber - 1) * pageSize).Take(pageSize);
+    }
 
     public Profile? GetSellerProfileByIdAllWithCollections(string id)
     {
@@ -141,15 +139,16 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<Profile>> GetByOccupation(string occupation)
+    public async Task<IEnumerable<Profile>> GetByOccupation(string occupation, string country)
     {
-        var profiles = await DbSet.Where(p => p.Occupation == occupation && p.UserType != "User" && p.isDeleted != true).ToListAsync();
+        var profileList = await DbSet.Where(p => p.UserType != "User" && p.isDeleted != true && p.Country == country).ToListAsync();
+        var profiles = profileList.Where(p => p.Occupation.Split(',').Contains(occupation));
         return profiles;
     }
 
-    public async Task<IEnumerable<Profile>> GetAllVendros()
+    public async Task<IEnumerable<Profile>> GetAllVendros(string country)
     {
-        var profiles = await DbSet.Where(p => p.UserType != "User" && p.isDeleted != true).ToListAsync();
+        var profiles = await DbSet.Where(p => p.UserType != "User" && p.isDeleted != true && p.Country == country).ToListAsync();
         return profiles;
     }
 
@@ -159,16 +158,20 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         return profile;
     }
 
-    public bool DeleteUser(string id)
+    public async Task<bool> DeleteUser(string id)
     {
         var user = userManager.Users.FirstOrDefault(p => p.Id == id);
-        userManager.DeleteAsync(user);
+        await userManager.DeleteAsync(user);
         return true;
     }
-    public bool ChangePass(string password, string id, string oldpass)
+    public async Task<bool> ChangePass(string password, string id, string oldpass)
     {
+        var profile = await GetById(id);
         var user = userManager.Users.FirstOrDefault(p => p.Id == id);
-        userManager.ChangePasswordAsync(user, oldpass, password);
+        await userManager.ChangePasswordAsync(user, oldpass, password);
+        profile.Password = password;
+        Update(profile);
+        await SaveChanges();
         return true;
     }
 
@@ -197,6 +200,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
     public async Task<bool> ResetPassword(string email, string token, string newpassword)
     {
+
         var user = userManager.Users.FirstOrDefault(p => p.Email == email);
         if (user == null)
         {
@@ -204,23 +208,28 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         }
         else
         {
+            var profile = await GetById(user.Id);
             var result = await userManager.VerifyChangePhoneNumberTokenAsync(user, token, user.PhoneNumber);
             if (result)
             {
                 var newtoken = await userManager.GeneratePasswordResetTokenAsync(user);
                 await userManager.ResetPasswordAsync(user, newtoken, newpassword);
+                profile.Password = newpassword;
+                Update(profile);
+                await SaveChanges();
                 return true;
             }
             return false;
         }
 
     }
-    public async Task<bool> Subscribed(string userId)
+    public async Task<SubResult> Subscribed(string userId)
     {
         var profile = await GetById(userId);
+        DateTime his = profile.Subscribe.ExpireOn.Date;
         profile.Subscribe.IsSubscribed = true;
         profile.Subscribe.SubscribeOn = DateTime.UtcNow.Date;
-        profile.Subscribe.ExpireOn = DateTime.UtcNow.Date.AddYears(1);
+        profile.Subscribe.ExpireOn = his < DateTime.UtcNow.Date ? DateTime.Now.Date.AddYears(1) : his.AddYears(1);
         var newSub = new SubHistory
         {
             Country = profile.Country,
@@ -229,14 +238,24 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         appDataContext.SubHistorys.Add(newSub);
         Update(profile);
         await SaveChanges();
-        return true;
+        var newresult = new SubResult(profile.Subscribe.ExpireOn, true, profile.Subscribe.IsSubscribed);
+        return newresult;
     }
 
-    public async Task<bool> IsSubscribed(string userId)
+    public async Task<SubResult> IsSubscribed(string userId)
     {
         var profile = await GetById(userId);
         var comsub = appDataContext.Subscriptions.FirstOrDefault();
-        if (comsub.IsEnabled == true && profile.Subscribe.ExpireOn > DateTime.UtcNow.Date)
+        var newresult = new SubResult(profile.Subscribe.ExpireOn, comsub.IsEnabled, profile.Subscribe.IsSubscribed);
+        return newresult;
+
+
+    }
+    public async Task<bool> UserExista(string email, string phonenumber)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        var newone = userManager.Users.Where(p => p.PhoneNumber == phonenumber);
+        if (user == null && newone == null)
         {
             return true;
         }

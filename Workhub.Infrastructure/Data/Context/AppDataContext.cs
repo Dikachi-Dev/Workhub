@@ -27,15 +27,6 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
             s.Property<DateTime>(nameof(Subscribe.ExpireOn)).HasColumnName(nameof(Subscribe.ExpireOn));
             s.Property<bool>(nameof(Subscribe.IsSubscribed)).HasColumnName(nameof(Subscribe.IsSubscribed));
         });
-        // modelBuilder.Entity<Profile>().OwnsOne(p=>p.VendorProfile, v=>
-        // {
-        //     v.Property<string>(nameof(VendorProfile.Description)).HasColumnName(nameof(VendorProfile.Description));
-        //     v.Property<string>(nameof(VendorProfile.Image1.Description)).HasColumnName(nameof(VendorProfile.Image1.Description));
-        //     v.Property<string>(nameof(VendorProfile.Image1.publicId)).HasColumnName(nameof(VendorProfile.Image1.publicId));
-        //     v.Property<string>(nameof(VendorProfile.Image2.Description)).HasColumnName(nameof(VendorProfile.Image2.Description));
-        //     v.Property<string>(nameof(VendorProfile.Image2.publicId)).HasColumnName(nameof(VendorProfile.Image2.publicId));
-        //     v.Property<string>(nameof(VendorProfile.Instagram)).HasColumnName(nameof(VendorProfile.Instagram));
-        // });
         modelBuilder.Entity<Profile>().OwnsOne(p => p.VendorProfile, v =>
         {
             v.Property<string>(nameof(VendorProfile.Image1)).HasColumnName(nameof(VendorProfile.Image1));
@@ -49,36 +40,7 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
             IsEnabled = false,
             AmountInDollars = 1.00,
             AmountInNaira = 1300.0 // For example
-        }
-    );
-
-        //    modelBuilder.Entity<ChatPost>().HasMany(c => c.Replys)
-        //.WithOne() // Assuming there's no explicit navigation property on Reply back to ChatPost
-        //.HasForeignKey("ChatPostId") // Assuming there's a foreign key property in Reply referencing ChatPost
-        //.IsRequired(); // Depending on your requirements, you might need to specify if the relationship is required or optional
-
-        //    modelBuilder.Entity<Reply>()
-        //        .Property(r => r.Message)
-        //        .IsRequired();
-
-        //    modelBuilder.Entity<Reply>()
-        //        .Property(r => r.FromId)
-        //        .IsRequired();
-
-        //    modelBuilder.Entity<Reply>()
-        //        .Property(r => r.CreatedOn)
-        //        .IsRequired();
-
-        //modelBuilder.Entity<ChatPost>().OwnsMany(c => c.Replys, r =>
-        //{
-        //    r.HasKey("Id");
-        //    r.Property<string>("Id").IsRequired();
-        //    r.Property<string>("Message").IsRequired();
-        //    r.Property<string>("FromId").IsRequired();
-        //    r.Property<DateTime>("CreatedOn").IsRequired();
-        //});
-
-
+        });
     }
     //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     //{

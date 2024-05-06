@@ -1,6 +1,4 @@
-﻿using Workhub.Domain.Entities;
+﻿namespace Workhub.Application.ChatAp.Common;
 
-namespace Workhub.Application.ChatAp.Common;
-
-public record AllChatResult(IEnumerable<ChatPost> ChatPosts);
+public record AllChatResult(IList<ChatResult> ChatPosts);
 

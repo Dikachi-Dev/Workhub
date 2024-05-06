@@ -26,9 +26,9 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return await DbSet.FindAsync(Id);
     }
 
-    public IQueryable<TEntity> GetAll()
+    public IQueryable<TEntity> GetAll(int pageNumber, int pageSize)
     {
-        return DbSet;
+        return DbSet.Skip((pageNumber - 1) * pageSize).Take(pageSize);
     }
 
     public void Update(TEntity entity)

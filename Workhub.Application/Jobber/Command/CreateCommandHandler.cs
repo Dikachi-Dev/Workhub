@@ -30,6 +30,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
             SellerId = request.SellerId,
             BuyerName = request.BuyerName,
             SellerName = request.SellerName,
+            BuyerAddeess = $"{profile.Address}, {profile.State}, {profile.Country}",
             Occupation = request.Occupation,
             Status = "Pending",
         };

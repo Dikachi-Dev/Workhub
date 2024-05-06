@@ -17,7 +17,7 @@ internal class GetByFilterQueryHandler : IRequestHandler<GetByFilterQuery, Error
 
     public async Task<ErrorOr<GetFilterResult>> Handle(GetByFilterQuery request, CancellationToken cancellationToken)
     {
-        if (repository.GetByFilter(request.Filter) is not IEnumerable<Profile> profiles)
+        if (repository.GetByFilter(request.Filter, request.pageNumber, request.pageSize) is not IEnumerable<Profile> profiles)
         {
             return Domain.Errors.Errors.Profile.NotFound;
         }

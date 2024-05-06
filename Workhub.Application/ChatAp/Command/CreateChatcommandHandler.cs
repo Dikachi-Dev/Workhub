@@ -44,6 +44,7 @@ public class CreateChatcommandHandler : IRequestHandler<CreateChatCommand, Error
         }
         else
         {
+            existingChat.UpdatedOn = DateTime.UtcNow;
             existingChat.Replys.Add(new Reply { Message = request.Message, FromId = request.SenderId });
             await repository.SaveChanges(); // Save changes to the existing chat
             var test = existingChat;

@@ -27,7 +27,7 @@ namespace Workhub.Api.Controllers
         }
 
         [HttpGet("end2end")]
-        public async Task<IResult> End2End([FromQuery] string receiverId)
+        public async Task<IResult> End2End([FromQuery] string receiverId, string senderId)
         {
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -35,7 +35,7 @@ namespace Workhub.Api.Controllers
             {
                 return Results.BadRequest("User Not Found");
             }
-            var query = new ChatBidirectionalQuery(userId.Trim(), receiverId.Trim());
+            var query = new ChatBidirectionalQuery(senderId.Trim(), receiverId.Trim());
             ErrorOr<ChatResult> chatResult = await mediator.Send(query);
             return chatResult.Match(chat =>
             Results.Ok(new ChatResponse(chat.SenderId, chat.Id, chat.CreatedOn, chat.ReceiverId, chat.ReceiverName, chat.SenderName, chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
@@ -67,7 +67,26 @@ namespace Workhub.Api.Controllers
             var query = new ChatByUserIdQuery(userId.Trim());
             ErrorOr<AllChatResult> allResult = await mediator.Send(query);
             return allResult.Match(allresult =>
-            Results.Ok(mapper.Map<ChatByUserIdResponse>(allresult)), errors =>
+            {
+                var chats = allresult.ChatPosts.Select(c => new ChatResponse(
+                    SenderId: c.SenderId,
+                    Id: c.Id,
+                    CreatedOn: c.CreatedOn,
+                    ReceiverId: c.ReceiverId,
+                    ReceiverName: c.ReceiverName,
+                    SenderName: c.SenderName,
+                    Replys: c.Replys.Select(r => new Replyyy(
+                        Id: r.Id,
+                        CreatedOn: r.CreatedOn,
+                        Message: r.Message,
+                        FromId: r.FromId)
+                    )
+                    .ToList()
+
+                    )
+                );
+                return Results.Ok(chats);
+            }, errors =>
             Results.Problem(EndpointBase.GetProblemDetails(errors)));
         }
 

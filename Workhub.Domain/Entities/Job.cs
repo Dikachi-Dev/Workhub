@@ -12,5 +12,6 @@
         public string SellerAddress { get; set; } = string.Empty;
         public string BuyerAddeess { get; set; } = string.Empty;
         public string Remark { get; set; } = string.Empty;
+        public bool IsRated { get; set; } = false;
     }
 }

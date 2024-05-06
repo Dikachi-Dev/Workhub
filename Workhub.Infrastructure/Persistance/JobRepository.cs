@@ -35,6 +35,7 @@ public class JobRepository : GenericRepository<Job>, IJobRepository
         var job = await GetById(jobId);
         job.SellerRating = rating;
         job.Remark = remark;
+        job.IsRated = true;
         await SaveChanges();
     }
 

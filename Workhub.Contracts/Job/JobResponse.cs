@@ -12,4 +12,5 @@ public record JobResponse(
     string Occupation,
     string SellerAddress,
     string BuyerAddress,
+    bool isRated,
     DateTime CreatedOn);

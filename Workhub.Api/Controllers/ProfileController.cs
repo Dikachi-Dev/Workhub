@@ -55,9 +55,9 @@ public class ProfileController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<IResult> AllProfile(string? Filter)
+    public async Task<IResult> AllProfile(string? Filter, int pageNumber, int pageSize)
     {
-        var query = new GetAllQuery(Filter);
+        var query = new GetAllQuery(Filter, pageNumber, pageSize);
         ErrorOr<GetAllResult> response = await mediator.Send(query);
         return response.Match(
             response =>
@@ -89,7 +89,7 @@ public class ProfileController : ControllerBase
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
     [HttpGet("byProximity")]
-    public async Task<IResult> ByProximity(string? occupation)
+    public async Task<IResult> ByProximity(string? occupation, int pageNumber, int pageSize)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null || userId is "")
@@ -123,9 +123,33 @@ public class ProfileController : ControllerBase
                             LongLat: profileresult.LongLat,
                             UserType: profileresult.UserType
                         )
-                    ).ToList(); // Convert to a list
+                    ).Skip((pageNumber - 1) * pageSize).Take(pageSize);
                     return Results.Ok(new GetAllResponse(profiles));
                 },
+            //    {
+            //    var profiles = response.Profiles.Select(profileresult =>
+            //        new MyProfileResponse(
+            //            FirstName: profileresult.FirstName,
+            //            LastName: profileresult.LastName,
+            //            Email: profileresult.Email,
+            //            PhoneNumber: profileresult.PhoneNumber,
+            //            ProfileImage: FileHelper.GetDoc(profileresult.ProfileImage),
+            //            Country: profileresult.Country,
+            //            Address: profileresult.Address,
+            //            State: profileresult.State,
+            //            Occupation: profileresult.Occupation,
+            //            Gender: profileresult.Gender,
+            //            Experience: profileresult.Experience,
+            //            Rating: profileresult.Rating,
+            //            JobCount: profileresult.JobCount,
+            //            Token: profileresult.Token,
+            //            Id: profileresult.Id,
+            //            LongLat: profileresult.LongLat,
+            //            UserType: profileresult.UserType
+            //        )
+            //    ).ToList(); // Convert to a list
+            //    return Results.Ok(new GetAllResponse(profiles));
+            //},
                 errors =>
 
             Results.Problem(EndpointBase.GetProblemDetails(errors)));
@@ -157,7 +181,7 @@ public class ProfileController : ControllerBase
                             LongLat: profileresult.LongLat,
                             UserType: profileresult.UserType
                         )
-                    ).ToList(); // Convert to a list
+                    ).Skip((pageNumber - 1) * pageSize).Take(pageSize);// Convert to a list
                     return Results.Ok(new GetAllResponse(profiles));
                 },
                 errors =>
@@ -202,7 +226,7 @@ public class ProfileController : ControllerBase
         var query = new MyProfileQuery(id);
         ErrorOr<MyProfileResult> profileresult = await mediator.Send(query);
         return profileresult.Match(profileresult =>
-        Results.Ok(profileresult), errors =>
+                Results.Ok(new MyProfileResponse(profileresult.FirstName, profileresult.LastName, profileresult.Email, profileresult.PhoneNumber, FileHelper.GetDoc(profileresult.ProfileImage), profileresult.Country, profileresult.Address, profileresult.State, profileresult.Occupation, profileresult.Gender, profileresult.Experience, profileresult.Rating, profileresult.JobCount, profileresult.Token, profileresult.Id, profileresult.LongLat, profileresult.UserType)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
     [HttpGet("vendorprofile")]
@@ -216,7 +240,7 @@ public class ProfileController : ControllerBase
         var profile = repository.GetVendor(id);
         byte[] image1 = FileHelper.GetDoc(profile.VendorProfile.Image1);
         byte[] image2 = FileHelper.GetDoc(profile.VendorProfile.Image2);
-        return Results.Ok(new { profile.VendorProfile.Description, profile.VendorProfile.Instagram, image1, image2 });
+        return Results.Ok(new { profile.VendorProfile.Description, profile.VendorProfile.Instagram, image1, image2, profile.Id, profile.FirstName, profile.LastName, profile.Address, profile.Occupation, profile.Country, profile.State, profile.Rating, profile.PhoneNumber, });
     }
 
 
@@ -292,8 +316,8 @@ public class ProfileController : ControllerBase
         }
         var profile = await repository.GetById(userId);
         profile.isDeleted = true;
-        repository.DeleteUser(userId);
-        await repository.SaveChanges();
+        await repository.DeleteUser(userId);
+        //await repository.SaveChanges();
         return Results.Ok();
     }
 
@@ -320,7 +344,7 @@ public class ProfileController : ControllerBase
         {
             return Results.BadRequest("User Not Found");
         }
-        bool result = repository.ChangePass(password, userId, oldpassword);
+        bool result = await repository.ChangePass(password, userId, oldpassword);
         if (result)
         {
             return Results.Ok("Password Changed");
@@ -359,12 +383,8 @@ public class ProfileController : ControllerBase
         {
             return Results.BadRequest("User Not Found");
         }
-        bool result = await repository.IsSubscribed(userId);
-        if (result)
-        {
-            return Results.Ok("Subscribed");
-        }
-        return Results.NotFound("Not Subscribed");
+        var result = await repository.IsSubscribed(userId);
+        return Results.Ok(result);
     }
     [HttpPost("Subscribe")]
     public async Task<IResult> RegSub()
@@ -374,12 +394,8 @@ public class ProfileController : ControllerBase
         {
             return Results.BadRequest("User Not Found");
         }
-        bool result = await repository.Subscribed(userId);
-        if (result)
-        {
-            return Results.Ok("Ok");
-        }
-        return Results.BadRequest("Failed to Register");
+        var result = await repository.Subscribed(userId);
+        return Results.Ok(result);
     }
 }
 

@@ -1,6 +1,4 @@
-﻿using Workhub.Domain.Entities;
-
-namespace Workhub.Contracts.Chat;
+﻿namespace Workhub.Contracts.Chat;
 
 public record ChatResponse(string SenderId,
  string Id,
@@ -8,6 +6,6 @@ DateTime CreatedOn,
 string ReceiverId,
 string ReceiverName,
 string SenderName,
- ICollection<Replyyy> Replys);
+ IList<Replyyy> Replys);
 
- public record Replyyy( string Id, DateTime CreatedOn, string Message, string FromId);
+public record Replyyy(string Id, DateTime CreatedOn, string Message, string FromId);
