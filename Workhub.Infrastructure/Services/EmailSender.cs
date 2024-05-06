@@ -22,6 +22,7 @@ public class EmailSender : IEmailSender
     {
         IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         string from = configuration.GetSection("Smtp:Email").Value;
+        string displyname = configuration.GetSection("Smtp:DisplayName").Value;
 
         if (from != "")
         {
@@ -30,7 +31,7 @@ public class EmailSender : IEmailSender
                 if (s != null && s.Trim() != "")
                 {
                     MailMessage msg = new MailMessage();
-                    msg.From = new MailAddress(from);
+                    msg.From = new MailAddress(from, displyname);
                     msg.Subject = subject;
                     msg.Body = body;
                     msg.To.Add(s.Trim());
