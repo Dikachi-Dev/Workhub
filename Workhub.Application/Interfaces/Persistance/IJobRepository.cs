@@ -10,7 +10,7 @@ public interface IJobRepository : IGenericRepository<Job>
     Task<Job> Accept(string jobId);
     Task<Job> Decline(string jobId);
     void Cancel(string jobId);
-    void Remark(string jobId, int rating, string remark);
+    Task<Job> Remark(string jobId, int rating, string remark);
 }
 
 public record responseJob(

@@ -27,7 +27,7 @@ public class AcceptJobCommandHandler : IRequestHandler<AcceptJobCommand, ErrorOr
         response.SellerAddress = $"{profile.Address}, {profile.State}, {profile.Country}";
         //response.BuyerAddeess = $"{buyer.Address}, {buyer.State}, {buyer.Country}";
         repository.Update(response);
-        await sender.SendFcmMessage(profile.Token, "Job Accepted", response.Id, "accepted", $"Job accepted by {response.SellerName}");
+        await sender.SendFcmMessage(buyer.Token, "Job Accepted", response.Id, "accepted", $"Job accepted by {response.SellerName}");
         return new GetJobResult(response);
     }
 }

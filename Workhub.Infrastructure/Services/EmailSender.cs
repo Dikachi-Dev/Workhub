@@ -40,7 +40,7 @@ public class EmailSender : IEmailSender
                     string SMTPServer =
                         configuration.GetSection("Smtp:Host").Value == null ||
                          configuration.GetSection("Smtp:Host").Value == ""
-                            ? "mail5010.site4now.net"
+                            ? "smtp.ionos.co.uk"
                             : configuration.GetSection("Smtp:Host").Value;
                     string SMTPPassword =
                          configuration.GetSection("Smtp:Password").Value == null ||
@@ -60,7 +60,7 @@ public class EmailSender : IEmailSender
                         configuration.GetSection("Smtp:Port").Value.ToString() != "")
                         smtpClient.Port = int.Parse(configuration.GetSection("Smtp:Port").Value.ToString());
                     else
-                        smtpClient.Port = 587;
+                        smtpClient.Port = 465;
                     if (configuration.GetSection("Smtp:EnableSSL") != null &&
                         configuration.GetSection("Smtp:EnableSSL").Value.ToString() != "")
                         smtpClient.EnableSsl = bool.Parse(configuration.GetSection("Smtp:EnableSSL").Value.ToString());
@@ -74,6 +74,7 @@ public class EmailSender : IEmailSender
                     }
                     catch (Exception sendexp)
                     {
+                        Console.WriteLine(sendexp);
                         logger.LogExceptions($"Error sending email: {sendexp.Message}", DateTime.Now);
                         return false;
                     }

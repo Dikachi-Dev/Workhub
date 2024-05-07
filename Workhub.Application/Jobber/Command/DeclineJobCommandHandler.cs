@@ -20,7 +20,7 @@ public class DeclineJobCommandHandler : IRequestHandler<DeclineJobCommand>
     public async Task Handle(DeclineJobCommand request, CancellationToken cancellationToken)
     {
         var response = await repository.Decline(request.jobId);
-        var profile = await profileRepository.GetById(response.SellerId);
+        var profile = await profileRepository.GetById(response.BuyerId);
         await sender.SendFcmMessage(profile.Token, "Job Declined", request.jobId, "declined", $"Job Declined by {response.SellerName}");
     }
 }

@@ -30,13 +30,15 @@ public class JobRepository : GenericRepository<Job>, IJobRepository
     {
         throw new NotImplementedException();
     }
-    public async void Remark(string jobId, int rating, string remark)
+    public async Task<Job> Remark(string jobId, int rating, string remark)
     {
         var job = await GetById(jobId);
         job.SellerRating = rating;
         job.Remark = remark;
+        job.Status = "Completed";
         job.IsRated = true;
         await SaveChanges();
+        return job;
     }
 
     public async Task<Job> Decline(string jobId)

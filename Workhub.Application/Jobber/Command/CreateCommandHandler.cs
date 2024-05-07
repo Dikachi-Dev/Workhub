@@ -24,6 +24,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
     public async Task<ErrorOr<GetJobResult>> Handle(CreateCommand request, CancellationToken cancellationToken)
     {
         var profile = await profileRepository.GetById(request.BuyerId);
+        var seller = await profileRepository.GetById(request.SellerId);
         var job = new Job
         {
             BuyerId = request.BuyerId,
@@ -37,7 +38,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
         await jobRepository.Add(job);
         await jobRepository.SaveChanges();
         string body = JsonConvert.SerializeObject(new { jobId = job.Id, buyerName = job.BuyerName });
-        await sender.SendFcmMessage(profile.Token, "New Job Alert", body, "newjob", $"You have new Hire Request from {job.BuyerName}");
+        await sender.SendFcmMessage(seller.Token, "New Job Alert", body, "newjob", $"You have new Hire Request from {job.BuyerName}");
 
         return new GetJobResult(job);
     }

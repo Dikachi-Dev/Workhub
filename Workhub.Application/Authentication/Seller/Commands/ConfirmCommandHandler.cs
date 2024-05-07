@@ -25,7 +25,7 @@ public class ConfirmCommandHandler : IRequestHandler<ConfirmCommand, ErrorOr<Con
     {
         if (await verify.checkVerifyStats(request.email) == true)
         {
-            return Domain.Errors.Errors.Authentication.NotVerified;
+            return new ConfirmResponse(true);
         }
         var result = await verify.ConfirmEmail(request.token, request.email);
         if (result == true)

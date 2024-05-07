@@ -31,7 +31,7 @@ public class JobController : ControllerBase
     }
 
     [HttpPost("cancel")]
-    public IResult Cancel(string JobId)
+    public async Task<IResult> Cancel(string JobId)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null || userId is "")
@@ -42,34 +42,45 @@ public class JobController : ControllerBase
         {
             return Results.BadRequest("Job does not exist");
         }
-        var command = new CanCelJobCommand(JobId, userId);
-        if (mediator.Send(command).IsCompletedSuccessfully)
+
+        try
         {
+            var command = new CanCelJobCommand(JobId, userId);
+            await mediator.Send(command);
             return Results.Ok();
         }
-        return Results.Problem();
+        catch (Exception ex)
+        {
+            // Handle any other unexpected exceptions
+            return Results.Problem(); // Return the error message
+        }
 
     }
     [HttpPost("decline")]
-    public IResult Decline(string JobId)
+    public async Task<IResult> Decline(string JobId)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null || userId is "")
+        if (string.IsNullOrEmpty(userId))
         {
             return Results.BadRequest("User Not Found");
         }
-        if (JobId == null || JobId is "")
+        if (string.IsNullOrEmpty(JobId))
         {
             return Results.BadRequest("Job does not exist");
         }
-        var command = new DeclineJobCommand(JobId);
-        if (mediator.Send(command).IsCompletedSuccessfully)
+        try
         {
+            var command = new DeclineJobCommand(JobId);
+            await mediator.Send(command);
             return Results.Ok();
         }
-        return Results.Problem();
-
+        catch (Exception ex)
+        {
+            // Handle any other unexpected exceptions
+            return Results.Problem(); // Return the error message
+        }
     }
+
     [HttpPost("accept")]
     public async Task<IResult> Accept(string JobId)
     {
@@ -149,8 +160,7 @@ public class JobController : ControllerBase
         {
             return Results.BadRequest("User Not Found");
         }
-        repository.Remark(jobid, rating, remark);
-        var job = await repository.GetById(jobid);
+        var job = await repository.Remark(jobid, rating, remark);
         var jobs = await repository.GetSellerJobs(job.SellerId);
         int totalRating = jobs.Count;
         int sumRating = jobs.Sum(j => j.SellerRating);
@@ -159,6 +169,7 @@ public class JobController : ControllerBase
         var profile = await profileRepository.GetById(job.SellerId);
         profile.Rating = roundedAverageRating;
         profileRepository.Update(profile);
+        await profileRepository.SaveChanges();
         return Results.Ok();
     }
     [HttpGet("getUserReviews")]

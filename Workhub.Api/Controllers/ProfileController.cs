@@ -397,5 +397,17 @@ public class ProfileController : ControllerBase
         var result = await repository.Subscribed(userId);
         return Results.Ok(result);
     }
+
+    [HttpGet("isVerified")]
+    public async Task<IResult> CheckEmail()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        var result = await repository.isVerified(userId);
+        return Results.Ok(result);
+    }
 }
 

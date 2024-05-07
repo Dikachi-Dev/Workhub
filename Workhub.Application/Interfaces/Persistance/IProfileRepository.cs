@@ -22,5 +22,6 @@ public interface IProfileRepository : IGenericRepository<Profile>
     Task<GlobalUser> Register(Profile profile);
     Task<SubResult> IsSubscribed(string userId);
     Task<SubResult> Subscribed(string userId);
+    Task<bool> isVerified(string userId);
 }
 

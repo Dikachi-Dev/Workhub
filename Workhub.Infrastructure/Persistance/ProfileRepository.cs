@@ -261,5 +261,14 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         }
         return false;
     }
+    public async Task<bool> isVerified(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user.EmailConfirmed)
+        {
+            return true;
+        }
+        return false;
+    }
 
 }
