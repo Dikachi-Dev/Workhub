@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace Workhub.Infrastructure.Services;
 public static class FileHelper
@@ -10,6 +12,66 @@ public static class FileHelper
         Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
     }
 
+    public static byte[] GetResizedImage(byte[] bytes, int newWidth)
+    {
+        using (MemoryStream ms = new System.IO.MemoryStream(bytes))
+        {
+            using (Image image = Image.FromStream(ms))
+            {
+                if (image.Width <= 200 || image.Height <= 200)
+                    return bytes;
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    int newHeight = image.Height * newWidth / image.Width;
+                    if (image.Width > newWidth && GraphicsSupportsPixelFormat(image.PixelFormat))
+                    {
+                        using (Image thumbnail = new Bitmap(newWidth, newHeight, image.PixelFormat))
+                        {
+                            Graphics thumbGraph = Graphics.FromImage(thumbnail);
+                            thumbGraph.CompositingQuality = CompositingQuality.HighQuality;
+                            thumbGraph.SmoothingMode = SmoothingMode.HighQuality;
+                            thumbGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+
+                            Rectangle rect = new Rectangle(0, 0, newWidth, newHeight);
+                            thumbGraph.DrawImage(image, rect);
+
+
+                            thumbnail.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        }
+                    }
+                    else
+                    {
+                        image.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    }
+
+
+                    byte[] content = stream.ToArray();
+                    return content;
+                }
+            }
+        }
+    }
+
+    static bool GraphicsSupportsPixelFormat(System.Drawing.Imaging.PixelFormat format)
+    {
+        //  these pixel formats are not supported by the Graphics.FromImage() method 
+        //  http://msdn.microsoft.com/en-us/library/system.drawing.graphics.fromimage.aspx 
+        if (format == System.Drawing.Imaging.PixelFormat.Format1bppIndexed ||
+            format == System.Drawing.Imaging.PixelFormat.Format4bppIndexed ||
+            format == System.Drawing.Imaging.PixelFormat.Format8bppIndexed ||
+            format == System.Drawing.Imaging.PixelFormat.Undefined ||
+           format == System.Drawing.Imaging.PixelFormat.DontCare ||
+            format == System.Drawing.Imaging.PixelFormat.Format16bppArgb1555 ||
+            format == System.Drawing.Imaging.PixelFormat.Format16bppGrayScale)
+        {
+            return false;
+        }
+
+
+        return true;
+    }
     public static string CreateDocFile(byte[] doc, string filename)
     {
         try

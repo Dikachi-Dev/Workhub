@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
+using Workhub.Domain.Dtos;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
 
@@ -28,15 +29,36 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         _config = config;
         this.appDataContext = appDataContext;
     }
-    public IQueryable<Profile?> GetByFilter(string filter, int pageNumber, int pageSize)
+    public IEnumerable<ProfileResponse?> GetByFilter(string filter, int pageNumber, int pageSize)
     {
-        return appDataContext.Profiles
+        if (isSubActive() != true)
+        {
+            return appDataContext.Profiles
            .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.VendorProfile.Image1 != "" && profile.FirstName
            .Contains(filter) || profile.Email
            .Contains(filter) || profile.LastName
            .Contains(filter) || profile.State
            .Contains(filter) || profile.Country
-           .Contains(filter)).OrderByDescending(o => o.Rating).Skip((pageNumber - 1) * pageSize).Take(pageSize);
+           .Contains(filter))
+           .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
+           .ToList()
+           .OrderByDescending(o => o.Rating)
+           .Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        }
+        else
+        {
+            return appDataContext.Profiles
+           .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.VendorProfile.Image1 != "" && profile.Subscribe.IsSubscribed == true && profile.Subscribe.ExpireOn < profile.Subscribe.ExpireOn && profile.FirstName
+           .Contains(filter) || profile.Email
+           .Contains(filter) || profile.LastName
+           .Contains(filter) || profile.State
+           .Contains(filter) || profile.Country
+           .Contains(filter))
+           .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
+           .ToList()
+           .OrderByDescending(o => o.Rating)
+           .Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        }
     }
 
     public IQueryable<Profile?> GetQueryableSellerProfiles()
@@ -49,9 +71,22 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         return appDataContext.Profiles.FirstOrDefault(x => x.Email == email);
     }
 
-    public IQueryable<Profile> GetAllVendors(int pageNumber, int pageSize)
+    public IEnumerable<ProfileResponse> GetAllVendors(int pageNumber, int pageSize)
     {
-        return DbSet.Where(p => p.UserType != "User" && p.VendorProfile.Image1 != "" && p.isDeleted != true).OrderByDescending(o => o.Rating).Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        if (isSubActive() != true)
+        {
+            return DbSet
+                .Where(p => p.UserType != "User" && p.VendorProfile.Image1 != "" && p.isDeleted != true)
+                .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
+                .ToList().OrderByDescending(o => o.Rating).Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        }
+        else
+        {
+            return DbSet.Where(p => p.UserType != "User" && p.VendorProfile.Image1 != "" && p.isDeleted != true && p.Subscribe.IsSubscribed == true && p.Subscribe.ExpireOn < DateTime.Now)
+                .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
+                .ToList()
+                .OrderByDescending(o => o.Rating).Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        }
     }
 
     public Profile? GetSellerProfileByIdAllWithCollections(string id)
@@ -134,21 +169,46 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
     }
 
-    public IQueryable<Profile?> GetByProximity()
+    public IQueryable<ProfileResponse?> GetByProximity()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<Profile>> GetByOccupation(string occupation, string country)
+    public async Task<IEnumerable<ProfileResponse>> GetByOccupation(string occupation, string country)
     {
-        var profileList = await DbSet.Where(p => p.UserType != "User" && p.isDeleted != true && p.Country == country).ToListAsync();
-        var profiles = profileList.Where(p => p.Occupation.Split(',').Contains(occupation));
-        return profiles;
+        if (isSubActive() != true)
+        {
+            var profileList = await DbSet.Where(p => p.UserType != "User" && p.isDeleted != true && p.Country == country)
+                .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
+                .ToListAsync();
+            var profiles = profileList.Where(p => p.Occupation.Split(',').Contains(occupation));
+            return profiles;
+        }
+        else
+        {
+            var profileList = await DbSet
+                .Where(p => p.UserType != "User" && p.isDeleted != true && p.Country == country && p.Subscribe.IsSubscribed == true && p.Subscribe.ExpireOn < DateTime.Now)
+                .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
+                .ToListAsync();
+            var profiles = profileList.Where(p => p.Occupation.Split(',').Contains(occupation));
+            return profiles;
+        }
     }
 
-    public async Task<IEnumerable<Profile>> GetAllVendros(string country)
+    public async Task<IEnumerable<ProfileResponse>> GetAllVendros(string country)
     {
-        var profiles = await DbSet.Where(p => p.UserType != "User" && p.isDeleted != true && p.Country == country).ToListAsync();
+        var profiles = new List<ProfileResponse>();
+        if (isSubActive() != true)
+        {
+            profiles = await DbSet
+                .Where(p => p.UserType != "User" && p.isDeleted != true && p.Country == country)
+                .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
+                .ToListAsync();
+        }
+        profiles = await DbSet
+            .Where(p => p.UserType != "User" && p.isDeleted != true && p.Country == country && p.Subscribe.IsSubscribed == true && p.Subscribe.ExpireOn < DateTime.Now)
+            .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
+            .ToListAsync();
         return profiles;
     }
 
@@ -223,7 +283,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         }
 
     }
-    public async Task<SubResult> Subscribed(string userId)
+    public async Task<string> Subscribed(string userId)
     {
         var profile = await GetById(userId);
         DateTime his = profile.Subscribe.ExpireOn.Date;
@@ -238,18 +298,26 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         appDataContext.SubHistorys.Add(newSub);
         Update(profile);
         await SaveChanges();
-        var newresult = new SubResult(profile.Subscribe.ExpireOn, true, profile.Subscribe.IsSubscribed);
-        return newresult;
+        //var newresult = new SubResult(profile.Subscribe.ExpireOn, true, profile.Subscribe.IsSubscribed);
+        return "Successful";
     }
 
     public async Task<SubResult> IsSubscribed(string userId)
     {
         var profile = await GetById(userId);
         var comsub = appDataContext.Subscriptions.FirstOrDefault();
-        var newresult = new SubResult(profile.Subscribe.ExpireOn, comsub.IsEnabled, profile.Subscribe.IsSubscribed);
+        var newresult = new SubResult(profile.Subscribe.ExpireOn, comsub.IsEnabled, profile.Subscribe.IsSubscribed, comsub.AmountInDollars, comsub.AmountInNaira, comsub.PayPalSecret, comsub.PayPalKey, comsub.NokoKashId);
         return newresult;
+    }
 
-
+    public bool isSubActive()
+    {
+        var comsub = appDataContext.Subscriptions.FirstOrDefault();
+        if (comsub.IsEnabled)
+        {
+            return true;
+        }
+        return false;
     }
     public async Task<bool> UserExista(string email, string phonenumber)
     {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using Workhub.Application.Interfaces.Services;
+using Workhub.Domain.Dtos;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Infrastructure.Services;
@@ -84,10 +85,10 @@ public class CloseProx : ICloseProx
         }
     }
 
-    public async Task<List<Profile>> GetProfilesSortedByProximity(string origin, string destinations, IEnumerable<Profile> profiles)
+    public async Task<List<ProfileResponse>> GetProfilesSortedByProximity(string origin, string destinations, IEnumerable<ProfileResponse> profiles)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-        List<Profile> closeProximity = new List<Profile>(); // Initialize list
+        List<ProfileResponse> closeProximity = new List<ProfileResponse>(); // Initialize list
         string apiKey = configuration.GetSection("GoogleApiKey").Value;
         var httpcon = new HttpClient();
         string baseurl = configuration.GetSection("GoogleUrl").Value;

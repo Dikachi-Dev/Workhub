@@ -50,7 +50,7 @@ public class ProfileController : ControllerBase
         ErrorOr<MyProfileResult> profileresult = await mediator.Send(query);
 
         return profileresult.Match(profileresult =>
-        Results.Ok(new MyProfileResponse(profileresult.FirstName, profileresult.LastName, profileresult.Email, profileresult.PhoneNumber, FileHelper.GetDoc(profileresult.ProfileImage), profileresult.Country, profileresult.Address, profileresult.State, profileresult.Occupation, profileresult.Gender, profileresult.Experience, profileresult.Rating, profileresult.JobCount, profileresult.Token, profileresult.Id, profileresult.LongLat, profileresult.UserType)), errors =>
+        Results.Ok(new ProfileResponse(profileresult.FirstName, profileresult.LastName, profileresult.PhoneNumber, FileHelper.GetDoc(profileresult.ProfileImage), profileresult.Country, profileresult.Address, profileresult.State, profileresult.Occupation, profileresult.Experience, profileresult.Rating, profileresult.Id)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 
@@ -63,24 +63,18 @@ public class ProfileController : ControllerBase
             response =>
             {
                 var profiles = response.Profiles.Select(profileresult =>
-                    new MyProfileResponse(
+                    new ProfileResponse(
                         FirstName: profileresult.FirstName,
                         LastName: profileresult.LastName,
-                        Email: profileresult.Email,
                         PhoneNumber: profileresult.PhoneNumber,
                         ProfileImage: FileHelper.GetDoc(profileresult.ProfileImage),
                         Country: profileresult.Country,
                         Address: profileresult.Address,
                         State: profileresult.State,
                         Occupation: profileresult.Occupation,
-                        Gender: profileresult.Gender,
                         Experience: profileresult.Experience,
                         Rating: profileresult.Rating,
-                        JobCount: profileresult.JobCount,
-                        Token: profileresult.Token,
-                        Id: profileresult.Id,
-                        LongLat: profileresult.LongLat,
-                        UserType: profileresult.UserType
+                        Id: profileresult.Id
                     )
                 );
                 return Results.Ok(new GetAllResponse(profiles));
@@ -104,24 +98,18 @@ public class ProfileController : ControllerBase
                 response =>
                 {
                     var profiles = response.Profiles.Select(profileresult =>
-                        new MyProfileResponse(
+                        new ProfileResponse(
                             FirstName: profileresult.FirstName,
                             LastName: profileresult.LastName,
-                            Email: profileresult.Email,
                             PhoneNumber: profileresult.PhoneNumber,
                             ProfileImage: FileHelper.GetDoc(profileresult.ProfileImage),
                             Country: profileresult.Country,
                             Address: profileresult.Address,
                             State: profileresult.State,
                             Occupation: profileresult.Occupation,
-                            Gender: profileresult.Gender,
                             Experience: profileresult.Experience,
                             Rating: profileresult.Rating,
-                            JobCount: profileresult.JobCount,
-                            Token: profileresult.Token,
-                            Id: profileresult.Id,
-                            LongLat: profileresult.LongLat,
-                            UserType: profileresult.UserType
+                            Id: profileresult.Id
                         )
                     ).Skip((pageNumber - 1) * pageSize).Take(pageSize);
                     return Results.Ok(new GetAllResponse(profiles));
@@ -162,24 +150,18 @@ public class ProfileController : ControllerBase
                 response =>
                 {
                     var profiles = response.Profiles.Select(profileresult =>
-                        new MyProfileResponse(
+                        new ProfileResponse(
                             FirstName: profileresult.FirstName,
                             LastName: profileresult.LastName,
-                            Email: profileresult.Email,
                             PhoneNumber: profileresult.PhoneNumber,
                             ProfileImage: FileHelper.GetDoc(profileresult.ProfileImage),
                             Country: profileresult.Country,
                             Address: profileresult.Address,
                             State: profileresult.State,
                             Occupation: profileresult.Occupation,
-                            Gender: profileresult.Gender,
                             Experience: profileresult.Experience,
                             Rating: profileresult.Rating,
-                            JobCount: profileresult.JobCount,
-                            Token: profileresult.Token,
-                            Id: profileresult.Id,
-                            LongLat: profileresult.LongLat,
-                            UserType: profileresult.UserType
+                            Id: profileresult.Id
                         )
                     ).Skip((pageNumber - 1) * pageSize).Take(pageSize);// Convert to a list
                     return Results.Ok(new GetAllResponse(profiles));
@@ -201,12 +183,74 @@ public class ProfileController : ControllerBase
         }
         var profile = repository.GetVendor(userId);
 
-        string image1 = FileHelper.CreateDocFile(request.Image1, userId + "Image1" + request.Image1Ext);
-        string image2 = FileHelper.CreateDocFile(request.Image2, userId + "Image2" + request.Image2Ext);
+        byte[] imag1 = FileHelper.GetResizedImage(request.Image1, 200);
+        byte[] imag2 = FileHelper.GetResizedImage(request.Image2, 200);
 
+        string image1 = FileHelper.CreateDocFile(imag1, userId + "Image1" + "png");
+        string image2 = FileHelper.CreateDocFile(imag2, userId + "Image2" + "png");
+        profile.VendorProfile.Image1ext = "png";
+        profile.VendorProfile.Image2ext = "png";
         profile.VendorProfile.Description = request.Description;
         profile.VendorProfile.Image1 = image1;
         profile.VendorProfile.Image2 = image2;
+        profile.VendorProfile.Instagram = request.Instagram;
+        try
+        {
+            repository.Update(profile);
+            await repository.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            logger.LogExceptions(ex.Message, DateTime.UtcNow);
+        }
+        return Results.Ok();
+    }
+    [Authorize(Roles = "Both,Vendor")]
+    [HttpPut("EditDescription")]
+    public async Task<IResult> EditDescription(string description)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        var profile = repository.GetVendor(userId);
+
+        profile.VendorProfile.Description = description;
+        try
+        {
+            repository.Update(profile);
+            await repository.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            logger.LogExceptions(ex.Message, DateTime.UtcNow);
+        }
+        return Results.Ok();
+    }
+
+
+    [Authorize(Roles = "Both,Vendor")]
+    [HttpPut("vendorImagechange")]
+    public async Task<IResult> VendorImagechange(VendorImageChange request)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null || userId is "")
+        {
+            return Results.BadRequest("User Not Found");
+        }
+        var profile = repository.GetVendor(userId);
+
+        byte[] imag1 = FileHelper.GetResizedImage(request.Image1, 200);
+        byte[] imag2 = FileHelper.GetResizedImage(request.Image2, 200);
+
+        string image1 = FileHelper.CreateDocFile(imag1, userId + "Image1" + "png");
+        string image2 = FileHelper.CreateDocFile(imag2, userId + "Image2" + "png");
+        profile.VendorProfile.Image1ext = "png";
+        profile.VendorProfile.Image2ext = "png";
+        profile.VendorProfile.Image1 = image1;
+        profile.VendorProfile.Image2 = image2;
+        profile.VendorProfile.Description = request.Description;
         profile.VendorProfile.Instagram = request.Instagram;
         try
         {
@@ -226,7 +270,7 @@ public class ProfileController : ControllerBase
         var query = new MyProfileQuery(id);
         ErrorOr<MyProfileResult> profileresult = await mediator.Send(query);
         return profileresult.Match(profileresult =>
-                Results.Ok(new MyProfileResponse(profileresult.FirstName, profileresult.LastName, profileresult.Email, profileresult.PhoneNumber, FileHelper.GetDoc(profileresult.ProfileImage), profileresult.Country, profileresult.Address, profileresult.State, profileresult.Occupation, profileresult.Gender, profileresult.Experience, profileresult.Rating, profileresult.JobCount, profileresult.Token, profileresult.Id, profileresult.LongLat, profileresult.UserType)), errors =>
+                Results.Ok(new ProfileResponse(profileresult.FirstName, profileresult.LastName, profileresult.PhoneNumber, FileHelper.GetDoc(profileresult.ProfileImage), profileresult.Country, profileresult.Address, profileresult.State, profileresult.Occupation, profileresult.Experience, profileresult.Rating, profileresult.Id)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
     [HttpGet("vendorprofile")]
@@ -240,7 +284,7 @@ public class ProfileController : ControllerBase
         var profile = repository.GetVendor(id);
         byte[] image1 = FileHelper.GetDoc(profile.VendorProfile.Image1);
         byte[] image2 = FileHelper.GetDoc(profile.VendorProfile.Image2);
-        return Results.Ok(new { profile.VendorProfile.Description, profile.VendorProfile.Instagram, image1, image2, profile.Id, profile.FirstName, profile.LastName, profile.Address, profile.Occupation, profile.Country, profile.State, profile.Rating, profile.PhoneNumber, });
+        return Results.Ok(new { profile.VendorProfile.Description, profile.VendorProfile.Instagram, image1, image2, profile.VendorProfile.Image1ext, profile.VendorProfile.Image2ext, profile.Id, profile.FirstName, profile.LastName, profile.Address, profile.Occupation, profile.Country, profile.State, profile.Rating, profile.PhoneNumber, });
     }
 
 
@@ -253,8 +297,8 @@ public class ProfileController : ControllerBase
             return Results.BadRequest("User Not Found");
         }
         var profile = await repository.GetById(userId);
-
-        string image = FileHelper.CreateDocFile(request.image, userId + "profileImage" + request.ext);
+        byte[] imag = FileHelper.GetResizedImage(request.image, 160);
+        string image = FileHelper.CreateDocFile(imag, userId + "profileImage" + "png");
 
         profile.FirstName = request.FirstName;
         profile.LastName = request.LastName;

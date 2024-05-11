@@ -33,13 +33,18 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
             v.Property<string>(nameof(VendorProfile.Image2)).HasColumnName(nameof(VendorProfile.Image2));
             v.Property<string>(nameof(VendorProfile.Description)).HasColumnName(nameof(VendorProfile.Description));
             v.Property<string>(nameof(VendorProfile.Instagram)).HasColumnName(nameof(VendorProfile.Instagram));
+            v.Property<string>(nameof(VendorProfile.Image1ext)).HasColumnName(nameof(VendorProfile.Image1ext));
+            v.Property<string>(nameof(VendorProfile.Image2ext)).HasColumnName(nameof(VendorProfile.Image2ext));
         });
         modelBuilder.Entity<Subscription>().HasData(
         new Subscription
         {
             IsEnabled = false,
             AmountInDollars = 1.00,
-            AmountInNaira = 1300.0 // For example
+            AmountInNaira = 1300.0,
+            PayPalSecret = "",
+            PayPalKey = "",
+            NokoKashId = "cPp6u5Ckq2nAybmk4"
         });
     }
     //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

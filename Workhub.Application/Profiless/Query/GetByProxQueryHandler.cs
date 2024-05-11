@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Profiless.Common;
-using Workhub.Domain.Entities;
+using Workhub.Domain.Dtos;
 
 namespace Workhub.Application.Profiless.Query
 {
@@ -36,25 +36,19 @@ namespace Workhub.Application.Profiless.Query
             }
             string destinations = string.Join("|", profiles.Select(p => p.LongLat));
             string origin = profile.LongLat;
-            List<Profile> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
+            List<ProfileResponse> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
             var myProfileResults = new ProxyResult(closeProximity.Select(p => new MyProfileResult(
                 FirstName: p.FirstName,
                 LastName: p.LastName,
-                Email: p.Email,
                 PhoneNumber: p.PhoneNumber,
                 ProfileImage: p.ProfileImage,
                 Country: p.Country,
                 Address: p.Address,
                 State: p.State,
                 Occupation: p.Occupation,
-                Gender: p.Gender,
                 Experience: p.Experience,
                 Rating: p.Rating,
-                JobCount: p.JobCount,
-                Token: p.Token,
-                Id: p.Id,
-                LongLat: p.LongLat,
-                UserType: p.UserType
+                Id: p.Id
             )).ToList());
 
             return myProfileResults;

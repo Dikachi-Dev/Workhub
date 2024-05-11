@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Jobber.Common;
+using Workhub.Domain.Dtos;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Application.Jobber.Command;
@@ -36,7 +37,7 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
         }
         string destinations = string.Join("|", profiles.Select(p => p.LongLat));
         string origin = profile.LongLat;
-        List<Profile> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
+        List<ProfileResponse> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
 
         if (closeProximity.Count > 0)
         {

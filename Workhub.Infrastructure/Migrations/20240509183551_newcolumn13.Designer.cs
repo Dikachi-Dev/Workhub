@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Workhub.Infrastructure.Data.Context;
 
@@ -11,9 +12,11 @@ using Workhub.Infrastructure.Data.Context;
 namespace Workhub.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    partial class AppDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240509183551_newcolumn13")]
+    partial class newcolumn13
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -479,7 +482,7 @@ namespace Workhub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            SubscriptionId = new Guid("d287ec31-f426-4e47-a8bf-09097510eb02"),
+                            SubscriptionId = new Guid("a873389a-66c9-4dce-87cd-28db6d949cfa"),
                             AmountInDollars = 1.0,
                             AmountInNaira = 1300.0,
                             IsEnabled = false,
@@ -582,20 +585,10 @@ namespace Workhub.Infrastructure.Migrations
                                 .HasColumnType("nvarchar(max)")
                                 .HasColumnName("Image1");
 
-                            b1.Property<string>("Image1ext")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("Image1ext");
-
                             b1.Property<string>("Image2")
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)")
                                 .HasColumnName("Image2");
-
-                            b1.Property<string>("Image2ext")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("Image2ext");
 
                             b1.Property<string>("Instagram")
                                 .IsRequired()
