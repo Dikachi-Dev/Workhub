@@ -12,7 +12,7 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
     public DbSet<GlobalUser> GlobalUsers { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<SubHistory> SubHistorys { get; set; }
-
+    public DbSet<Otp> Otps { get; set; }
     public AppDataContext(DbContextOptions<AppDataContext> options) : base(options)
     {
 
@@ -37,15 +37,16 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
             v.Property<string>(nameof(VendorProfile.Image2ext)).HasColumnName(nameof(VendorProfile.Image2ext));
         });
         modelBuilder.Entity<Subscription>().HasData(
-        new Subscription
-        {
-            IsEnabled = false,
+    new Subscription
+    {
+        SubscriptionId = Guid.Parse("2F47C3B3-89B1-4D0F-8C5C-7C212408FA12"), // FIXED GUID
+        IsEnabled = false,
             AmountInDollars = 1.00,
             AmountInNaira = 1300.0,
             PayPalSecret = "",
             PayPalKey = "",
             NokoKashId = "cPp6u5Ckq2nAybmk4"
-        });
+    });
     }
     //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     //{

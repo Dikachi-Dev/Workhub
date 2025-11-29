@@ -2,9 +2,9 @@
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using Workhub.Application.Interfaces.Persistance;
-using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Profiless.Common;
 using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Helpers;
 
 namespace Workhub.Application.Profiless.Query;
 
@@ -12,28 +12,57 @@ public class GetAllByProxyQueryHandler : IRequestHandler<GetAllByProxyQuery, Err
 {
     private readonly IMediator mediator;
     private readonly IProfileRepository repository;
-    private readonly ICloseProx closeProx;
 
-
-    public GetAllByProxyQueryHandler(IMediator mediator, IProfileRepository repository, ICloseProx closeProx)
+    public GetAllByProxyQueryHandler(IMediator mediator, IProfileRepository repository)
     {
         this.mediator = mediator;
         this.repository = repository;
-        this.closeProx = closeProx;
     }
 
     public async Task<ErrorOr<ProxyResult>> Handle(GetAllByProxyQuery request, CancellationToken cancellationToken)
     {
         var profile = await repository.GetById(request.userid);
-        var profiles = await repository.GetAllVendros(profile.Country);
-
-        if (profiles.IsNullOrEmpty())
+        
+        // Parse user location from LongLat string
+        var userLocation = GeospatialHelper.ParseLongLat(profile.LongLat);
+        if (userLocation == null)
+        {
+            // Fallback to old method if location is invalid
+            var profiles = await repository.GetAllVendros(profile.Country);
+            if (!profiles.Any())
+            {
+                return new ProxyResult([]);
+            }
+            
+            var fallbackResults = profiles.Select(p => new MyProfileResult(
+                FirstName: p.FirstName,
+                LastName: p.LastName,
+                PhoneNumber: p.PhoneNumber,
+                ProfileImage: p.ProfileImage,
+                Country: p.Country,
+                Address: p.Address,
+                State: p.State,
+                Occupation: p.Occupation,
+                Experience: p.Experience,
+                Rating: p.Rating,
+                Id: p.Id
+            )).ToList();
+            
+            return new ProxyResult(fallbackResults);
+        }
+        
+        // Use PostGIS spatial query for proximity search
+        var closeProximity = await repository.GetProfilesByProximity(
+            userLocation, 
+            profile.Country, 
+            radiusMeters: 50000, 
+            limit: 100);
+        
+        if (!closeProximity.Any())
         {
             return new ProxyResult([]);
         }
-        string destinations = string.Join("|", profiles.Select(p => p.LongLat));
-        string origin = profile.LongLat;
-        List<ProfileResponse> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
+        
         var myProfileResults = new ProxyResult(closeProximity.Select(p => new MyProfileResult(
             FirstName: p.FirstName,
             LastName: p.LastName,

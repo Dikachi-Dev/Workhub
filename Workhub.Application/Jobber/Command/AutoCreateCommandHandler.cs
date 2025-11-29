@@ -31,7 +31,7 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
         var profiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
 
 
-        if (profiles.IsNullOrEmpty())
+        if (!profiles.Any())
         {
             return new GetJobResult(new Job());
         }

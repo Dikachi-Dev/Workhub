@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using NetTopologySuite.Geometries;
 using Workhub.Domain.Dtos;
 using Workhub.Domain.Entities;
 
@@ -25,5 +26,8 @@ public interface IProfileRepository : IGenericRepository<Profile>
     Task<string> Subscribed(string userId);
     Task<bool> isVerified(string userId);
     bool isSubActive();
+    
+    // PostGIS spatial query
+    Task<IEnumerable<ProfileResponse>> GetProfilesByProximity(Point userLocation, string country, double radiusMeters = 50000, int limit = 100);
 }
 

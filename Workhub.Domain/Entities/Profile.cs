@@ -1,4 +1,6 @@
-﻿namespace Workhub.Domain.Entities;
+﻿using NetTopologySuite.Geometries;
+
+namespace Workhub.Domain.Entities;
 public class Profile : BaseEntity
 {
     public string FirstName { get; set; } = string.Empty;
@@ -18,7 +20,8 @@ public class Profile : BaseEntity
     public Subscribe Subscribe { get; set; } = new Subscribe();
     public VendorProfile VendorProfile { get; set; } = new VendorProfile();
     public string Token { get; set; } = string.Empty;
-    public string LongLat { get; set; } = string.Empty;
+    public string LongLat { get; set; } = string.Empty; // Deprecated: Use Location instead
+    public Point? Location { get; set; } // PostGIS Point (longitude, latitude)
     public string UserType { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public bool isDeleted { get; set; } = false;

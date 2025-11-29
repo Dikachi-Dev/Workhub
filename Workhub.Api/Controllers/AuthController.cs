@@ -9,10 +9,12 @@ using Workhub.Application.Authentication.Seller.Common;
 using Workhub.Application.Authentication.Seller.Query;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Contracts.Authentication;
+using Asp.Versioning;
 
 namespace Workhub.Api.Controllers;
 [AllowAnonymous]
-[Route("api/auth")]
+[Route("api/v{version:apiVersion}/auth")]
+[ApiVersion("1.0")]
 [ApiController]
 public class AuthController : ControllerBase
 {

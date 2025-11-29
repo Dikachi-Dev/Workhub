@@ -18,9 +18,11 @@ public sealed class JwtTokenGenerator : IJWTGenerator
 
     string IJWTGenerator.GenerateJWTToken(IList<Claim> claims)
     {
-
+        var jwtSecret = configuration["Jwt:Secret"] 
+            ?? throw new InvalidOperationException("JWT Secret is not configured in appsettings.json");
+        
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]));
+        var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecret));
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var token = new JwtSecurityToken(

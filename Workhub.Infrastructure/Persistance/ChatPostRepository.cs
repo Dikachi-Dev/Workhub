@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
@@ -12,22 +11,25 @@ public class ChatPostRepository : GenericRepository<ChatPost>, IChatPostReposito
     {
     }
 
-    public async Task<ChatPost> GetbySenderAndReciverId(string senderId, string receiverId)
+    public async Task<ChatPost?> GetbySenderAndReciverId(string senderId, string receiverId)
     {
-        var chat = DbSet
+        var chat = await DbSet
             .Include(r => r.Replys.OrderByDescending(reply => reply.CreatedOn))
-            .Where(r => (r.SenderId == senderId && r.ReceiverId == receiverId) || (r.SenderId == receiverId && r.ReceiverId == senderId))
-            .FirstOrDefault();
+            .Where(r => (r.SenderId == senderId && r.ReceiverId == receiverId) || 
+                       (r.SenderId == receiverId && r.ReceiverId == senderId))
+            .FirstOrDefaultAsync();
+        
         return chat;
     }
 
     public async Task<IList<ChatPost>> GetByUser(string userId)
     {
-        var chats = DbSet
-        .Include(c => c.Replys)
-        .Where(c => c.SenderId == userId || c.ReceiverId == userId)
-        .OrderByDescending(c => c.UpdatedOn);
-        var chat = await Task.FromResult(chats.ToList());
-        return chat;
+        var chats = await DbSet
+            .Include(c => c.Replys)
+            .Where(c => c.SenderId == userId || c.ReceiverId == userId)
+            .OrderByDescending(c => c.UpdatedOn)
+            .ToListAsync();
+        
+        return chats;
     }
 }

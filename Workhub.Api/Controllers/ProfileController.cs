@@ -13,11 +13,13 @@ using Workhub.Application.Profiless.Query;
 using Workhub.Contracts.Profileing;
 using Workhub.Infrastructure.Services;
 using static Workhub.Infrastructure.Services.CloseProx;
+using Asp.Versioning;
 
 namespace Workhub.Api.Controllers;
 
 [Authorize(Roles = "Both,Vendor,User")]
-[Route("api/profile")]
+[Route("api/v{version:apiVersion}/profile")]
+[ApiVersion("1.0")]
 [ApiController]
 public class ProfileController : ControllerBase
 {

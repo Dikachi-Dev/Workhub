@@ -10,10 +10,12 @@ using Workhub.Application.Jobber.Command;
 using Workhub.Application.Jobber.Common;
 using Workhub.Application.Jobber.Query;
 using Workhub.Contracts.Job;
+using Asp.Versioning;
 
 namespace Workhub.Api.Controllers;
 [Authorize(Roles = "Both,Vendor,User")]
-[Route("api/job")]
+[Route("api/v{version:apiVersion}/job")]
+[ApiVersion("1.0")]
 [ApiController]
 public class JobController : ControllerBase
 {

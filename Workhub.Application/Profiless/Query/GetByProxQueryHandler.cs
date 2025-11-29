@@ -30,7 +30,7 @@ namespace Workhub.Application.Profiless.Query
             var profile = await profileRepository.GetById(request.UserId);
             var profiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
 
-            if (profiles.IsNullOrEmpty())
+            if (!profiles.Any())
             {
                 return new ProxyResult([]);
             }

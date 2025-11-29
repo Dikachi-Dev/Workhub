@@ -14,6 +14,12 @@ public class AuthMiddleware
 
     public async Task Invoke(HttpContext context)
     {
+        if (context.Request.Path.StartsWithSegments("/health"))
+        {
+            await _next(context);
+            return;
+        }
+
         var apikey = context.Request.Headers["ApiKey"].FirstOrDefault()?.Split(" ").Last();
 
         if (apikey != null)

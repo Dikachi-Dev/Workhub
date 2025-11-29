@@ -339,4 +339,38 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         return false;
     }
 
+    /// <summary>
+    /// Get profiles sorted by proximity using PostGIS spatial queries
+    /// </summary>
+    public async Task<IEnumerable<ProfileResponse>> GetProfilesByProximity(
+        NetTopologySuite.Geometries.Point userLocation, 
+        string country, 
+        double radiusMeters = 50000, 
+        int limit = 100)
+    {
+        var profiles = await DbSet
+            .Where(p => p.UserType != "User" && 
+                       p.isDeleted != true && 
+                       p.Country == country &&
+                       p.Location != null)
+            .OrderBy(p => p.Location.Distance(userLocation))
+            .Take(limit)
+            .Select(r => new ProfileResponse(
+                r.FirstName, 
+                r.LastName, 
+                r.PhoneNumber, 
+                r.ProfileImage, 
+                r.Country, 
+                r.Address, 
+                r.State, 
+                r.Occupation, 
+                r.LongLat, 
+                r.Experience, 
+                r.Rating, 
+                r.Id))
+            .ToListAsync();
+            
+        return profiles;
+    }
+
 }

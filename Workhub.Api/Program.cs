@@ -7,23 +7,6 @@ using Workhub.Application;
 using Workhub.Infrastructure;
 
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDatabaseSetup();
-builder.Services.AddWorkhubApiServices();
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
-builder.Services.AddControllers()
-.AddJsonOptions(options =>
-        options.JsonSerializerOptions.Converters.Add(new ByteArrayConverter()));
-//builder.Services.AddSignalR();
-
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "WorkHub", Version = "v1" });
