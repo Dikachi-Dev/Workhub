@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -7,11 +8,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Workhub.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPostgreSQL : Migration
+    public partial class intitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:PostgresExtension:postgis", ",,");
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -137,6 +141,7 @@ namespace Workhub.Infrastructure.Migrations
                     Image2ext = table.Column<string>(type: "text", nullable: false),
                     Token = table.Column<string>(type: "text", nullable: false),
                     LongLat = table.Column<string>(type: "text", nullable: false),
+                    Location = table.Column<Point>(type: "geometry", nullable: true),
                     UserType = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false),
                     isDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -308,7 +313,7 @@ namespace Workhub.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Subscriptions",
                 columns: new[] { "SubscriptionId", "AmountInDollars", "AmountInNaira", "IsEnabled", "NokoKashId", "PayPalKey", "PayPalSecret" },
-                values: new object[] { new Guid("43047abd-f8a5-45cd-afa4-8cdf09608613"), 1.0, 1300.0, false, "cPp6u5Ckq2nAybmk4", "", "" });
+                values: new object[] { new Guid("2f47c3b3-89b1-4d0f-8c5c-7c212408fa12"), 1.0, 1300.0, false, "cPp6u5Ckq2nAybmk4", "", "" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

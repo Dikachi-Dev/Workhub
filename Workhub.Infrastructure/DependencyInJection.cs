@@ -144,7 +144,14 @@ public static class DependencyInjection
         var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
         if (pendingMigrations.Any())
         {
-            await dbContext.Database.MigrateAsync();
+            try
+            {
+                await dbContext.Database.MigrateAsync();
+            }
+            catch (Exception ex) when (ex.Message.Contains("extension \"postgis\" is not available") || ex.InnerException?.Message.Contains("extension \"postgis\" is not available") == true)
+            {
+                throw new Exception("CRITICAL: PostGIS extension is missing on the PostgreSQL server. Please install PostGIS to continue.", ex);
+            }
         }
 
         // Apply manual PostGIS migration

@@ -7,18 +7,36 @@ public class HangfireDashboardAuthorizationFilter : IDashboardAuthorizationFilte
     public bool Authorize(DashboardContext context)
     {
         var httpContext = context.GetHttpContext();
-        
-        // Allow access if ApiKey header is present and valid
-        var apiKey = httpContext.Request.Headers["ApiKey"].FirstOrDefault();
-        
-        if (string.IsNullOrEmpty(apiKey))
-        {
-            return false;
-        }
-
         var configuration = httpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var expectedApiKey = configuration["ApiKey"];
-
-        return apiKey.Equals(expectedApiKey);
+        
+        // Get credentials from configuration
+        var expectedUser = configuration["Hangfire:User"];
+        var expectedPass = configuration["Hangfire:Pass"];
+        
+        // Check for Basic Authentication header
+        var authHeader = httpContext.Request.Headers["Authorization"].FirstOrDefault();
+        
+        if (authHeader != null && authHeader.StartsWith("Basic "))
+        {
+            var encodedCredentials = authHeader.Substring("Basic ".Length).Trim();
+            var decodedCredentials = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encodedCredentials));
+            var credentials = decodedCredentials.Split(':', 2);
+            
+            if (credentials.Length == 2)
+            {
+                var username = credentials[0];
+                var password = credentials[1];
+                
+                if (username == expectedUser && password == expectedPass)
+                {
+                    return true;
+                }
+            }
+        }
+        
+        // Request Basic Authentication
+        httpContext.Response.StatusCode = 401;
+        httpContext.Response.Headers["WWW-Authenticate"] = "Basic realm=\"Hangfire Dashboard\"";
+        return false;
     }
 }
