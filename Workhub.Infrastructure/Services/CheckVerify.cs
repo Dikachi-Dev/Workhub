@@ -50,7 +50,7 @@ public class CheckVerify : ICheckVerify
    $"<h3>{result}</h3>" +
     "<p>This code expires in 5 minutes</p>" +
    "<p>Thank you,</p>";
-        var done = emailSender.SendEmailAsyncMimeKit(user.Email, "New Email Verification Code", body);
+        var done = emailSender.SendEmailAsync(user.Email, "New Email Verification Code", body);
         if (done == true)
         {
 

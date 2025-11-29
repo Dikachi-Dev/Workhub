@@ -18,7 +18,7 @@ public class EmailSender : IEmailSender
 
     }
 
-    public bool SendEmailAsyncMimeKit(string to, string subject, string body)
+    public bool SendEmailAsync(string to, string subject, string body)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         string from = configuration.GetSection("Smtp:Email").Value;

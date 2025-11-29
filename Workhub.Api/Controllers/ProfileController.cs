@@ -379,7 +379,7 @@ public class ProfileController : ControllerBase
         string to = configuration.GetSection("Smtp:Email").Value;
         var profile = await repository.GetById(userId);
         string body = $"<p>{message}</p>";
-        emailSender.SendEmailAsyncMimeKit(to, $"Priority:{priority} From: {profile.Email}, Subject: {subject}", body);
+        emailSender.SendEmailAsync(to, $"Priority:{priority} From: {profile.Email}, Subject: {subject}", body);
         return Results.Ok();
     }
     [HttpPost("changepassword")]
