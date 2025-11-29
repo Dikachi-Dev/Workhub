@@ -18,6 +18,7 @@ using Workhub.Infrastructure.Services;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Workhub.Infrastructure.BackgroundJobs;
+using Workhub.Infrastructure.Data.Migrations;
 
 namespace Workhub.Infrastructure;
 
@@ -145,5 +146,8 @@ public static class DependencyInjection
         {
             await dbContext.Database.MigrateAsync();
         }
+
+        // Apply manual PostGIS migration
+        await PostGISMigrationHelper.ApplyPostGISMigration(dbContext);
     }
 }

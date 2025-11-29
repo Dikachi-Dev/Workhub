@@ -18,7 +18,7 @@ public class EmailSender : IEmailSender
 
     }
 
-    public bool SendEmailAsync(string to, string subject, string body)
+    public async Task<bool> SendEmailAsync(string to, string subject, string body)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         string from = configuration.GetSection("Smtp:Email").Value;
@@ -69,7 +69,7 @@ public class EmailSender : IEmailSender
                     smtpClient.Credentials = basicCredential;
                     try
                     {
-                        smtpClient.Send(msg);
+                        await smtpClient.SendMailAsync(msg);
                         return true;
                     }
                     catch (Exception sendexp)

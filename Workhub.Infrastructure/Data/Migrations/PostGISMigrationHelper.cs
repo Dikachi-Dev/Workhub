@@ -36,6 +36,14 @@ WHERE ""LongLat"" IS NOT NULL
   AND ""Location"" IS NULL;
 ";
 
-        await context.Database.ExecuteSqlRawAsync(sql);
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(sql);
+        }
+        catch (Exception ex) when (ex.Message.Contains("extension \"postgis\" is not available") || ex.InnerException?.Message.Contains("extension \"postgis\" is not available") == true)
+        {
+            // Log a friendly warning but don't crash the app if possible, or rethrow with clear message
+            throw new Exception("CRITICAL: PostGIS extension is missing on the PostgreSQL server. Please install PostGIS to continue.", ex);
+        }
     }
 }

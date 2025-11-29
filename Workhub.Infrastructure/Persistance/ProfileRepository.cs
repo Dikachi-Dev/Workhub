@@ -162,7 +162,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
             "<p>This code expires in 5 minutes</p>" +
            "<p>Thank you,</p>" +
            $"<br>{_config["Email:ApplicationName"]}";
-        emailSender.SendEmailAsync(user.Email, "Email Verification", body);
+        await emailSender.SendEmailAsync(user.Email, "Email Verification", body);
         await Add(profile);
         await SaveChanges();
         return await userManager.FindByEmailAsync(profile.Email);
@@ -252,7 +252,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
               "<p>This code expires in 5 minutes</p>" +
               "<p>Thank you,</p>" +
               $"<br>{_config["Email:ApplicationName"]}";
-            emailSender.SendEmailAsync(user.Email, "Reset Password Code", body);
+            await emailSender.SendEmailAsync(user.Email, "Reset Password Code", body);
             return true;
         }
 

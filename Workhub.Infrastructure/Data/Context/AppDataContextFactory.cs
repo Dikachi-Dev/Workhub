@@ -33,7 +33,7 @@ public class AppDataContextFactory : IDesignTimeDbContextFactory<AppDataContext>
             connectionString = "Server=localhost;Port=5432;Database=WorkHubAPi;User Id=postgres;Password=admin;Include Error Detail=true";
         }
 
-        builder.UseNpgsql(connectionString);
+        builder.UseNpgsql(connectionString, o => o.UseNetTopologySuite());
 
         return new AppDataContext(builder.Options);
     }
