@@ -6,6 +6,6 @@ DateTime CreatedOn,
 string ReceiverId,
 string ReceiverName,
 string SenderName,
- IList<Replyyy> Replys);
+ IList<ReplyDto> Replys);
 
-public record Replyyy(string Id, DateTime CreatedOn, string Message, string FromId);
+public record ReplyDto(string Id, DateTime CreatedOn, string Message, string FromId);

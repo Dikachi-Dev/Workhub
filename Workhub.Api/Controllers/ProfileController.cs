@@ -14,6 +14,7 @@ using Workhub.Contracts.Profileing;
 using Workhub.Infrastructure.Services;
 using static Workhub.Infrastructure.Services.CloseProx;
 using Asp.Versioning;
+using NetTopologySuite.Geometries;
 
 namespace Workhub.Api.Controllers;
 
@@ -335,6 +336,15 @@ public class ProfileController : ControllerBase
             profile.Country = response.Country;
             profile.State = response.State;
             profile.Address = response.Address;
+
+            // Update PostGIS Location
+            var parts = longlat.Split(',');
+            if (parts.Length >= 2 && 
+                double.TryParse(parts[0], out double lat) && 
+                double.TryParse(parts[1], out double lon))
+            {
+                profile.Location = new Point(lon, lat) { SRID = 4326 };
+            }
             try
             {
                 repository.Update(profile);

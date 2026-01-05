@@ -4,7 +4,7 @@ namespace Workhub.Application.Interfaces.Persistance;
 
 public interface IJobRepository : IGenericRepository<Job>
 {
-    Task<Job> CreateJob(string userId, string occupation);
+
     Task<IList<Job>> GetUserJobs(string userId);
     Task<IList<Job>> GetSellerJobs(string userId);
     Task<Job> Accept(string jobId);

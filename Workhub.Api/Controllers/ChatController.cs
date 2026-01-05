@@ -29,7 +29,7 @@ public class ChatController : ControllerBase
     }
 
     [HttpGet("end2end")]
-    public async Task<IResult> End2End([FromQuery] string receiverId, string senderId)
+    public async Task<IResult> End2End([FromQuery] string receiverId)
     {
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -37,10 +37,11 @@ public class ChatController : ControllerBase
         {
             return Results.BadRequest("User Not Found");
         }
-        var query = new ChatBidirectionalQuery(senderId.Trim(), receiverId.Trim());
+        // Use logged-in user as sender
+        var query = new ChatBidirectionalQuery(userId.Trim(), receiverId.Trim());
         ErrorOr<ChatResult> chatResult = await mediator.Send(query);
         return chatResult.Match(chat =>
-        Results.Ok(new ChatResponse(chat.SenderId, chat.Id, chat.CreatedOn, chat.ReceiverId, chat.ReceiverName, chat.SenderName, chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
+        Results.Ok(MapToChatResponse(chat)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
 
@@ -55,7 +56,7 @@ public class ChatController : ControllerBase
         var command = new CreateChatCommand(userId, request.ReceiverId, request.Message);
         ErrorOr<ChatResult> chat = await mediator.Send(command);
         return chat.Match(chat =>
-        Results.Ok(new ChatResponse(chat.SenderId, chat.Id, chat.CreatedOn, chat.ReceiverId, chat.ReceiverName, chat.SenderName, chat.Replys.Select(reply => new Replyyy(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList())), errors =>
+        Results.Ok(MapToChatResponse(chat)), errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
     }
     [HttpGet("allchats")]
@@ -70,26 +71,23 @@ public class ChatController : ControllerBase
         ErrorOr<AllChatResult> allResult = await mediator.Send(query);
         return allResult.Match(allresult =>
         {
-            var chats = allresult.ChatPosts.Select(c => new ChatResponse(
-                SenderId: c.SenderId,
-                Id: c.Id,
-                CreatedOn: c.CreatedOn,
-                ReceiverId: c.ReceiverId,
-                ReceiverName: c.ReceiverName,
-                SenderName: c.SenderName,
-                Replys: c.Replys.Select(r => new Replyyy(
-                    Id: r.Id,
-                    CreatedOn: r.CreatedOn,
-                    Message: r.Message,
-                    FromId: r.FromId)
-                )
-                .ToList()
-
-                )
-            );
+            var chats = allresult.ChatPosts.Select(MapToChatResponse);
             return Results.Ok(chats);
         }, errors =>
         Results.Problem(EndpointBase.GetProblemDetails(errors)));
+    }
+
+    private static ChatResponse MapToChatResponse(ChatResult chat)
+    {
+        return new ChatResponse(
+            chat.SenderId,
+            chat.Id,
+            chat.CreatedOn,
+            chat.ReceiverId,
+            chat.ReceiverName,
+            chat.SenderName,
+            chat.Replys.Select(reply => new ReplyDto(reply.Id, reply.CreatedOn, reply.Message, reply.FromId)).ToList()
+        );
     }
 
 }

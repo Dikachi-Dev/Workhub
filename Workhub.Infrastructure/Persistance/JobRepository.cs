@@ -26,10 +26,7 @@ public class JobRepository : GenericRepository<Job>, IJobRepository
         await SaveChanges();
     }
 
-    public Task<Job> CreateJob(string userId, string occupation)
-    {
-        throw new NotImplementedException();
-    }
+
     public async Task<Job> Remark(string jobId, int rating, string remark)
     {
         var job = await GetById(jobId);

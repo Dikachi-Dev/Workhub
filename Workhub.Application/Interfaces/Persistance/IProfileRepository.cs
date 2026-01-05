@@ -16,7 +16,7 @@ public interface IProfileRepository : IGenericRepository<Profile>
     Task<bool> UserExista(string email, string phonenumber);
     Task<bool> ResetPassword(string email, string token, string newpassword);
     Task<bool> ResetPassCode(string email);
-    IQueryable<ProfileResponse?> GetByProximity();
+
     IEnumerable<ProfileResponse> GetAllVendors(int pageNumber, int pageSize);
     Task<IEnumerable<ProfileResponse>> GetByOccupation(string occupation, string country);
     Task<IEnumerable<ProfileResponse>> GetAllVendros(string country);

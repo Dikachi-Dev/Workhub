@@ -63,7 +63,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
     public IQueryable<Profile?> GetQueryableSellerProfiles()
     {
-        throw new NotImplementedException();
+        return appDataContext.Profiles.Where(p => p.UserType != "User" && p.isDeleted != true);
     }
 
     public Profile? GetProfileByEmail(string email)
@@ -91,7 +91,10 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
     public Profile? GetSellerProfileByIdAllWithCollections(string id)
     {
-        throw new NotImplementedException();
+        return appDataContext.Profiles.Where(p => p.Id == id)
+            .Include(p => p.VendorProfile)
+            .Include(p => p.Subscribe)
+            .FirstOrDefault();
     }
 
     public async Task<IList<Claim>> Login(string username, string password, string token)
@@ -169,10 +172,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
 
     }
 
-    public IQueryable<ProfileResponse?> GetByProximity()
-    {
-        throw new NotImplementedException();
-    }
+
 
     public async Task<IEnumerable<ProfileResponse>> GetByOccupation(string occupation, string country)
     {

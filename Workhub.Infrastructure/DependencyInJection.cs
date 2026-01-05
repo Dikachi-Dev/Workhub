@@ -155,6 +155,6 @@ public static class DependencyInjection
         }
 
         // Apply manual PostGIS migration
-        await PostGISMigrationHelper.ApplyPostGISMigration(dbContext);
+        await Workhub.Infrastructure.Data.Migrations.PostGISMigrationHelper.ApplyPostGISMigration(dbContext);
     }
 }
