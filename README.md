@@ -37,7 +37,7 @@ The project is built following **Clean Architecture** principles, ensuring separ
 - **Framework**: .NET 8.0
 - **Database**: Microsoft SQL Server / Entity Framework Core
 - **Messaging**: Firebase Cloud Messaging (FCM)
-- **Real-time**: SignalR
+- **Real-time**: Firebase Cloud Messaging (FCM)
 - **Communication**: MediatR (CQRS Pattern)
 - **Logging**: Serilog
 - **Documentation**: Swagger / OpenAPI
