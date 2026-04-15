@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -63,6 +64,18 @@ builder.Services.AddSwaggerGen(options =>
             new string[] {}
         }
     });
+});
+var fileSettings = builder.Configuration.GetSection("FileUploadSettings");
+long globalLimit = fileSettings.GetValue<long>("MaxGlobalRequestSizeInMB") * 1024 * 1024;
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = globalLimit;
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = globalLimit;
 });
 
 builder.Services.AddAuthentication(options =>
