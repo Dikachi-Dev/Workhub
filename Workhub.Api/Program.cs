@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Workhub.Api.Configurations;
@@ -58,6 +59,18 @@ builder.Services.AddSwaggerGen(options =>
         }
         );
    
+});
+var fileSettings = builder.Configuration.GetSection("FileUploadSettings");
+long globalLimit = fileSettings.GetValue<long>("MaxGlobalRequestSizeInMB") * 1024 * 1024;
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = globalLimit;
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = globalLimit;
 });
 
 // Add Rate Limiting
