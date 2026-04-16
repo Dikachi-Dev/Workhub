@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using System.Text;
 using Workhub.Api.Configurations;
 using Workhub.Application;
@@ -13,7 +12,7 @@ using Hangfire;
 using Workhub.Api.Middleware;
 using Workhub.Infrastructure.BackgroundJobs;
 using Asp.Versioning;
-
+using Microsoft.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -26,6 +25,7 @@ builder.Services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true;
 });
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "WorkHub", Version = "v1" });
@@ -50,23 +50,14 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     // Add the security requirements for Swagger to use both API key and Bearer token
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+    options.AddSecurityRequirement(document =>
+        new OpenApiSecurityRequirement
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" },
-            },
-            new string[] {}
-        },
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
-            },
-            new string[] {}
+            [new OpenApiSecuritySchemeReference("ApiKey",document)]= [],
+            [new OpenApiSecuritySchemeReference("Bearer",document)] = []
         }
-    });
+        );
+   
 });
 
 // Add Rate Limiting
