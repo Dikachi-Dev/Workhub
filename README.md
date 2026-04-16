@@ -3,7 +3,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![Framework](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
 [![Architecture](https://img.shields.io/badge/Architecture-Clean-orange.svg)]()
-[![Database](https://img.shields.io/badge/Database-SQL%20Server-red.svg)]()
+[![Database](https://img.shields.io/badge/Database-PostgreSQL-blue.svg)]()
 
 **Workhub** is a full-featured backend engine designed to power modern networking and employment platforms. It provides a robust, scalable foundation for job boards, professional social networks, and real-time community engagement tools.
 
@@ -24,9 +24,9 @@ The project is built following **Clean Architecture** principles, ensuring separ
 
 - **💼 Job Management**: Comprehensive system for posting, searching, and managing job opportunities.
 - **👤 Professional Profiles**: Detailed user profiles with skill tracking and career history.
-- **💬 Real-time Community**: Discussion posts and replies with SignalR-powered real-time updates.
+- **💬 Direct Messaging**: Real-time chat system facilitating secure communication between **Clients** and **Vendors**.
 - **🔐 Secure Authentication**: Multi-layer security including JWT Bearer tokens and API Key authentication.
-- **🔔 Notification Engine**: Integrated with Firebase Cloud Messaging (FCM) for push notifications.
+- **🔔 Real-time Engine**: Powered by **Firebase Cloud Messaging (FCM)** for instant updates and push notifications.
 - **📧 Email Communications**: Built-in service for transactional emails and verifications.
 - **📁 File Handling**: Optimized file upload settings for handling resumes and profile assets.
 
@@ -35,9 +35,8 @@ The project is built following **Clean Architecture** principles, ensuring separ
 ## 🛠️ Tech Stack
 
 - **Framework**: .NET 8.0
-- **Database**: Microsoft SQL Server / Entity Framework Core
-- **Messaging**: Firebase Cloud Messaging (FCM)
-- **Real-time**: Firebase Cloud Messaging (FCM)
+- **Database**: PostgreSQL / Entity Framework Core
+- **Real-time / Messaging**: Firebase Cloud Messaging (FCM)
 - **Communication**: MediatR (CQRS Pattern)
 - **Logging**: Serilog
 - **Documentation**: Swagger / OpenAPI
@@ -48,7 +47,7 @@ The project is built following **Clean Architecture** principles, ensuring separ
 
 ### Prerequisites
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
+- [PostgreSQL](https://www.postgresql.org/download/)
 - A Firebase project (for `firebase.json`)
 
 ### Configuration
