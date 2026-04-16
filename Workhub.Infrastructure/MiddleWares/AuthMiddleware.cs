@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
 
 public class AuthMiddleware
 {
@@ -16,6 +14,13 @@ public class AuthMiddleware
 
     public async Task Invoke(HttpContext context)
     {
+        if (context.Request.Path.StartsWithSegments("/health") || 
+            context.Request.Path.StartsWithSegments("/hangfire"))
+        {
+            await _next(context);
+            return;
+        }
+
         var apikey = context.Request.Headers["ApiKey"].FirstOrDefault()?.Split(" ").Last();
 
         if (apikey != null)

@@ -4,13 +4,8 @@ using Workhub.Application.Authentication.Seller.Common;
 
 namespace Workhub.Application.Authentication.Seller.Commands;
 
-public record UpdateCommand(string FirstName,
+public record UpdateCommand(string userId, string FirstName,
 string LastName,
-string Email,
 string PhoneNumber,
-string Country,
-string State,
-string Address,
-string Occupation,
-string Experience) : IRequest<ErrorOr<GetResult>>;
+byte[] image) : IRequest<ErrorOr<GetResult>>;
 

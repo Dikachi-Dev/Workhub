@@ -10,7 +10,9 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
     public DbSet<Job> Jobs { get; set; }
     public DbSet<ChatPost> ChatPosts { get; set; }
     public DbSet<GlobalUser> GlobalUsers { get; set; }
-
+    public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<SubHistory> SubHistorys { get; set; }
+    public DbSet<Otp> Otps { get; set; }
     public AppDataContext(DbContextOptions<AppDataContext> options) : base(options)
     {
 
@@ -25,37 +27,30 @@ public class AppDataContext : IdentityDbContext<GlobalUser>
             s.Property<DateTime>(nameof(Subscribe.ExpireOn)).HasColumnName(nameof(Subscribe.ExpireOn));
             s.Property<bool>(nameof(Subscribe.IsSubscribed)).HasColumnName(nameof(Subscribe.IsSubscribed));
         });
-        //    modelBuilder.Entity<ChatPost>().HasMany(c => c.Replys)
-        //.WithOne() // Assuming there's no explicit navigation property on Reply back to ChatPost
-        //.HasForeignKey("ChatPostId") // Assuming there's a foreign key property in Reply referencing ChatPost
-        //.IsRequired(); // Depending on your requirements, you might need to specify if the relationship is required or optional
-
-        //    modelBuilder.Entity<Reply>()
-        //        .Property(r => r.Message)
-        //        .IsRequired();
-
-        //    modelBuilder.Entity<Reply>()
-        //        .Property(r => r.FromId)
-        //        .IsRequired();
-
-        //    modelBuilder.Entity<Reply>()
-        //        .Property(r => r.CreatedOn)
-        //        .IsRequired();
-
-        //modelBuilder.Entity<ChatPost>().OwnsMany(c => c.Replys, r =>
-        //{
-        //    r.HasKey("Id");
-        //    r.Property<string>("Id").IsRequired();
-        //    r.Property<string>("Message").IsRequired();
-        //    r.Property<string>("FromId").IsRequired();
-        //    r.Property<DateTime>("CreatedOn").IsRequired();
-        //});
-
-
+        modelBuilder.Entity<Profile>().OwnsOne(p => p.VendorProfile, v =>
+        {
+            v.Property<string>(nameof(VendorProfile.Image1)).HasColumnName(nameof(VendorProfile.Image1));
+            v.Property<string>(nameof(VendorProfile.Image2)).HasColumnName(nameof(VendorProfile.Image2));
+            v.Property<string>(nameof(VendorProfile.Description)).HasColumnName(nameof(VendorProfile.Description));
+            v.Property<string>(nameof(VendorProfile.Instagram)).HasColumnName(nameof(VendorProfile.Instagram));
+            v.Property<string>(nameof(VendorProfile.Image1ext)).HasColumnName(nameof(VendorProfile.Image1ext));
+            v.Property<string>(nameof(VendorProfile.Image2ext)).HasColumnName(nameof(VendorProfile.Image2ext));
+        });
+        modelBuilder.Entity<Subscription>().HasData(
+    new Subscription
+    {
+        SubscriptionId = Guid.Parse("2F47C3B3-89B1-4D0F-8C5C-7C212408FA12"), // FIXED GUID
+        IsEnabled = false,
+            AmountInDollars = 1.00,
+            AmountInNaira = 1300.0,
+            PayPalSecret = "",
+            PayPalKey = "",
+            NokoKashId = "cPp6u5Ckq2nAybmk4"
+    });
     }
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    // {
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
     //    // This method will not be used since the options are provided through the constructor
     //    optionsBuilder.UseSqlServer("Data Source=SQL5110.site4now.net;Initial Catalog=db_a7a91c_workhub;User Id=db_a7a91c_workhub_admin;Password=Kachukwu11");
-    // }
+    //}
 }

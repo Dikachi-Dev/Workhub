@@ -1,9 +1,11 @@
 ﻿using ErrorOr;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Jobber.Common;
+using Workhub.Domain.Dtos;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Application.Jobber.Command;
@@ -25,16 +27,17 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
 
     public async Task<ErrorOr<GetJobResult>> Handle(AutoCreateCommand request, CancellationToken cancellationToken)
     {
-        var profiles = await profileRepository.GetByOccupation(request.Occupation);
         var profile = await profileRepository.GetById(request.UserId);
+        var profiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
 
-        if (profiles.IsNullOrEmpty())
+
+        if (!profiles.Any())
         {
             return new GetJobResult(new Job());
         }
         string destinations = string.Join("|", profiles.Select(p => p.LongLat));
         string origin = profile.LongLat;
-        List<Profile> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
+        List<ProfileResponse> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
 
         if (closeProximity.Count > 0)
         {
@@ -47,11 +50,13 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
                 SellerName = $"{choosen.FirstName} {choosen.LastName}",
                 Occupation = request.Occupation,
                 Status = "Pending",
-                Profile = profile
             };
             await jobRepository.Add(job);
             await jobRepository.SaveChanges();
-            await sender.SendFcmMessage(choosen.Token,"New Job Alert",job.Id,"newjob");
+
+            string body = JsonConvert.SerializeObject(new { jobId = job.Id, buyerName = job.BuyerName });
+            await sender.SendFcmMessage(profile.Token, "New Job Alert", body, "newjob", $"You have new Hire Request from {job.BuyerName}");
+
             return new GetJobResult(job);
         }
 

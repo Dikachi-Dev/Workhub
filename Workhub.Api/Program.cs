@@ -1,27 +1,31 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using System.Text;
 using Workhub.Api.Configurations;
 using Workhub.Application;
 using Workhub.Infrastructure;
-
-
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Hangfire;
+using Workhub.Api.Middleware;
+using Workhub.Infrastructure.BackgroundJobs;
+using Asp.Versioning;
+using Microsoft.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDatabaseSetup();
-builder.Services.AddWorkhubApiServices();
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
-builder.Services.AddControllers();
-builder.Services.AddSignalR();
-
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+});
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -47,23 +51,14 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     // Add the security requirements for Swagger to use both API key and Bearer token
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+    options.AddSecurityRequirement(document =>
+        new OpenApiSecurityRequirement
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" },
-            },
-            new string[] {}
-        },
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
-            },
-            new string[] {}
+            [new OpenApiSecuritySchemeReference("ApiKey",document)]= [],
+            [new OpenApiSecuritySchemeReference("Bearer",document)] = []
         }
-    });
+        );
+   
 });
 var fileSettings = builder.Configuration.GetSection("FileUploadSettings");
 long globalLimit = fileSettings.GetValue<long>("MaxGlobalRequestSizeInMB") * 1024 * 1024;
@@ -77,6 +72,33 @@ builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = globalLimit;
 });
+
+// Add Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+// Add Health Checks
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("AppDataContext")!);
+
+builder.Services.AddWorkhubApiServices();
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddControllers()
+.AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new ByteArrayConverter()));
 
 builder.Services.AddAuthentication(options =>
 {
@@ -99,6 +121,12 @@ builder.Services.AddCors();
 
 var app = builder.Build();
 
+// Apply migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    await scope.ServiceProvider.TryAddMigration();
+}
+
 app.UseHttpsRedirection();
 app.UseSwagger(); // Enable Swagger middleware
 app.UseSwaggerUI(c =>
@@ -106,18 +134,37 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1"); // Configure Swagger UI
 });
 
-// Configure the application to listen on port 8080 with HTTPS
-//app.UseUrls("https://*:8080");
-
 app.UseRouting();
+
+// Enable Rate Limiting
+app.UseRateLimiter();
+
 app.UseMiddleware<AuthMiddleware>();
 app.UseAuthentication();
-
 app.UseAuthorization();
+
 app.MapControllers();
+
+// Map Health Checks
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+// Configure Hangfire Dashboard
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireDashboardAuthorizationFilter() }
+});
+
+// Schedule Recurring Jobs
+RecurringJob.AddOrUpdate<OtpCleanupJob>(
+    "otp-cleanup",
+    job => job.CleanupExpiredOtps(),
+    Cron.Hourly);
+
 app.UseCors(opt =>
 {
-    //opt.AllowAnyOrigin();
     opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(builder.Configuration["ValidUrl"]!);
 });
 

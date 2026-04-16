@@ -27,27 +27,33 @@ public class CreateChatcommandHandler : IRequestHandler<CreateChatCommand, Error
 
         var existingChat = await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId);
         var getter = await profile.GetById(request.ReceiverId);
+        var getter2 = await profile.GetById(request.SenderId);
         if (existingChat is null)
         {
-            var chat = new ChatPost
+            var newchat = new ChatPost
             {
                 SenderId = request.SenderId,
                 ReceiverId = request.ReceiverId,
+                SenderName = $"{getter2.FirstName} {getter2.LastName}",
+                ReceiverName = $"{getter.FirstName} {getter.LastName}",
                 Replys = new List<Reply> { new Reply { Message = request.Message, FromId = request.SenderId } }
             };
-            await repository.Add(chat);
-            await notification.SendFcmMessage(getter.Token, "New Message",chat.Id, "newmessage");
+            await repository.Add(newchat);
+            await repository.SaveChanges();
+            await notification.SendFcmMessage(getter.Token, "New Message", newchat.Id, "newmessage", $"Message from {newchat.SenderName}");
         }
         else
         {
-            var updatechat = existingChat.Replys.ToList();
-            updatechat.Add(new Reply { Message = request.Message, FromId = request.SenderId });
-            repository.Update(existingChat);
-            await notification.SendFcmMessage(getter.Token, "New Message",existingChat.Id, "newmessage");
+            existingChat.UpdatedOn = DateTime.UtcNow;
+            existingChat.Replys.Add(new Reply { Message = request.Message, FromId = request.SenderId });
+            await repository.SaveChanges(); // Save changes to the existing chat
+            var test = existingChat;
+            await notification.SendFcmMessage(getter.Token, "New Message", existingChat.Id, "newmessage", $"Message from {existingChat.SenderName}");
         }
-       
-        await repository.SaveChanges();
 
-        return new ChatResult(await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId));
+        // Get the updated chat from the repository and return it
+        var updatedChat = await repository.GetbySenderAndReciverId(request.SenderId, request.ReceiverId);
+        return new ChatResult(updatedChat.SenderId, updatedChat.Id, updatedChat.CreatedOn, updatedChat.ReceiverId, updatedChat.ReceiverName, updatedChat.SenderName, updatedChat.Replys.Select(s => new Replyy(s.Id, s.CreatedOn, s.Message, s.FromId)).ToList());
+
     }
 }

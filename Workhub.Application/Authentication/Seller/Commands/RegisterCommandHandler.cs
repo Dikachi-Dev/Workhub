@@ -4,7 +4,6 @@ using Workhub.Application.Authentication.Seller.Common;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
-using Workhub.Application.Interfaces.Services;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Application.Authentication.Seller.Commands;
@@ -15,7 +14,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
     private readonly IJWTGenerator jWTGenerator;
     private readonly IProfileRepository repository;
     private readonly ISeriLogger logger;
-  
+
+
 
     public RegisterCommandHandler(IProfileRepository repository, IMediator mediator, IJWTGenerator jWTGenerator, ISeriLogger logger)
     {
@@ -23,7 +23,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
         this.mediator = mediator;
         this.jWTGenerator = jWTGenerator;
         this.logger = logger;
-        
+
     }
 
 
@@ -33,6 +33,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
         {
             return Domain.Errors.Errors.Profile.DuplicateEmail;
         }
+        //var result = await upload.UploadImageAsync(command.ProfileImage);
+        //var profileimage = new ImageDet { Description = result.Url.ToString(), publicId = result.PublicId };
         var profile = new Profile
         {
 
@@ -47,14 +49,14 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
             Gender = command.Gender,
             Experience = command.Experience,
             Password = command.Password,
-            ProfileImage = command.ProfileImage,
+            //ProfileImage = profileimage,
             NIN = command.Nin,
             LongLat = command.LongLat,
             Token = command.Token,
             UserType = command.UserType
         };
         var user = await repository.Register(profile);
-        var claims = await repository.Login(profile.Email, profile.Password);
+        var claims = await repository.Login(profile.Email, profile.Password, profile.Token);
         if (claims.Count == 0)
         {
             logger.LogInError(profile.Email, DateTime.UtcNow, "InValid Email");

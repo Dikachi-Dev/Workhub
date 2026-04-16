@@ -24,7 +24,7 @@ namespace Workhub.Infrastructure.GlobalLogger
 
         public void LogInfo(string message, DateTime dateTime)
         {
-           logger.Information($"Notice: {message} on {dateTime}");
+            logger.Information($"Notice: {message} on {dateTime}");
         }
 
         public void LogInformation(string username, DateTime dateTime)

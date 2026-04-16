@@ -1,5 +1,11 @@
-﻿using Workhub.Domain.Entities;
+﻿namespace Workhub.Contracts.Chat;
 
-namespace Workhub.Contracts.Chat;
+public record ChatResponse(string SenderId,
+ string Id,
+DateTime CreatedOn,
+string ReceiverId,
+string ReceiverName,
+string SenderName,
+ IList<ReplyDto> Replys);
 
-public record ChatResponse(ChatPost ChatPost);
+public record ReplyDto(string Id, DateTime CreatedOn, string Message, string FromId);

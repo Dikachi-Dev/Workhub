@@ -3,7 +3,7 @@ public interface IGenericRepository<TEntity> : IDisposable where TEntity : class
 {
     Task Add(TEntity entity);
     Task<TEntity> GetById(string Id);
-    IQueryable<TEntity> GetAll();
+    IQueryable<TEntity> GetAll(int pageNumber, int pageSize);
     void Update(TEntity entity);
     Task Delete(string Id);
     Task<int> SaveChanges();

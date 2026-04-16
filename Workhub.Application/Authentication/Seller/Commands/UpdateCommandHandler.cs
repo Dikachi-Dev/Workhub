@@ -21,7 +21,7 @@ public class UpdateCommandHandler : IRequestHandler<UpdateCommand, ErrorOr<GetRe
 
     public async Task<ErrorOr<GetResult>> Handle(UpdateCommand command, CancellationToken cancellationToken)
     {
-        var profile = repository.GetProfileByEmail(command.Email);
+        var profile = await repository.GetById(command.userId);
         if (profile is null)
         {
             return Domain.Errors.Errors.Profile.NotFound;
@@ -30,11 +30,6 @@ public class UpdateCommandHandler : IRequestHandler<UpdateCommand, ErrorOr<GetRe
         profile.LastName = command.LastName;
         profile.PhoneNumber = command.PhoneNumber;
         //profile.Email = command.Email;
-        profile.Country = command.Country;
-        profile.State = command.State;
-        profile.Address = command.Address;
-        profile.Experience = command.Experience;
-        profile.Occupation = command.Occupation;
 
         repository.Update(profile);
         await repository.SaveChanges();

@@ -2,4 +2,4 @@
 
 namespace Workhub.Contracts.Chat;
 
-public record ChatByUserIdResponse(IEnumerable<ChatPost> chatPosts);
+public record ChatByUserIdResponse(IList<ChatPost> chatPosts);

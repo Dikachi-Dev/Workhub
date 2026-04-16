@@ -25,7 +25,7 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthResult>
 
     public async Task<ErrorOr<AuthResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        var claims = await repository.Login(request.Email, request.Password);
+        var claims = await repository.Login(request.Email, request.Password, request.Token);
         if (claims.Count == 0)
         {
             logger.LogInError(request.Email, DateTime.UtcNow, "InValid Email");

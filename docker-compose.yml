@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    container_name: workhub-postgres
+    environment:
+      POSTGRES_DB: WorkHubAPi
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - workhub-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workhub-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__AppDataContext=Server=postgres;Port=5432;Database=WorkHubAPi;User Id=postgres;Password=admin;Include Error Detail=true
+      - ImagePath=/app/images/
+    ports:
+      - "5078:80"
+    volumes:
+      - workhub_images:/app/images
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - workhub-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  workhub_images:
+    driver: local
+
+networks:
+  workhub-network:
+    driver: bridge

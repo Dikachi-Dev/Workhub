@@ -12,13 +12,15 @@ public class NotificationSender : INotificationSender
         this.logger = logger;
     }
 
-    public async Task SendFcmMessage(string token, string title, string body, string datatitle)
+    public async Task SendFcmMessage(string token, string title, string body, string datatitle, string noticebody)
     {
         var message = new Message()
         {
             Token = token,
-            Notification = new FirebaseAdmin.Messaging.Notification(){
-                Title = title
+            Notification = new FirebaseAdmin.Messaging.Notification()
+            {
+                Title = title,
+                Body = noticebody
             },
             Data = new Dictionary<string, string>
                 {
@@ -30,12 +32,12 @@ public class NotificationSender : INotificationSender
         try
         {
             string response = await FirebaseMessaging.DefaultInstance.SendAsync(message).ConfigureAwait(true);
-           logger.LogInfo(response,DateTime.UtcNow);
+            logger.LogInfo(response, DateTime.UtcNow);
         }
         catch (FirebaseMessagingException ex)
         {
             logger.LogExceptions(ex.Message, DateTime.UtcNow);
-            
+
         }
     }
 }

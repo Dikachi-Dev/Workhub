@@ -11,7 +11,6 @@ public record RegisterRequest(
     string Address,
     string Occupation,
     string UserType,
-    string ProfileImage,
     string Nin,
     string LongLat,
     string Token,

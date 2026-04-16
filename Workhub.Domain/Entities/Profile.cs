@@ -1,4 +1,6 @@
-﻿namespace Workhub.Domain.Entities;
+﻿using NetTopologySuite.Geometries;
+
+namespace Workhub.Domain.Entities;
 public class Profile : BaseEntity
 {
     public string FirstName { get; set; } = string.Empty;
@@ -13,13 +15,21 @@ public class Profile : BaseEntity
     public string Occupation { get; set; } = string.Empty;
     public string Gender { get; set; } = string.Empty;
     public string Experience { get; set; } = string.Empty;
-    public double Rating { get; set; } = 0.00;
+    public int Rating { get; set; } = 0;
     public int JobCount { get; set; } = 0;
     public Subscribe Subscribe { get; set; } = new Subscribe();
-    public ICollection<Job> Jobs { get; set; } = new List<Job>();
-    public string Token {get; set;} = string.Empty;
-    public string LongLat { get; set; } = string.Empty;
+    public VendorProfile VendorProfile { get; set; } = new VendorProfile();
+    public string Token { get; set; } = string.Empty;
+    public string LongLat { get; set; } = string.Empty; // Deprecated: Use Location instead
+    public Point? Location { get; set; } // PostGIS Point (longitude, latitude)
     public string UserType { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
+    public bool isDeleted { get; set; } = false;
 
+}
+
+public class ImageDet
+{
+    public string Description { get; set; } = string.Empty;
+    public string publicId { get; set; } = string.Empty;
 }
