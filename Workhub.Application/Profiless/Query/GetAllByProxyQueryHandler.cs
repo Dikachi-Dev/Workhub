@@ -1,9 +1,9 @@
-﻿using ErrorOr;
+using ErrorOr;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Profiless.Common;
-using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Models;
 using Workhub.Application.Common.Helpers;
 
 namespace Workhub.Application.Profiless.Query;

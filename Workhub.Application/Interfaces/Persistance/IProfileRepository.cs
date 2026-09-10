@@ -1,6 +1,6 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using NetTopologySuite.Geometries;
-using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Models;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Application.Interfaces.Persistance;
@@ -28,6 +28,6 @@ public interface IProfileRepository : IGenericRepository<Profile>
     bool isSubActive();
     
     // PostGIS spatial query
-    Task<IEnumerable<ProfileResponse>> GetProfilesByProximity(Point userLocation, string country, double radiusMeters = 50000, int limit = 100);
+    Task<IEnumerable<ProfileResponse>> GetProfilesByProximity(Point userLocation, string country, string? occupation = null, double radiusMeters = 50000, int limit = 100);
 }
 

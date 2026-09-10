@@ -1,4 +1,4 @@
-﻿using ErrorOr;
+using ErrorOr;
 using MediatR;
 using Newtonsoft.Json;
 using Workhub.Application.Interfaces.Persistance;
@@ -31,7 +31,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, ErrorOr<GetJo
             SellerId = request.SellerId,
             BuyerName = request.BuyerName,
             SellerName = request.SellerName,
-            BuyerAddeess = $"{profile.Address}, {profile.State}, {profile.Country}",
+            BuyerAddress = $"{profile.Address}, {profile.State}, {profile.Country}",
             Occupation = request.Occupation,
             Status = "Pending",
         };

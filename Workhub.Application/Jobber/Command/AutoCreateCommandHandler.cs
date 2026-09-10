@@ -1,11 +1,11 @@
-﻿using ErrorOr;
+using ErrorOr;
 using MediatR;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Workhub.Application.Common.Helpers;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Jobber.Common;
-using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Models;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Application.Jobber.Command;
@@ -28,26 +28,42 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
     public async Task<ErrorOr<GetJobResult>> Handle(AutoCreateCommand request, CancellationToken cancellationToken)
     {
         var profile = await profileRepository.GetById(request.UserId);
-        var profiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
-
-
-        if (!profiles.Any())
+        if (profile == null)
         {
             return new GetJobResult(new Job());
         }
-        string destinations = string.Join("|", profiles.Select(p => p.LongLat));
-        string origin = profile.LongLat;
-        List<ProfileResponse> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
 
-        if (closeProximity.Count > 0)
+        ProfileResponse? chosen = null;
+        var userLocation = profile.Location ?? GeospatialHelper.ParseLongLat(profile.LongLat);
+
+        if (userLocation != null)
         {
-            var choosen = closeProximity.First();
+            // Use PostGIS spatial query for proximity search filtered by occupation
+            var closeProfiles = await profileRepository.GetProfilesByProximity(
+                userLocation, 
+                profile.Country, 
+                occupation: request.Occupation, 
+                radiusMeters: 50000, 
+                limit: 10);
+
+            chosen = closeProfiles.FirstOrDefault();
+        }
+
+        // Fallback to general occupation search if no PostGIS match or location not available
+        if (chosen == null)
+        {
+            var fallbackProfiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
+            chosen = fallbackProfiles.FirstOrDefault();
+        }
+
+        if (chosen != null)
+        {
             var job = new Job
             {
                 BuyerId = request.UserId,
-                SellerId = choosen.Id,
+                SellerId = chosen.Id,
                 BuyerName = $"{profile.FirstName} {profile.LastName}",
-                SellerName = $"{choosen.FirstName} {choosen.LastName}",
+                SellerName = $"{chosen.FirstName} {chosen.LastName}",
                 Occupation = request.Occupation,
                 Status = "Pending",
             };
@@ -61,6 +77,5 @@ public class AutoCreateCommandHandler : IRequestHandler<AutoCreateCommand, Error
         }
 
         return new GetJobResult(new Job());
-
     }
 }

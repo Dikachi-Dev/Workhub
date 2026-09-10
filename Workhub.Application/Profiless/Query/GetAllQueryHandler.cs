@@ -1,8 +1,8 @@
-﻿using ErrorOr;
+using ErrorOr;
 using MediatR;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Profiless.Common;
-using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Models;
 
 namespace Workhub.Application.Profiless.Query;
 

@@ -1,11 +1,11 @@
-﻿namespace Workhub.Contracts.Profileing;
+namespace Workhub.Contracts.Profileing;
 
 public record GetAllResponse(IEnumerable<ProfileResponse> Profiles);
 
 public record ProfileResponse(string FirstName,
  string LastName,
  string PhoneNumber,
- byte[] ProfileImage,
+ string ProfileImage,
  string Country,
  string Address,
  string State,

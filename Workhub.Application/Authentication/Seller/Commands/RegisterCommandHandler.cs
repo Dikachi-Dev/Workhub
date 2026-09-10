@@ -1,6 +1,7 @@
-﻿using ErrorOr;
+using ErrorOr;
 using MediatR;
 using Workhub.Application.Authentication.Seller.Common;
+using Workhub.Application.Common.Helpers;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Logger;
 using Workhub.Application.Interfaces.Persistance;
@@ -33,8 +34,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
         {
             return Domain.Errors.Errors.Profile.DuplicateEmail;
         }
-        //var result = await upload.UploadImageAsync(command.ProfileImage);
-        //var profileimage = new ImageDet { Description = result.Url.ToString(), publicId = result.PublicId };
+
         var profile = new Profile
         {
 
@@ -52,6 +52,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<A
             //ProfileImage = profileimage,
             NIN = command.Nin,
             LongLat = command.LongLat,
+            Location = GeospatialHelper.ParseLongLat(command.LongLat),
             Token = command.Token,
             UserType = command.UserType
         };

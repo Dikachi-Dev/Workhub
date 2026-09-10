@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using Workhub.Application.Interfaces.Services;
-using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Models;
 using Workhub.Domain.Entities;
 
 namespace Workhub.Infrastructure.Services;

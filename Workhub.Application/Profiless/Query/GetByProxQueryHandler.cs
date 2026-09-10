@@ -1,10 +1,10 @@
-﻿using ErrorOr;
+using ErrorOr;
 using MediatR;
-using Microsoft.IdentityModel.Tokens;
+using Workhub.Application.Common.Helpers;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
 using Workhub.Application.Profiless.Common;
-using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Models;
 
 namespace Workhub.Application.Profiless.Query
 {
@@ -14,7 +14,6 @@ namespace Workhub.Application.Profiless.Query
         private readonly IProfileRepository profileRepository;
         private readonly IMediator mediator;
         private readonly ICloseProx closeProx;
-        //private readonly IFileUpload upload;
 
         public GetByProxQueryHandler(IJobRepository jobRepository, IProfileRepository profileRepository, IMediator mediator, ICloseProx closeProx)
         {
@@ -22,21 +21,56 @@ namespace Workhub.Application.Profiless.Query
             this.profileRepository = profileRepository;
             this.mediator = mediator;
             this.closeProx = closeProx;
-            //this.upload = upload;
         }
 
         public async Task<ErrorOr<ProxyResult>> Handle(GetByProxQuery request, CancellationToken cancellationToken)
         {
             var profile = await profileRepository.GetById(request.UserId);
-            var profiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
+            if (profile == null)
+            {
+                return Domain.Errors.Errors.Profile.NotFound;
+            }
 
-            if (!profiles.Any())
+            var userLocation = profile.Location ?? GeospatialHelper.ParseLongLat(profile.LongLat);
+            if (userLocation == null)
+            {
+                // Fallback to occupation search if user location is not set
+                var fallbackProfiles = await profileRepository.GetByOccupation(request.Occupation, profile.Country);
+                if (!fallbackProfiles.Any())
+                {
+                    return new ProxyResult([]);
+                }
+
+                var fallbackResults = fallbackProfiles.Select(p => new MyProfileResult(
+                    FirstName: p.FirstName,
+                    LastName: p.LastName,
+                    PhoneNumber: p.PhoneNumber,
+                    ProfileImage: p.ProfileImage,
+                    Country: p.Country,
+                    Address: p.Address,
+                    State: p.State,
+                    Occupation: p.Occupation,
+                    Experience: p.Experience,
+                    Rating: p.Rating,
+                    Id: p.Id
+                )).ToList();
+
+                return new ProxyResult(fallbackResults);
+            }
+
+            // Use PostGIS spatial query for proximity search filtered by occupation
+            var closeProximity = await profileRepository.GetProfilesByProximity(
+                userLocation, 
+                profile.Country, 
+                occupation: request.Occupation,
+                radiusMeters: 50000, 
+                limit: 100);
+
+            if (!closeProximity.Any())
             {
                 return new ProxyResult([]);
             }
-            string destinations = string.Join("|", profiles.Select(p => p.LongLat));
-            string origin = profile.LongLat;
-            List<ProfileResponse> closeProximity = await closeProx.GetProfilesSortedByProximity(origin, destinations, profiles);
+
             var myProfileResults = new ProxyResult(closeProximity.Select(p => new MyProfileResult(
                 FirstName: p.FirstName,
                 LastName: p.LastName,

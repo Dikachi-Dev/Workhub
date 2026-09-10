@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using Workhub.Application.Interfaces.JWT;
 using Workhub.Application.Interfaces.Persistance;
 using Workhub.Application.Interfaces.Services;
-using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Models;
 using Workhub.Domain.Entities;
 using Workhub.Infrastructure.Data.Context;
 
@@ -20,26 +20,26 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
     private readonly IEmailSender emailSender;
     private readonly IConfiguration _config;
     private readonly AppDataContext appDataContext;
-    public ProfileRepository(AppDataContext context, UserManager<GlobalUser> userManager, IJWTGenerator jWTGenerator, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IConfiguration config, AppDataContext appDataContext) : base(context)
+    public ProfileRepository(AppDataContext context, UserManager<GlobalUser> userManager, IJWTGenerator jWTGenerator, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IConfiguration config) : base(context)
     {
-        this.userManager = userManager; // Assigning the injected userManager
-        this.jWTGenerator = jWTGenerator; // Assigning the injected jWTGenerator
+        this.userManager = userManager;
+        this.jWTGenerator = jWTGenerator;
         this.roleManager = roleManager;
         this.emailSender = emailSender;
         _config = config;
-        this.appDataContext = appDataContext;
+        this.appDataContext = context;
     }
     public IEnumerable<ProfileResponse?> GetByFilter(string filter, int pageNumber, int pageSize)
     {
         if (isSubActive() != true)
         {
             return appDataContext.Profiles
-           .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.VendorProfile.Image1 != "" && profile.FirstName
+           .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.VendorProfile.Image1 != "" && (profile.FirstName
            .Contains(filter) || profile.Email
            .Contains(filter) || profile.LastName
            .Contains(filter) || profile.State
            .Contains(filter) || profile.Country
-           .Contains(filter))
+           .Contains(filter)))
            .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
            .ToList()
            .OrderByDescending(o => o.Rating)
@@ -48,12 +48,12 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         else
         {
             return appDataContext.Profiles
-           .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.VendorProfile.Image1 != "" && profile.Subscribe.IsSubscribed == true && profile.Subscribe.ExpireOn < profile.Subscribe.ExpireOn && profile.FirstName
+           .Where(profile => profile != null && profile.UserType != "User" && profile.isDeleted != true && profile.VendorProfile.Image1 != "" && profile.Subscribe.IsSubscribed == true && profile.Subscribe.ExpireOn > DateTime.UtcNow && (profile.FirstName
            .Contains(filter) || profile.Email
            .Contains(filter) || profile.LastName
            .Contains(filter) || profile.State
            .Contains(filter) || profile.Country
-           .Contains(filter))
+           .Contains(filter)))
            .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
            .ToList()
            .OrderByDescending(o => o.Rating)
@@ -82,7 +82,7 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
         }
         else
         {
-            return DbSet.Where(p => p.UserType != "User" && p.VendorProfile.Image1 != "" && p.isDeleted != true && p.Subscribe.IsSubscribed == true && p.Subscribe.ExpireOn < DateTime.Now)
+            return DbSet.Where(p => p.UserType != "User" && p.VendorProfile.Image1 != "" && p.isDeleted != true && p.Subscribe.IsSubscribed == true && p.Subscribe.ExpireOn > DateTime.UtcNow)
                 .Select(r => new ProfileResponse(r.FirstName, r.LastName, r.PhoneNumber, r.ProfileImage, r.Country, r.Address, r.State, r.Occupation, r.LongLat, r.Experience, r.Rating, r.Id))
                 .ToList()
                 .OrderByDescending(o => o.Rating).Skip((pageNumber - 1) * pageSize).Take(pageSize);
@@ -345,14 +345,22 @@ public class ProfileRepository : GenericRepository<Profile>, IProfileRepository
     public async Task<IEnumerable<ProfileResponse>> GetProfilesByProximity(
         NetTopologySuite.Geometries.Point userLocation, 
         string country, 
+        string? occupation = null,
         double radiusMeters = 50000, 
         int limit = 100)
     {
-        var profiles = await DbSet
+        var query = DbSet
             .Where(p => p.UserType != "User" && 
                        p.isDeleted != true && 
                        p.Country == country &&
-                       p.Location != null)
+                       p.Location != null);
+
+        if (!string.IsNullOrWhiteSpace(occupation))
+        {
+            query = query.Where(p => p.Occupation == occupation);
+        }
+
+        var profiles = await query
             .OrderBy(p => p.Location.Distance(userLocation))
             .Take(limit)
             .Select(r => new ProfileResponse(

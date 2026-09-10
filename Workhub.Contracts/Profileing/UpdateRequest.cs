@@ -1,6 +1,9 @@
-﻿namespace Workhub.Contracts.Profileing;
+using Microsoft.AspNetCore.Http;
 
-public record UpdateRequest(string FirstName,
-string LastName,
-string PhoneNumber,
-byte[] image, string ext);
+namespace Workhub.Contracts.Profileing;
+
+public record UpdateRequest(
+    string FirstName,
+    string LastName,
+    string PhoneNumber,
+    IFormFile? Image);

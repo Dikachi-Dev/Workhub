@@ -1,4 +1,4 @@
-﻿using FirebaseAdmin;
+using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +18,6 @@ using Workhub.Infrastructure.Services;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Workhub.Infrastructure.BackgroundJobs;
-using Workhub.Infrastructure.Data.Migrations;
 
 namespace Workhub.Infrastructure;
 
@@ -41,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<ICheckVerify, CheckVerify>();
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<INotificationSender, NotificationSender>();
+        services.AddScoped<IFileStorageService, FileStorageService>();
 
         // ========== Identity Configuration ==========
         ConfigureIdentity(services);
@@ -101,7 +101,7 @@ public static class DependencyInjection
     {
         try
         {
-            var credential = GoogleCredential.FromFile("firebase.json");
+            var credential =   GoogleCredential.FromFile("firebase.json");
             FirebaseApp.Create(new AppOptions
             {
                 Credential = credential
@@ -153,8 +153,5 @@ public static class DependencyInjection
                 throw new Exception("CRITICAL: PostGIS extension is missing on the PostgreSQL server. Please install PostGIS to continue.", ex);
             }
         }
-
-        // Apply manual PostGIS migration
-        await Workhub.Infrastructure.Data.Migrations.PostGISMigrationHelper.ApplyPostGISMigration(dbContext);
     }
 }

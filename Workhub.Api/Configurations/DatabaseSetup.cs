@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Workhub.Infrastructure.Data.Context;
 
 namespace Workhub.Api.Configurations;
@@ -17,7 +17,7 @@ public static class DatabaseSetup
             throw new ArgumentNullException(nameof(services));
 
         services.AddDbContext<AppDataContext>(
-            options => options.UseSqlServer(db)
+            options => options.UseNpgsql(db, o => o.UseNetTopologySuite())
         );
     }
 }

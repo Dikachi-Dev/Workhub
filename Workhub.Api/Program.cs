@@ -14,6 +14,7 @@ using Workhub.Api.Middleware;
 using Workhub.Infrastructure.BackgroundJobs;
 using Asp.Versioning;
 using Microsoft.OpenApi;
+using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -96,9 +97,7 @@ builder.Services.AddHealthChecks()
 builder.Services.AddWorkhubApiServices();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddControllers()
-.AddJsonOptions(options =>
-        options.JsonSerializerOptions.Converters.Add(new ByteArrayConverter()));
+builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -128,6 +127,30 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+
+// Configure static file serving for uploaded images
+var imageStoragePath = builder.Configuration["ImagePath"] ?? Path.Combine(builder.Environment.ContentRootPath, "images");
+if (!Directory.Exists(imageStoragePath))
+{
+    try
+    {
+        Directory.CreateDirectory(imageStoragePath);
+    }
+    catch
+    {
+        // Fallback for permissions
+    }
+}
+
+if (Directory.Exists(imageStoragePath))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(imageStoragePath),
+        RequestPath = "/images"
+    });
+}
+
 app.UseSwagger(); // Enable Swagger middleware
 app.UseSwaggerUI(c =>
 {

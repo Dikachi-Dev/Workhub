@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 
 namespace Workhub.Domain.Entities;
 public class Profile : BaseEntity
@@ -26,10 +26,33 @@ public class Profile : BaseEntity
     public string Password { get; set; } = string.Empty;
     public bool isDeleted { get; set; } = false;
 
-}
+    public void UpdateRating(int newRating)
+    {
+        Rating = Math.Clamp(newRating, 0, 5);
+    }
 
-public class ImageDet
-{
-    public string Description { get; set; } = string.Empty;
-    public string publicId { get; set; } = string.Empty;
+    public void UpdateLocation(Point location, string? longLat = null, string? country = null, string? state = null, string? address = null)
+    {
+        Location = location;
+        if (!string.IsNullOrWhiteSpace(longLat)) LongLat = longLat;
+        if (!string.IsNullOrWhiteSpace(country)) Country = country;
+        if (!string.IsNullOrWhiteSpace(state)) State = state;
+        if (!string.IsNullOrWhiteSpace(address)) Address = address;
+    }
+
+    public void UpdatePersonalInfo(string firstName, string lastName, string phoneNumber, string? profileImage = null)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        PhoneNumber = phoneNumber;
+        if (!string.IsNullOrWhiteSpace(profileImage))
+        {
+            ProfileImage = profileImage;
+        }
+    }
+
+    public void SoftDelete()
+    {
+        isDeleted = true;
+    }
 }

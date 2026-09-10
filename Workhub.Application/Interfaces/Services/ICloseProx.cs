@@ -1,4 +1,4 @@
-﻿using Workhub.Domain.Dtos;
+using Workhub.Application.Common.Models;
 
 namespace Workhub.Application.Interfaces.Services;
 public interface ICloseProx
